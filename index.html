@@ -93,19 +93,19 @@
                 <ul class="space-y-2.5">
                     <li class="flex items-start gap-2.5">
                         <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
-                        <span><strong>Posture:</strong> Follow the recommended posture for the assessment.</span>
+                        <span><strong>Posture:</strong> Stand naturally in your usual, comfortable posture. Do not adjust or force a posture to match the demo photo.</span>
                     </li>
                     <li class="flex items-start gap-2.5">
                         <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
-                        <span><strong>Body position:</strong> Position the body correctly within the camera view.</span>
+                        <span><strong>Body position:</strong> Position the body correctly within the camera view (full side-profile).</span>
                     </li>
                     <li class="flex items-start gap-2.5">
                         <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
-                        <span><strong>Clothing:</strong> Wear clothing that allows the required body landmarks to be visible.</span>
+                        <span><strong>Clothing:</strong> Wear clothing that allows the required body landmarks (PSIS and ASIS) to be clearly visible.</span>
                     </li>
                     <li class="flex items-start gap-2.5">
                         <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
-                        <span><strong>Camera setup:</strong> Follow the recommended camera placement and distance.</span>
+                        <span><strong>Camera setup:</strong> Follow the recommended camera placement and distance at waist level.</span>
                     </li>
                     <li class="flex items-start gap-2.5">
                         <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
@@ -125,6 +125,36 @@
                 </button>
             </div>
 
+        </div>
+    </div>
+
+    <!-- LIVE CAMERA CAPTURE MODAL -->
+    <div id="cameraModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-brand-mint/30 space-y-4">
+            <div class="flex justify-between items-center border-b border-brand-ice pb-3">
+                <h3 class="font-bold text-lg text-brand-dark flex items-center gap-2">
+                    <i class="fa-solid fa-video text-brand-deep"></i> Live Camera Screening
+                </h3>
+                <button onclick="closeCameraModal()" class="text-brand-dark/60 hover:text-brand-dark p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Video Viewport -->
+            <div class="relative bg-brand-dark rounded-2xl overflow-hidden aspect-video flex items-center justify-center border border-brand-deep">
+                <video id="cameraStream" autoplay playsinline class="w-full h-full object-cover"></video>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center justify-between gap-3 pt-2">
+                <button onclick="switchCameraMode()" class="bg-brand-ice hover:bg-brand-mint/30 text-brand-dark font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition border border-brand-mint/40 flex items-center gap-2">
+                    <i class="fa-solid fa-rotate text-brand-deep"></i> Flip Camera
+                </button>
+
+                <button onclick="captureCameraPhoto()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                    <i class="fa-solid fa-circle-dot text-brand-mint"></i> Capture Photo
+                </button>
+            </div>
         </div>
     </div>
 
@@ -216,14 +246,19 @@
                 <div class="lg:col-span-8 space-y-4">
                     <div class="bg-brand-white rounded-2xl p-4 sm:p-5 border border-brand-mint/40 shadow-sm space-y-4">
                         
-                        <!-- Toolbar Controls -->
+                        <!-- Toolbar Controls (File Upload + Open Camera) -->
                         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-brand-ice">
-                            <div class="flex items-center gap-2">
-                                <label class="bg-brand-deep hover:bg-brand-dark text-brand-white text-sm font-semibold px-4 py-2 rounded-xl cursor-pointer transition shadow-sm flex items-center gap-2">
-                                    <i class="fa-solid fa-upload text-brand-mint"></i> Upload Image
+                            <div class="flex flex-wrap items-center gap-2">
+                                <label class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl cursor-pointer transition shadow-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-upload text-brand-mint"></i> Upload Photo
                                     <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
                                 </label>
-                                <button onclick="loadSampleImage()" class="bg-brand-ice hover:bg-brand-mint/20 text-brand-dark text-sm font-medium px-3 py-2 rounded-xl transition border border-brand-mint/30">
+
+                                <button onclick="openCameraModal()" class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-camera text-brand-mint"></i> Take Photo
+                                </button>
+
+                                <button onclick="loadSampleImage()" class="bg-brand-ice hover:bg-brand-mint/20 text-brand-dark text-xs sm:text-sm font-medium px-3 py-2 rounded-xl transition border border-brand-mint/30">
                                     Demo Image
                                 </button>
                             </div>
@@ -247,20 +282,23 @@
                             <div id="emptyCanvasOverlay" class="absolute inset-0 flex flex-col items-center justify-center text-brand-ice/70 p-6 text-center bg-brand-dark/95">
                                 <i class="fa-solid fa-image text-3xl mb-2 text-brand-mint"></i>
                                 <h3 class="text-lg font-semibold text-brand-white mb-1">No Image Loaded</h3>
-                                <p class="text-xs text-brand-ice/80 max-w-sm mb-4">Upload a side-view photo or load a demo image to start screening.</p>
-                                <button onclick="loadSampleImage()" class="bg-brand-deep hover:bg-brand-mint hover:text-brand-dark text-brand-white text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30">Try Demo Photo</button>
+                                <p class="text-xs text-brand-ice/80 max-w-sm mb-4">Upload a side-view photo, take a live camera picture, or try a demo photo to start screening.</p>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="openCameraModal()" class="bg-brand-deep hover:bg-brand-mint hover:text-brand-dark text-brand-white text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30 flex items-center gap-1.5"><i class="fa-solid fa-camera"></i> Open Camera</button>
+                                    <button onclick="loadSampleImage()" class="bg-brand-ice text-brand-dark text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30">Demo Photo</button>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- HELPFUL SETUP GUIDELINES (Always Available Below Canvas) -->
+                    <!-- HELPFUL SETUP GUIDELINES -->
                     <div class="bg-brand-white rounded-2xl p-5 border border-brand-mint/40 shadow-sm space-y-3">
                         <h3 class="font-bold text-brand-dark text-sm flex items-center gap-2">
                             <i class="fa-solid fa-list-check text-brand-deep"></i> Pre-Screening Guidelines & Recommendations
                         </h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-brand-dark">
                             <div class="p-3 rounded-xl bg-brand-ice border border-brand-mint/30">
-                                <strong>Posture & Body Position:</strong> Position your body upright and side-facing fully within view.
+                                <strong>Posture:</strong> Stand naturally in your usual, comfortable posture. Do not force or fake a posture to match the demo photo.
                             </div>
                             <div class="p-3 rounded-xl bg-brand-ice border border-brand-mint/30">
                                 <strong>Clothing:</strong> Wear fitted clothing so PSIS and ASIS landmarks remain visible.
@@ -421,11 +459,13 @@
 
     </main>
 
-    <!-- JavaScript Canvas & Modal System -->
+    <!-- JavaScript Canvas & Camera Engine -->
     <script>
         let canvas, ctx;
         let currentImage = null;
         let points = [];
+        let mediaStream = null;
+        let facingMode = 'user';
 
         window.onload = function() {
             canvas = document.getElementById('postureCanvas');
@@ -439,6 +479,64 @@
 
         function showDisclaimerModal() {
             document.getElementById('disclaimerModal').classList.remove('hidden');
+        }
+
+        /* --- LIVE CAMERA LOGIC --- */
+        async function openCameraModal() {
+            document.getElementById('cameraModal').classList.remove('hidden');
+            await startCamera();
+        }
+
+        async function startCamera() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: facingMode }
+                });
+                const videoEl = document.getElementById('cameraStream');
+                videoEl.srcObject = mediaStream;
+            } catch (err) {
+                alert("Camera access denied or unavailable on this device.");
+                closeCameraModal();
+            }
+        }
+
+        function switchCameraMode() {
+            facingMode = facingMode === 'user' ? 'environment' : 'user';
+            startCamera();
+        }
+
+        function closeCameraModal() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            document.getElementById('cameraModal').classList.add('hidden');
+        }
+
+        function captureCameraPhoto() {
+            const videoEl = document.getElementById('cameraStream');
+            if (!videoEl.videoWidth) return;
+
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = videoEl.videoWidth;
+            tempCanvas.height = videoEl.videoHeight;
+            const tCtx = tempCanvas.getContext('2d');
+            tCtx.drawImage(videoEl, 0, 0, tempCanvas.width, tempCanvas.height);
+
+            const img = new Image();
+            img.onload = function() {
+                currentImage = img;
+                document.getElementById('emptyCanvasOverlay').classList.add('hidden');
+                canvas.width = img.width > 800 ? 800 : img.width;
+                canvas.height = img.height * (canvas.width / img.width);
+                points = [];
+                redraw();
+                closeCameraModal();
+            };
+            img.src = tempCanvas.toDataURL('image/jpeg');
         }
 
         function switchTab(tabName) {
