@@ -58,42 +58,46 @@
         #postureCanvas {
             cursor: crosshair;
         }
+        /* Removes black background from logo image dynamically */
+        .blend-logo {
+            mix-blend-mode: screen;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
 
-    <!-- Navigation Header - Perfect Dark Charcoal Match (#293943) -->
+    <!-- Navigation Header - Custom Brand Dark Charcoal (#293943) -->
     <header class="bg-[#293943] border-b border-brand-deep sticky top-0 z-30 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-24 items-center py-2">
+            <div class="flex justify-between h-28 items-center py-2">
                 
-                <!-- Custom Logo Integration -->
+                <!-- Custom Logo Integration with Screen Blending -->
                 <div class="flex items-center gap-3">
                     <a href="#" class="flex items-center gap-3">
-                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-20 w-auto max-w-[280px] object-contain" onerror="console.log('Image not found, check filename on GitHub');">
+                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-24 w-auto max-w-[320px] object-contain blend-logo" onerror="console.log('Image not found, check filename on GitHub');">
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <nav class="hidden md:flex space-x-2">
-                    <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn px-4 py-2 rounded-lg font-medium text-sm transition-colors text-brand-ice bg-brand-deep border border-brand-mint/40">
-                        <i class="fa-solid fa-camera mr-2"></i>Screening
+                    <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn px-4 py-2.5 rounded-xl font-semibold text-sm transition-all text-brand-ice bg-brand-deep border border-brand-mint/40 shadow-sm">
+                        <i class="fa-solid fa-camera mr-2 text-brand-mint"></i>Screening
                     </button>
-                    <button onclick="switchTab('educational')" id="nav-educational" class="nav-btn px-4 py-2 rounded-lg font-medium text-sm text-brand-ice/80 hover:text-brand-white hover:bg-brand-deep/50 transition-colors">
-                        <i class="fa-solid fa-book-open mr-2"></i>Educational Hub
+                    <button onclick="switchTab('educational')" id="nav-educational" class="nav-btn px-4 py-2.5 rounded-xl font-medium text-sm text-brand-ice/80 hover:text-brand-white hover:bg-brand-deep/60 transition-all">
+                        <i class="fa-solid fa-book-open mr-2 text-brand-mint"></i>Educational Hub
                     </button>
-                    <button onclick="switchTab('directory')" id="nav-directory" class="nav-btn px-4 py-2 rounded-lg font-medium text-sm text-brand-ice/80 hover:text-brand-white hover:bg-brand-deep/50 transition-colors">
-                        <i class="fa-solid fa-user-doctor mr-2"></i>Referral Directory
+                    <button onclick="switchTab('directory')" id="nav-directory" class="nav-btn px-4 py-2.5 rounded-xl font-medium text-sm text-brand-ice/80 hover:text-brand-white hover:bg-brand-deep/60 transition-all">
+                        <i class="fa-solid fa-user-doctor mr-2 text-brand-mint"></i>Referral Directory
                     </button>
-                    <button onclick="switchTab('history')" id="nav-history" class="nav-btn px-4 py-2 rounded-lg font-medium text-sm text-brand-ice/80 hover:text-brand-white hover:bg-brand-deep/50 transition-colors">
-                        <i class="fa-solid fa-clock-rotate-left mr-2"></i>History
+                    <button onclick="switchTab('history')" id="nav-history" class="nav-btn px-4 py-2.5 rounded-xl font-medium text-sm text-brand-ice/80 hover:text-brand-white hover:bg-brand-deep/60 transition-all">
+                        <i class="fa-solid fa-clock-rotate-left mr-2 text-brand-mint"></i>History
                     </button>
                 </nav>
 
                 <!-- Mobile Menu Button -->
                 <div class="md:hidden flex items-center">
                     <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="text-brand-ice hover:text-brand-white p-2">
-                        <i class="fa-solid fa-bars text-xl"></i>
+                        <i class="fa-solid fa-bars text-2xl"></i>
                     </button>
                 </div>
             </div>
@@ -101,16 +105,16 @@
 
         <!-- Mobile Navigation Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-[#293943] border-b border-brand-deep px-4 pt-2 pb-4 space-y-1">
-            <button onclick="switchTab('assessment')" class="w-full text-left px-3 py-2 rounded-md font-medium text-brand-ice hover:bg-brand-deep">
+            <button onclick="switchTab('assessment')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-brand-ice hover:bg-brand-deep">
                 <i class="fa-solid fa-camera mr-2 text-brand-mint"></i>Screening Assessment
             </button>
-            <button onclick="switchTab('educational')" class="w-full text-left px-3 py-2 rounded-md font-medium text-brand-ice hover:bg-brand-deep">
+            <button onclick="switchTab('educational')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-brand-ice hover:bg-brand-deep">
                 <i class="fa-solid fa-book-open mr-2 text-brand-mint"></i>Educational Hub
             </button>
-            <button onclick="switchTab('directory')" class="w-full text-left px-3 py-2 rounded-md font-medium text-brand-ice hover:bg-brand-deep">
+            <button onclick="switchTab('directory')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-brand-ice hover:bg-brand-deep">
                 <i class="fa-solid fa-user-doctor mr-2 text-brand-mint"></i>Referral Directory
             </button>
-            <button onclick="switchTab('history')" class="w-full text-left px-3 py-2 rounded-md font-medium text-brand-ice hover:bg-brand-deep">
+            <button onclick="switchTab('history')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-brand-ice hover:bg-brand-deep">
                 <i class="fa-solid fa-clock-rotate-left mr-2 text-brand-mint"></i>Saved History
             </button>
         </div>
@@ -272,7 +276,7 @@
 
                     <div class="border border-brand-mint/50 bg-brand-ice rounded-2xl p-5 space-y-3">
                         <h3 class="font-bold text-lg text-brand-dark">Posterior Pelvic Tilt (PPT)</h3>
-                        <p class="text-xs text-brand-dark/80 leading-relaxed">The pelvis rotates backward, tucking under and flattening the lumbar spine curve.</p>
+                        <p class="text-xs text-slate-600 leading-relaxed">The pelvis rotates backward, tucking under and flattening the lumbar spine curve.</p>
                         <ul class="text-xs text-brand-dark/80 space-y-1.5 list-disc list-inside pt-2 border-t border-brand-mint/30">
                             <li><strong>Threshold:</strong> &lt; 7° tilt.</li>
                             <li>Average motion range observed in physical testing: 8.9 ± 4.5°.</li>
