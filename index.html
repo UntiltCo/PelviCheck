@@ -467,4 +467,67 @@
                 ctx.beginPath();
                 ctx.setLineDash([5, 5]);
                 ctx.moveTo(points[0].x - 50, points[0].y);
-                ctx.
+                ctx.lineTo(points[1].x + 50, points[0].y);
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                calculateAngle(points[0], points[1]);
+            }
+        }
+
+        function calculateAngle(psis, asis) {
+            const dx = asis.x - psis.x;
+            const dy = asis.y - psis.y;
+            
+            let angle = Math.abs(Math.atan2(dy, dx) * (180 / Math.PI)).toFixed(1);
+            document.getElementById('angleValue').textContent = angle;
+
+            const statusBadge = document.getElementById('statusBadge');
+            const titleEl = document.getElementById('classificationTitle');
+            const descEl = document.getElementById('classificationDesc');
+            const boxEl = document.getElementById('classificationBox');
+
+            if (angle >= 7 && angle <= 13) {
+                statusBadge.textContent = "Normal Standing Tilt";
+                statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800";
+                titleEl.textContent = "Normal Standing Alignment";
+                titleEl.className = "font-bold text-base text-teal-800";
+                descEl.textContent = `Your calculated angle of ${angle}° falls within the normal standing tilt reference range (7° - 13°).`;
+                boxEl.className = "p-4 rounded-xl border border-teal-300 text-center space-y-1 bg-teal-50";
+            } else if (angle > 13) {
+                statusBadge.textContent = "Anterior Pelvic Tilt";
+                statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800";
+                titleEl.textContent = "Anterior Pelvic Tilt (APT)";
+                titleEl.className = "font-bold text-base text-amber-800";
+                descEl.textContent = `Your calculated angle of ${angle}° exceeds the standard normal standing threshold (> 13°).`;
+                boxEl.className = "p-4 rounded-xl border border-amber-300 text-center space-y-1 bg-amber-50";
+            } else {
+                statusBadge.textContent = "Posterior Pelvic Tilt";
+                statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800";
+                titleEl.textContent = "Posterior Pelvic Tilt (PPT)";
+                titleEl.className = "font-bold text-base text-indigo-800";
+                descEl.textContent = `Your calculated angle of ${angle}° is below the standard standing threshold (< 7°).`;
+                boxEl.className = "p-4 rounded-xl border border-indigo-300 text-center space-y-1 bg-indigo-50";
+            }
+        }
+
+        function resetLandmarks() {
+            points = [];
+            document.getElementById('angleValue').textContent = "--";
+            document.getElementById('statusBadge').textContent = "Awaiting Points";
+            document.getElementById('statusBadge').className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600";
+            document.getElementById('classificationTitle').textContent = "Incomplete Assessment";
+            document.getElementById('classificationTitle').className = "font-bold text-base text-slate-700";
+            document.getElementById('classificationDesc').textContent = "Select both the PSIS (back) and ASIS (front) landmarks on your image.";
+            document.getElementById('classificationBox').className = "p-4 rounded-xl border border-dashed border-slate-300 text-center space-y-1 bg-slate-50";
+            redraw();
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
