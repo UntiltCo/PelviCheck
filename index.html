@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PelviCheck - Pelvic Posture Screening & Healthcare Referral</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#293943',
+                            deep: '#174C5A',
+                            mint: '#72B7B0',
+                            ice: '#EAF5F3',
+                            white: '#FFFFFF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #EAF5F3;
+            color: #293943;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #EAF5F3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #72B7B0;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #174C5A;
+        }
+        .canvas-container {
+            position: relative;
+            user-select: none;
+            touch-action: none;
+        }
+        #postureCanvas {
+            cursor: crosshair;
+        }
+        .giant-logo {
+            mix-blend-mode: multiply;
+            filter: contrast(115%) brightness(95%);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
+
+    <!-- MANDATORY MEDICAL NOTICE & GUIDELINES MODAL POPUP -->
+    <div id="disclaimerModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex items-center gap-3 border-b border-brand-ice pb-4">
+                <div class="w-12 h-12 rounded-2xl bg-brand-ice flex items-center justify-center text-brand-deep flex-shrink-0">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-brand-dark">Medical Notice & User Guidelines</h2>
+                    <p class="text-xs text-brand-dark/70">Please read carefully before proceeding to PelviCheck.</p>
+                </div>
+            </div>
+
+            <!-- Medical Notice Statement -->
+            <div class="p-4 rounded-xl bg-brand-ice border border-brand-mint/40 text-xs sm:text-sm text-brand-dark space-y-2">
+                <p class="font-bold text-brand-deep"><i class="fa-solid fa-circle-info mr-1"></i> Medical Disclaimer:</p>
+                <p>PelviCheck is a preliminary educational posture screening tool and does not provide clinical diagnoses. Always consult qualified physical therapists or medical specialists for clinical evaluations.</p>
+            </div>
+
+            <!-- Mandatory Screening Guidelines List -->
+            <div class="space-y-3 text-xs sm:text-sm text-brand-dark">
+                <h3 class="font-bold text-brand-deep uppercase tracking-wider text-xs">Screening Requirements & Setup</h3>
+                
+                <ul class="space-y-2.5">
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Posture:</strong> Follow the recommended posture for the assessment.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Body position:</strong> Position the body correctly within the camera view.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Clothing:</strong> Wear clothing that allows the required body landmarks to be visible.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Camera setup:</strong> Follow the recommended camera placement and distance.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Lighting and image quality:</strong> Ensure adequate lighting and a clear, unobstructed view.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Privacy and limitations:</strong> Be aware that some landmarks may not be visible. Do not interpret or rely on results when the image quality or landmark visibility is insufficient.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Action Button -->
+            <div class="pt-2 border-t border-brand-ice text-right">
+                <button onclick="acceptDisclaimer()" class="w-full sm:w-auto bg-brand-deep hover:bg-brand-dark text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all text-sm">
+                    I Agree and Understand
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Pure White Navigation Header (#FFFFFF) -->
+    <header class="bg-white border-b border-brand-mint/40 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-48 items-center py-2">
+                
+                <!-- Extra Large / Giant Crisp Logo Display -->
+                <div class="flex items-center gap-3">
+                    <a href="#" class="flex items-center gap-3">
+                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-40 sm:h-44 w-auto max-w-[600px] object-contain giant-logo" onerror="console.log('Image not found, check filename on GitHub');">
+                    </a>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="hidden md:flex space-x-2">
+                    <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn px-5 py-3 rounded-xl font-bold text-base transition-all text-white bg-brand-deep shadow-md">
+                        <i class="fa-solid fa-camera mr-2"></i>Screening
+                    </button>
+                    <button onclick="switchTab('educational')" id="nav-educational" class="nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
+                        <i class="fa-solid fa-book-open mr-2 text-brand-deep"></i>Educational Hub
+                    </button>
+                    <button onclick="switchTab('directory')" id="nav-directory" class="nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
+                        <i class="fa-solid fa-user-doctor mr-2 text-brand-deep"></i>Referral Directory
+                    </button>
+                    <button onclick="switchTab('history')" id="nav-history" class="nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
+                        <i class="fa-solid fa-clock-rotate-left mr-2 text-brand-deep"></i>History
+                    </button>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="text-brand-dark hover:text-brand-deep p-2">
+                        <i class="fa-solid fa-bars text-3xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-brand-mint/40 px-4 pt-2 pb-4 space-y-1">
+            <button onclick="switchTab('assessment')" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-white bg-brand-deep">
+                <i class="fa-solid fa-camera mr-2"></i>Screening Assessment
+            </button>
+            <button onclick="switchTab('educational')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-brand-dark hover:bg-brand-ice">
+                <i class="fa-solid fa-book-open mr-2 text-brand-deep"></i>Educational Hub
+            </button>
+            <button onclick="switchTab('directory')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-brand-dark hover:bg-brand-ice">
+                <i class="fa-solid fa-user-doctor mr-2 text-brand-deep"></i>Referral Directory
+            </button>
+            <button onclick="switchTab('history')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-brand-dark hover:bg-brand-ice">
+                <i class="fa-solid fa-clock-rotate-left mr-2 text-brand-deep"></i>Saved History
+            </button>
+        </div>
+    </header>
+
+    <!-- Medical Notice Bar -->
+    <div class="bg-brand-ice border-b border-brand-mint/40 text-brand-dark px-4 py-2.5 text-xs sm:text-sm">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-brand-deep flex-shrink-0"></i>
+                <span><strong>Medical Notice:</strong> PelviCheck is a preliminary screening tool and does not replace a physical clinical diagnosis.</span>
+            </div>
+            <button onclick="showDisclaimerModal()" class="text-xs text-brand-deep font-bold underline hover:text-brand-dark flex-shrink-0">View Setup Guidelines</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- SECTION 1: ASSESSMENT TAB -->
+        <section id="tab-assessment" class="tab-content block space-y-6">
+            
+            <!-- Banner -->
+            <div class="bg-brand-deep text-brand-white rounded-2xl p-6 shadow-lg border border-brand-mint/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold">Pelvic Alignment Screening</h1>
+                    <p class="text-brand-ice text-sm sm:text-base mt-1 max-w-2xl">
+                        Upload or capture a side-view photo to measure the tilt angle between your PSIS (Back) and ASIS (Front) landmarks.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Workspace Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left Column: Canvas Workspace -->
+                <div class="lg:col-span-8 space-y-4">
+                    <div class="bg-brand-white rounded-2xl p-4 sm:p-5 border border-brand-mint/40 shadow-sm space-y-4">
+                        
+                        <!-- Toolbar Controls -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-brand-ice">
+                            <div class="flex items-center gap-2">
+                                <label class="bg-brand-deep hover:bg-brand-dark text-brand-white text-sm font-semibold px-4 py-2 rounded-xl cursor-pointer transition shadow-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-upload text-brand-mint"></i> Upload Image
+                                    <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                                </label>
+                                <button onclick="loadSampleImage()" class="bg-brand-ice hover:bg-brand-mint/20 text-brand-dark text-sm font-medium px-3 py-2 rounded-xl transition border border-brand-mint/30">
+                                    Demo Image
+                                </button>
+                            </div>
+
+                            <button onclick="resetLandmarks()" class="text-xs sm:text-sm bg-brand-ice text-brand-dark hover:bg-brand-mint/30 border border-brand-mint px-3 py-2 rounded-xl font-medium transition flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-left text-brand-deep"></i> Reset Points
+                            </button>
+                        </div>
+
+                        <!-- Step Prompt -->
+                        <div id="stepInstruction" class="bg-brand-ice border border-brand-mint/50 rounded-xl px-4 py-3 text-brand-dark text-sm flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span id="stepText" class="font-medium">Step 1: Click on the <strong>PSIS (Back Hip Bone Landmark)</strong>.</span>
+                            </div>
+                            <span id="pointCounter" class="text-xs bg-brand-deep text-brand-white font-bold px-2.5 py-1 rounded-full">0/2 Points</span>
+                        </div>
+
+                        <!-- Canvas Workspace -->
+                        <div class="canvas-container w-full bg-brand-dark rounded-xl overflow-hidden flex items-center justify-center min-h-[380px] max-h-[600px] border border-brand-deep relative">
+                            <canvas id="postureCanvas" class="max-w-full h-auto max-h-[580px] object-contain"></canvas>
+                            <div id="emptyCanvasOverlay" class="absolute inset-0 flex flex-col items-center justify-center text-brand-ice/70 p-6 text-center bg-brand-dark/95">
+                                <i class="fa-solid fa-image text-3xl mb-2 text-brand-mint"></i>
+                                <h3 class="text-lg font-semibold text-brand-white mb-1">No Image Loaded</h3>
+                                <p class="text-xs text-brand-ice/80 max-w-sm mb-4">Upload a side-view photo or load a demo image to start screening.</p>
+                                <button onclick="loadSampleImage()" class="bg-brand-deep hover:bg-brand-mint hover:text-brand-dark text-brand-white text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30">Try Demo Photo</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HELPFUL SETUP GUIDELINES (Always Available Below Canvas) -->
+                    <div class="bg-brand-white rounded-2xl p-5 border border-brand-mint/40 shadow-sm space-y-3">
+                        <h3 class="font-bold text-brand-dark text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-brand-deep"></i> Pre-Screening Guidelines & Recommendations
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-brand-dark">
+                            <div class="p-3 rounded-xl bg-brand-ice border border-brand-mint/30">
+                                <strong>Posture & Body Position:</strong> Position your body upright and side-facing fully within view.
+                            </div>
+                            <div class="p-3 rounded-xl bg-brand-ice border border-brand-mint/30">
+                                <strong>Clothing:</strong> Wear fitted clothing so PSIS and ASIS landmarks remain visible.
+                            </div>
+                            <div class="p-3 rounded-xl bg-brand-ice border border-brand-mint/30">
+                                <strong>Camera Setup & Lighting:</strong> Keep camera at waist height with clear, bright lighting.
+                            </div>
+                            <div class="p-3 rounded-xl bg-brand-ice border border-brand-mint/30">
+                                <strong>Privacy & Limitations:</strong> Do not rely on results if photo quality or landmarks are obstructed.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Results & Clinical Guidance -->
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="bg-brand-white rounded-2xl p-5 border border-brand-mint/40 shadow-sm space-y-4">
+                        <div class="border-b border-brand-ice pb-3 flex justify-between items-center">
+                            <h2 class="font-bold text-brand-dark text-base">Screening Results</h2>
+                            <span id="statusBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-ice text-brand-dark border border-brand-mint/30">Awaiting Points</span>
+                        </div>
+
+                        <!-- Calculated Angle -->
+                        <div class="bg-brand-ice rounded-xl p-4 text-center border border-brand-mint/40">
+                            <span class="text-xs font-semibold text-brand-deep uppercase tracking-wider block mb-1">Estimated Pelvic Tilt Angle</span>
+                            <div class="flex items-baseline justify-center gap-1">
+                                <span id="angleValue" class="text-4xl sm:text-5xl font-black text-brand-dark">--</span>
+                                <span class="text-xl font-bold text-brand-deep">°</span>
+                            </div>
+                        </div>
+
+                        <!-- Classification Output -->
+                        <div id="classificationBox" class="p-4 rounded-xl border border-dashed border-brand-mint text-center space-y-1 bg-brand-ice">
+                            <div id="classificationTitle" class="font-bold text-base text-brand-dark">Incomplete Assessment</div>
+                            <p id="classificationDesc" class="text-xs text-brand-dark/80 leading-relaxed">
+                                Select both the PSIS (back) and ASIS (front) landmarks on your image.
+                            </p>
+                        </div>
+
+                        <!-- CLINICAL REFERENCE THRESHOLDS -->
+                        <div class="space-y-2 pt-2 border-t border-brand-ice">
+                            <span class="text-xs font-bold text-brand-dark uppercase tracking-wider block">Clinical Reference Thresholds</span>
+                            <div class="space-y-1.5 text-xs">
+                                <div class="flex justify-between items-center p-2.5 rounded-lg bg-brand-ice border border-brand-mint/40">
+                                    <span class="font-semibold text-brand-dark flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-brand-mint"></span> Normal Standing Tilt
+                                    </span>
+                                    <span class="font-bold text-brand-deep">7° to 13°</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2.5 rounded-lg bg-brand-ice border border-brand-mint/40">
+                                    <span class="font-semibold text-brand-dark flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-brand-deep"></span> Anterior Pelvic Tilt (APT)
+                                    </span>
+                                    <span class="font-bold text-brand-deep">&gt; 13°</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2.5 rounded-lg bg-brand-ice border border-brand-mint/40">
+                                    <span class="font-semibold text-brand-dark flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-brand-dark"></span> Posterior Pelvic Tilt (PPT)
+                                    </span>
+                                    <span class="font-bold text-brand-deep">&lt; 7°</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: EDUCATIONAL HUB TAB -->
+        <section id="tab-educational" class="tab-content hidden space-y-6">
+            <div class="bg-brand-white rounded-2xl p-6 border border-brand-mint/40 shadow-sm space-y-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-brand-dark">Pelvic Alignment Educational Hub</h1>
+                    <p class="text-brand-dark/70 text-sm mt-1">Evidence-based postural reference ranges and biomechanical orientation principles.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="border border-brand-mint/50 bg-brand-ice rounded-2xl p-5 space-y-3">
+                        <h3 class="font-bold text-lg text-brand-dark">Normal Standing Tilt</h3>
+                        <p class="text-xs text-brand-dark/80 leading-relaxed">In normal standing, the human pelvis naturally exhibits a mild anterior orientation.</p>
+                        <ul class="text-xs text-brand-dark/80 space-y-1.5 list-disc list-inside pt-2 border-t border-brand-mint/30">
+                            <li><strong>Normal Range:</strong> 7° to 13° anterior tilt.</li>
+                            <li>Provides balanced spinal alignment and joint compression.</li>
+                        </ul>
+                    </div>
+
+                    <div class="border border-brand-mint/50 bg-brand-ice rounded-2xl p-5 space-y-3">
+                        <h3 class="font-bold text-lg text-brand-dark">Anterior Pelvic Tilt (APT)</h3>
+                        <p class="text-xs text-brand-dark/80 leading-relaxed">The pelvis rotates forward, dropping the front relative to the back.</p>
+                        <ul class="text-xs text-brand-dark/80 space-y-1.5 list-disc list-inside pt-2 border-t border-brand-mint/30">
+                            <li><strong>Threshold:</strong> &gt; 13° tilt.</li>
+                            <li>Average motion range observed in physical testing: 13.0 ± 4.9°.</li>
+                        </ul>
+                    </div>
+
+                    <div class="border border-brand-mint/50 bg-brand-ice rounded-2xl p-5 space-y-3">
+                        <h3 class="font-bold text-lg text-brand-dark">Posterior Pelvic Tilt (PPT)</h3>
+                        <p class="text-xs text-brand-dark/80 leading-relaxed">The pelvis rotates backward, tucking under and flattening the lumbar spine curve.</p>
+                        <ul class="text-xs text-brand-dark/80 space-y-1.5 list-disc list-inside pt-2 border-t border-brand-mint/30">
+                            <li><strong>Threshold:</strong> &lt; 7° tilt.</li>
+                            <li>Average motion range observed in physical testing: 8.9 ± 4.5°.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- SCIENTIFIC CITATION BOX -->
+                <div class="bg-brand-ice border border-brand-mint/50 rounded-2xl p-6 space-y-4">
+                    <h3 class="text-lg font-bold text-brand-dark flex items-center gap-2">
+                        <i class="fa-solid fa-microscope text-brand-deep"></i> Clinical Research & Literature Norms
+                    </h3>
+                    <p class="text-sm text-brand-dark/80 leading-relaxed">
+                        Anterior and posterior pelvic tilting are natural biomechanical movements of the pelvis. In standing posture, the pelvis is normally tilted anteriorly for approximately <strong>7 to 13 degrees</strong>.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center my-2">
+                        <div class="p-4 bg-brand-white rounded-xl border border-brand-mint/40">
+                            <span class="text-2xl font-black text-brand-deep">13.0 ± 4.9°</span>
+                            <span class="block text-xs font-semibold text-brand-dark mt-1">Anterior Tilting Range</span>
+                            <span class="text-[11px] text-brand-dark/70">Average clinical motion range</span>
+                        </div>
+                        <div class="p-4 bg-brand-white rounded-xl border border-brand-mint/40">
+                            <span class="text-2xl font-black text-brand-dark">8.9 ± 4.5°</span>
+                            <span class="block text-xs font-semibold text-brand-dark mt-1">Posterior Tilting Range</span>
+                            <span class="text-[11px] text-brand-dark/70">Average clinical motion range</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-brand-dark/70 space-y-1 pt-2 border-t border-brand-mint/30">
+                        <p><strong>References:</strong></p>
+                        <p>• Physiopedia. <em>Pelvic Tilt Clinical Assessment Guidelines.</em> https://www.physio-pedia.com/Pelvic_Tilt</p>
+                        <p>• Mobilize Physio. <em>Anterior Pelvic Tilt Assessment & Management.</em> https://mobilizephysio.com/common-conditions-en/anterior-pelvic-tilt-en/</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: REFERRAL DIRECTORY -->
+        <section id="tab-directory" class="tab-content hidden space-y-6">
+            <div class="bg-brand-white rounded-2xl p-6 border border-brand-mint/40 shadow-sm space-y-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-brand-dark">Healthcare Referral Directory</h1>
+                    <p class="text-brand-dark/70 text-sm mt-1">Find nearby licensed physical therapists and physical medicine specialists.</p>
+                </div>
+                <div class="p-8 text-center text-brand-dark/80 bg-brand-ice rounded-xl border border-brand-mint/40">
+                    <i class="fa-solid fa-user-doctor text-4xl mb-2 text-brand-deep"></i>
+                    <p>Directory search enabled. Use options to filter specialists.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: HISTORY TAB -->
+        <section id="tab-history" class="tab-content hidden space-y-6">
+            <div class="bg-brand-white rounded-2xl p-6 border border-brand-mint/40 shadow-sm space-y-6">
+                <h1 class="text-2xl font-bold text-brand-dark">Saved Screening History</h1>
+                <p class="text-brand-dark/70 text-sm">Past posture assessment records saved locally in your browser.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript Canvas & Modal System -->
+    <script>
+        let canvas, ctx;
+        let currentImage = null;
+        let points = [];
+
+        window.onload = function() {
+            canvas = document.getElementById('postureCanvas');
+            ctx = canvas.getContext('2d');
+            canvas.addEventListener('click', handleCanvasClick);
+        };
+
+        function acceptDisclaimer() {
+            document.getElementById('disclaimerModal').classList.add('hidden');
+        }
+
+        function showDisclaimerModal() {
+            document.getElementById('disclaimerModal').classList.remove('hidden');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all";
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            if(activeBtn) {
+                activeBtn.className = "nav-btn px-5 py-3 rounded-xl font-bold text-base text-white bg-brand-deep shadow-md";
+            }
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    currentImage = img;
+                    document.getElementById('emptyCanvasOverlay').classList.add('hidden');
+                    canvas.width = img.width > 800 ? 800 : img.width;
+                    canvas.height = img.height * (canvas.width / img.width);
+                    points = [];
+                    redraw();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadSampleImage() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 600;
+            tempCanvas.height = 600;
+            const tCtx = tempCanvas.getContext('2d');
+            
+            tCtx.fillStyle = '#EAF5F3';
+            tCtx.fillRect(0, 0, 600, 600);
+            
+            tCtx.fillStyle = '#72B7B0';
+            tCtx.beginPath();
+            tCtx.arc(300, 120, 50, 0, Math.PI * 2);
+            tCtx.fill();
+            
+            tCtx.fillStyle = '#174C5A';
+            tCtx.beginPath();
+            tCtx.ellipse(300, 320, 50, 120, Math.PI / 12, 0, Math.PI * 2);
+            tCtx.fill();
+
+            const img = new Image();
+            img.onload = function() {
+                currentImage = img;
+                document.getElementById('emptyCanvasOverlay').classList.add('hidden');
+                canvas.width = 600;
+                canvas.height = 600;
+                points = [];
+                redraw();
+            };
+            img.src = tempCanvas.toDataURL();
+        }
+
+        function handleCanvasClick(e) {
+            if (!currentImage) return;
+            if (points.length >= 2) points = [];
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+
+            points.push({ x, y });
+            redraw();
+        }
+
+        function redraw() {
+            if (!currentImage) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+
+            points.forEach((p, i) => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI);
+                ctx.fillStyle = i === 0 ? '#174C5A' : '#72B7B0';
+                ctx.fill();
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = 'bold 12px Inter';
+                ctx.fillText(i === 0 ? 'PSIS (Back)' : 'ASIS (Front)', p.x + 12, p.y + 4);
+            });
+
+            document.getElementById('pointCounter').textContent = `${points.length}/2 Points`;
+            if (points.length === 0) {
+                document.getElementById('stepText').innerHTML = 'Step 1: Click on the <strong>PSIS (Back Hip Landmark)</strong>.';
+            } else if (points.length === 1) {
+                document.getElementById('stepText').innerHTML = 'Step 2: Click on the <strong>ASIS (Front Hip Landmark)</strong>.';
+            } else if (points.length === 2) {
+                document.getElementById('stepText').innerHTML = 'Landmarks marked! Review calculated angle below.';
+                
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                ctx.lineTo(points[1].x, points[1].y);
+                ctx.strokeStyle = '#72B7B0';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.setLineDash([5, 5]);
+                ctx.moveTo(points[0].x - 50, points[0].y);
+                ctx.lineTo(points[1].x + 50, points[0].y);
+                ctx.strokeStyle = '#174C5A';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                calculateAngle(points[0], points[1]);
+            }
+        }
+
+        function calculateAngle(psis, asis) {
+            const dx = asis.x - psis.x;
+            const dy = asis.y - psis.y;
+            
+            let angle = Math.abs(Math.atan2(dy, dx) * (180 / Math.PI)).toFixed(1);
+            document.getElementById('angleValue').textContent = angle;
+
+            const statusBadge = document.getElementById('statusBadge');
+            const titleEl = document.getElementById('classificationTitle');
+            const descEl = document.getElementById('classificationDesc');
+            const boxEl = document.getElementById('classificationBox');
+
+            if (angle >= 7 && angle <= 13) {
+                statusBadge.textContent = "Normal Standing Tilt";
+                statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-ice text-brand-deep border border-brand-mint";
+                titleEl.textContent = "Normal Standing Alignment";
+                titleEl.className = "font-bold text-base text-brand-deep";
+                descEl.textContent = `Your calculated angle of ${angle}° falls within the normal standing tilt reference range (7° - 13°).`;
+                boxEl.className = "p-4 rounded-xl border border-brand-mint text-center space-y-1 bg-brand-ice";
+            } else if (angle > 13) {
+                statusBadge.textContent = "Anterior Pelvic Tilt";
+                statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-deep text-brand-white";
+                titleEl.textContent = "Anterior Pelvic Tilt (APT)";
+                titleEl.className = "font-bold text-base text-brand-deep";
+                descEl.textContent = `Your calculated angle of ${angle}° exceeds the standard normal standing threshold (> 13°).`;
+                boxEl.className = "p-4 rounded-xl border border-brand-deep text-center space-y-1 bg-brand-ice";
+            } else {
+                statusBadge.textContent = "Posterior Pelvic Tilt";
+                statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-dark text-brand-white";
+                titleEl.textContent = "Posterior Pelvic Tilt (PPT)";
+                titleEl.className = "font-bold text-base text-brand-dark";
+                descEl.textContent = `Your calculated angle of ${angle}° is below the standard standing threshold (< 7°).`;
+                boxEl.className = "p-4 rounded-xl border border-brand-dark text-center space-y-1 bg-brand-ice";
+            }
+        }
+
+        function resetLandmarks() {
+            points = [];
+            document.getElementById('angleValue').textContent = "--";
+            document.getElementById('statusBadge').textContent = "Awaiting Points";
+            document.getElementById('statusBadge').className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-ice text-brand-dark border border-brand-mint/30";
+            document.getElementById('classificationTitle').textContent = "Incomplete Assessment";
+            document.getElementById('classificationTitle').className = "font-bold text-base text-brand-dark";
+            document.getElementById('classificationDesc').textContent = "Select both the PSIS (back) and ASIS (front) landmarks on your image.";
+            document.getElementById('classificationBox').className = "p-4 rounded-xl border border-dashed border-brand-mint text-center space-y-1 bg-brand-ice";
+            redraw();
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
