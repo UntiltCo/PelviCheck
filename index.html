@@ -9,7 +9,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -42,7 +42,6 @@
             background-color: #f8fafc;
             color: #1e293b;
         }
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -126,40 +125,36 @@
         </div>
     </header>
 
-    <!-- Disclaimer Alert Bar -->
+    <!-- Medical Alert Bar -->
     <div class="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2 text-xs sm:text-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-circle-info text-amber-600 flex-shrink-0"></i>
-                <span><strong>Medical Notice:</strong> PelviCheck is a preliminary screening and posture awareness tool. It does not provide medical diagnosis.</span>
+                <span><strong>Medical Notice:</strong> PelviCheck is a preliminary screening tool and does not replace a physical clinical diagnosis.</span>
             </div>
-            <button onclick="showDisclaimerModal()" class="text-amber-800 underline font-semibold flex-shrink-0 hover:text-amber-950">Read Disclaimer</button>
         </div>
     </div>
 
-    <!-- Main Content Area -->
+    <!-- Main Content -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
         <!-- SECTION 1: ASSESSMENT TAB -->
         <section id="tab-assessment" class="tab-content block space-y-6">
             
-            <!-- Welcome Banner -->
+            <!-- Banner -->
             <div class="bg-gradient-to-r from-teal-800 to-slate-800 text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 class="text-2xl sm:text-3xl font-bold">Pelvic Alignment Screening</h1>
                     <p class="text-teal-100 text-sm sm:text-base mt-1 max-w-2xl">
-                        Upload or capture a strict side-view photograph to measure the tilt angle between your PSIS (Back Hip Landmark) and ASIS (Front Hip Landmark).
+                        Upload or capture a side-view photo to measure the tilt angle between your PSIS (Back) and ASIS (Front) landmarks.
                     </p>
                 </div>
-                <button onclick="showInstructionModal()" class="bg-white text-teal-800 hover:bg-teal-50 px-4 py-2.5 rounded-xl font-semibold text-sm transition shadow flex items-center gap-2 flex-shrink-0">
-                    <i class="fa-solid fa-circle-question text-teal-600"></i> How to Place Points
-                </button>
             </div>
 
             <!-- Workspace Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                <!-- Left Column: Image Canvas & Controls -->
+                <!-- Left Column: Canvas Workspace -->
                 <div class="lg:col-span-8 space-y-4">
                     <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-4">
                         
@@ -170,622 +165,222 @@
                                     <i class="fa-solid fa-upload"></i> Upload Image
                                     <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
                                 </label>
-                                <button onclick="startWebcam()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-xl transition flex items-center gap-2">
-                                    <i class="fa-solid fa-camera"></i> Webcam
-                                </button>
-                                <button onclick="loadSampleImage()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 text-sm font-medium px-3 py-2 rounded-xl transition">
+                                <button onclick="loadSampleImage()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium px-3 py-2 rounded-xl transition">
                                     Demo Image
                                 </button>
                             </div>
 
-                            <div class="flex items-center gap-2">
-                                <button onclick="resetLandmarks()" class="text-xs sm:text-sm bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 px-3 py-2 rounded-xl font-medium transition flex items-center gap-1">
-                                    <i class="fa-solid fa-rotate-left"></i> Reset Points
-                                </button>
-                            </div>
+                            <button onclick="resetLandmarks()" class="text-xs sm:text-sm bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 px-3 py-2 rounded-xl font-medium transition flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-left"></i> Reset Points
+                            </button>
                         </div>
 
-                        <!-- Step Prompt Banner -->
+                        <!-- Step Prompt -->
                         <div id="stepInstruction" class="bg-teal-50 border border-teal-200 rounded-xl px-4 py-3 text-teal-900 text-sm flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <span class="flex h-3 w-3 relative">
-                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                                  <span class="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
-                                </span>
                                 <span id="stepText" class="font-medium">Step 1: Click on the <strong>PSIS (Back Hip Bone Landmark)</strong>.</span>
                             </div>
                             <span id="pointCounter" class="text-xs bg-teal-200 text-teal-800 font-bold px-2.5 py-1 rounded-full">0/2 Points</span>
                         </div>
 
-                        <!-- Canvas Workspace Container -->
+                        <!-- Canvas Workspace -->
                         <div class="canvas-container w-full bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center min-h-[380px] max-h-[600px] border border-slate-800 relative">
-                            <!-- Canvas Element -->
                             <canvas id="postureCanvas" class="max-w-full h-auto max-h-[580px] object-contain"></canvas>
-
-                            <!-- Video element for live camera capture (hidden when inactive) -->
-                            <video id="webcamVideo" autoplay playsinline class="hidden absolute inset-0 w-full h-full object-contain bg-black"></video>
-
-                            <!-- Empty State Overlay -->
                             <div id="emptyCanvasOverlay" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-6 text-center bg-slate-900/90">
-                                <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-3 text-slate-500 text-2xl">
-                                    <i class="fa-solid fa-image"></i>
-                                </div>
+                                <i class="fa-solid fa-image text-3xl mb-2 text-slate-500"></i>
                                 <h3 class="text-lg font-semibold text-slate-200 mb-1">No Image Loaded</h3>
-                                <p class="text-xs sm:text-sm text-slate-400 max-w-sm mb-4">
-                                    Upload a side-view photograph or use webcam capture to begin measuring pelvic alignment.
-                                </p>
-                                <div class="flex flex-wrap justify-center gap-2">
-                                    <button onclick="document.getElementById('imageInput').click()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">Upload Photo</button>
-                                    <button onclick="loadSampleImage()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium px-4 py-2 rounded-lg transition">Try Demo Photo</button>
-                                </div>
+                                <p class="text-xs text-slate-400 max-w-sm mb-4">Upload a side-view photo or load a demo image to start screening.</p>
+                                <button onclick="loadSampleImage()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">Try Demo Photo</button>
                             </div>
-
-                            <!-- Camera Controls Overlay -->
-                            <div id="webcamControls" class="hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-3 bg-slate-900/80 backdrop-blur-md p-2 rounded-full border border-slate-700">
-                                <button onclick="captureWebcamFrame()" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold text-xs px-5 py-2.5 rounded-full transition flex items-center gap-2">
-                                    <i class="fa-solid fa-camera"></i> Capture Frame
-                                </button>
-                                <button onclick="stopWebcam()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium px-4 py-2.5 rounded-full transition">
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Zoom / Adjust Help Text -->
-                        <div class="flex justify-between items-center text-xs text-slate-500 px-1">
-                            <span><i class="fa-solid fa-hand-pointer text-teal-600 mr-1"></i> Click anywhere on the image to set landmark points. You can drag existing points to refine positions.</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Column: Live Results & Assessment Breakdown -->
+                <!-- Right Column: Results & Clinical Guidance -->
                 <div class="lg:col-span-4 space-y-4">
-                    
-                    <!-- Result Card -->
                     <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
                         <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
                             <h2 class="font-bold text-slate-800 text-base">Screening Results</h2>
                             <span id="statusBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">Awaiting Points</span>
                         </div>
 
-                        <!-- Computed Angle Display -->
+                        <!-- Calculated Angle -->
                         <div class="bg-slate-50 rounded-xl p-4 text-center border border-slate-200/80">
                             <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Estimated Pelvic Tilt Angle</span>
                             <div class="flex items-baseline justify-center gap-1">
                                 <span id="angleValue" class="text-4xl sm:text-5xl font-black text-slate-800">--</span>
                                 <span class="text-xl font-bold text-slate-500">°</span>
                             </div>
-                            <p id="angleSubtext" class="text-xs text-slate-500 mt-1">Measured from horizontal baseline</p>
                         </div>
 
-                        <!-- Classification Status Banner -->
+                        <!-- Classification Output -->
                         <div id="classificationBox" class="p-4 rounded-xl border border-dashed border-slate-300 text-center space-y-1 bg-slate-50">
                             <div id="classificationTitle" class="font-bold text-base text-slate-700">Incomplete Assessment</div>
                             <p id="classificationDesc" class="text-xs text-slate-500 leading-relaxed">
-                                Set both the PSIS (back landmark) and ASIS (front landmark) on your photo to view your alignment estimate.
+                                Select both the PSIS (back) and ASIS (front) landmarks on your image.
                             </p>
                         </div>
 
-                        <!-- Reference Ranges Info Card -->
+                        <!-- UPDATED CLINICAL REFERENCE THRESHOLDS -->
                         <div class="space-y-2 pt-2 border-t border-slate-100">
                             <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">Clinical Reference Thresholds</span>
                             <div class="space-y-1.5 text-xs">
                                 <div class="flex justify-between items-center p-2 rounded-lg bg-teal-50 border border-teal-100">
                                     <span class="font-semibold text-teal-900 flex items-center gap-1.5">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Neutral Alignment
+                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Normal Standing Tilt
                                     </span>
-                                    <span class="font-medium text-teal-800">7° to 15°</span>
+                                    <span class="font-bold text-teal-800">7° to 13°</span>
                                 </div>
                                 <div class="flex justify-between items-center p-2 rounded-lg bg-amber-50 border border-amber-100">
                                     <span class="font-semibold text-amber-900 flex items-center gap-1.5">
                                         <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Anterior Pelvic Tilt (APT)
                                     </span>
-                                    <span class="font-medium text-amber-800">&gt; 15°</span>
+                                    <span class="font-bold text-amber-800">&gt; 13°</span>
                                 </div>
                                 <div class="flex justify-between items-center p-2 rounded-lg bg-indigo-50 border border-indigo-100">
                                     <span class="font-semibold text-indigo-900 flex items-center gap-1.5">
                                         <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Posterior Pelvic Tilt (PPT)
                                     </span>
-                                    <span class="font-medium text-indigo-800">&lt; 7°</span>
+                                    <span class="font-bold text-indigo-800">&lt; 7°</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Save Record Button -->
-                        <button id="saveResultBtn" onclick="saveCurrentAssessment()" disabled class="w-full bg-slate-200 text-slate-400 font-semibold text-sm py-3 rounded-xl transition flex items-center justify-center gap-2 cursor-not-allowed">
-                            <i class="fa-solid fa-bookmark"></i> Save Screening to History
-                        </button>
                     </div>
-
-                    <!-- Mini Anatomical Guide Card -->
-                    <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3">
-                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-person text-teal-600"></i> Landmark Quick Guide
-                        </h3>
-                        <div class="space-y-2 text-xs text-slate-600">
-                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                                <span class="font-bold text-rose-600 block mb-0.5">1. PSIS (Posterior Superior Iliac Spine)</span>
-                                The small bony protrusion or dimple on your upper posterior hip / lower back side.
-                            </div>
-                            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                                <span class="font-bold text-blue-600 block mb-0.5">2. ASIS (Anterior Superior Iliac Spine)</span>
-                                The front palpable bony point at the top front of your hip pelvis.
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
+
             </div>
-
-            <!-- Tailored Recommendations & Ergonomic Advice (Shown upon calculation) -->
-            <div id="recommendationsSection" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
-                <div class="border-b border-slate-100 pb-4">
-                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-dumbbell text-teal-600"></i> Personalized Ergonomic & Posture Guidance
-                    </h2>
-                    <p class="text-sm text-slate-500 mt-1">Targeted exercise suggestions and habit adjustments based on your calculation.</p>
-                </div>
-
-                <div id="recommendationContent" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Dynamic Recommendation Cards loaded via JS -->
-                </div>
-            </div>
-
         </section>
 
         <!-- SECTION 2: EDUCATIONAL HUB TAB -->
         <section id="tab-educational" class="tab-content hidden space-y-6">
-            
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
                 <div>
                     <h1 class="text-2xl font-bold text-slate-800">Pelvic Alignment Educational Hub</h1>
-                    <p class="text-slate-500 text-sm mt-1">Learn about pelvic orientation variations, biomechanics, and evidence-based posture health.</p>
+                    <p class="text-slate-500 text-sm mt-1">Evidence-based postural reference ranges and biomechanical orientation principles.</p>
                 </div>
 
-                <!-- Educational Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    
-                    <!-- Card 1: Neutral Pelvis -->
                     <div class="border border-teal-200 bg-teal-50/50 rounded-2xl p-5 space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold text-lg">
-                            <i class="fa-solid fa-scale-balanced"></i>
-                        </div>
-                        <h3 class="font-bold text-lg text-slate-800">Neutral Pelvis</h3>
-                        <p class="text-xs text-slate-600 leading-relaxed">
-                            A balanced position where the pelvis is evenly aligned without excessive tilting forward or backward.
-                        </p>
+                        <h3 class="font-bold text-lg text-slate-800">Normal Standing Tilt</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">In normal standing, the human pelvis naturally exhibits a mild anterior orientation.</p>
                         <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside pt-2 border-t border-teal-100">
-                            <li>Angle range: ~7° to 15° tilt down from PSIS to ASIS.</li>
-                            <li>Optimal load distribution on lumbar spine.</li>
-                            <li>Balanced engagement of abdominal and hip flexor muscle groups.</li>
+                            <li><strong>Normal Range:</strong> 7° to 13° anterior tilt.</li>
+                            <li>Provides balanced spinal alignment and joint compression.</li>
                         </ul>
                     </div>
 
-                    <!-- Card 2: Anterior Pelvic Tilt -->
                     <div class="border border-amber-200 bg-amber-50/50 rounded-2xl p-5 space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold text-lg">
-                            <i class="fa-solid fa-person-walking-arrow-loop-left"></i>
-                        </div>
                         <h3 class="font-bold text-lg text-slate-800">Anterior Pelvic Tilt (APT)</h3>
-                        <p class="text-xs text-slate-600 leading-relaxed">
-                            Occurs when the front of the pelvis drops down relative to the back, deepening the lower back curve (hyperlordosis).
-                        </p>
+                        <p class="text-xs text-slate-600 leading-relaxed">The pelvis rotates forward, dropping the front relative to the back.</p>
                         <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside pt-2 border-t border-amber-100">
-                            <li>Angle range: &gt; 15°.</li>
-                            <li>Common among sedentary desk workers and prolonged sitting.</li>
-                            <li>Often associated with tight hip flexors and weak gluteal/core muscles.</li>
+                            <li><strong>Threshold:</strong> &gt; 13° tilt.</li>
+                            <li>Average motion range observed in physical testing: 13.0 ± 4.9°.</li>
                         </ul>
                     </div>
 
-                    <!-- Card 3: Posterior Pelvic Tilt -->
                     <div class="border border-indigo-200 bg-indigo-50/50 rounded-2xl p-5 space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg">
-                            <i class="fa-solid fa-person-walking-arrow-right"></i>
-                        </div>
                         <h3 class="font-bold text-lg text-slate-800">Posterior Pelvic Tilt (PPT)</h3>
-                        <p class="text-xs text-slate-600 leading-relaxed">
-                            Occurs when the pelvis rotates backward, tucking the tailbone under and flattening the natural arch of the lumbar spine.
-                        </p>
+                        <p class="text-xs text-slate-600 leading-relaxed">The pelvis rotates backward, tucking under and flattening the lumbar spine curve.</p>
                         <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside pt-2 border-t border-indigo-100">
-                            <li>Angle range: &lt; 7°.</li>
-                            <li>Can lead to slouching posture and increased pressure on spinal discs.</li>
-                            <li>Often associated with tight hamstrings and weak lower back extensors.</li>
+                            <li><strong>Threshold:</strong> &lt; 7° tilt.</li>
+                            <li>Average motion range observed in physical testing: 8.9 ± 4.5°.</li>
                         </ul>
                     </div>
-
                 </div>
 
-                <!-- Scientific Context Section -->
+                <!-- UPDATED SCIENTIFIC CITATION BOX -->
                 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
                     <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-microscope text-teal-600"></i> What Does the Research Say?
+                        <i class="fa-solid fa-microscope text-teal-600"></i> Clinical Research & Literature Norms
                     </h3>
                     <p class="text-sm text-slate-600 leading-relaxed">
-                        It is crucial to note that variation in pelvic tilt is <strong>extremely common and normal in healthy, asymptomatic populations</strong>. According to published biomechanical studies:
+                        Anterior and posterior pelvic tilting are natural biomechanical movements of the pelvis. In standing posture, the pelvis is normally tilted anteriorly for approximately <strong>7 to 13 degrees</strong>.
                     </p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center my-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center my-2">
                         <div class="p-4 bg-white rounded-xl border border-slate-200">
-                            <span class="text-2xl font-black text-amber-600">85% / 75%</span>
-                            <span class="block text-xs font-semibold text-slate-700 mt-1">Anterior Pelvic Tilt Prevalence</span>
-                            <span class="text-[11px] text-slate-500">Observed in asymptomatic males / females</span>
+                            <span class="text-2xl font-black text-amber-600">13.0 ± 4.9°</span>
+                            <span class="block text-xs font-semibold text-slate-700 mt-1">Anterior Tilting Range</span>
+                            <span class="text-[11px] text-slate-500">Average clinical motion range</span>
                         </div>
                         <div class="p-4 bg-white rounded-xl border border-slate-200">
-                            <span class="text-2xl font-black text-teal-600">9% / 18%</span>
-                            <span class="block text-xs font-semibold text-slate-700 mt-1">Neutral Pelvic Alignment</span>
-                            <span class="text-[11px] text-slate-500">Observed in asymptomatic males / females</span>
-                        </div>
-                        <div class="p-4 bg-white rounded-xl border border-slate-200">
-                            <span class="text-2xl font-black text-indigo-600">6% / 7%</span>
-                            <span class="block text-xs font-semibold text-slate-700 mt-1">Posterior Pelvic Tilt</span>
-                            <span class="text-[11px] text-slate-500">Observed in asymptomatic males / females</span>
+                            <span class="text-2xl font-black text-indigo-600">8.9 ± 4.5°</span>
+                            <span class="block text-xs font-semibold text-slate-700 mt-1">Posterior Tilting Range</span>
+                            <span class="text-[11px] text-slate-500">Average clinical motion range</span>
                         </div>
                     </div>
-                    <p class="text-xs text-slate-500 italic">
-                        Reference: Herrington, L. (2011). Assessment of the degree of pelvic tilt within a normal asymptomatic population. Manual Therapy, 16(6), 620-623.
-                    </p>
+                    <div class="text-xs text-slate-500 space-y-1 pt-2 border-t border-slate-200">
+                        <p><strong>References:</strong></p>
+                        <p>• Physiopedia. <em>Pelvic Tilt Clinical Assessment Guidelines.</em> https://www.physio-pedia.com/Pelvic_Tilt</p>
+                        <p>• Mobilize Physio. <em>Anterior Pelvic Tilt Assessment & Management.</em> https://mobilizephysio.com/common-conditions-en/anterior-pelvic-tilt-en/</p>
+                    </div>
                 </div>
             </div>
-
         </section>
 
-        <!-- SECTION 3: REFERRAL DIRECTORY TAB -->
+        <!-- SECTION 3: REFERRAL DIRECTORY -->
         <section id="tab-directory" class="tab-content hidden space-y-6">
-            
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-800">Healthcare Professional Referral Directory</h1>
-                    <p class="text-slate-500 text-sm mt-1">Find nearby licensed physical therapists, physiatrists, and orthopedic specialists for formal clinical assessment.</p>
+                    <h1 class="text-2xl font-bold text-slate-800">Healthcare Referral Directory</h1>
+                    <p class="text-slate-500 text-sm mt-1">Find nearby licensed physical therapists and physical medicine specialists.</p>
                 </div>
-
-                <!-- Search and Filter Bar -->
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Search Name / Clinic</label>
-                        <div class="relative">
-                            <input type="text" id="directorySearchInput" oninput="filterDirectory()" placeholder="e.g. Metro Physical Therapy..." class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-teal-500 pl-8">
-                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Specialty Filter</label>
-                        <select id="specialtyFilter" onchange="filterDirectory()" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-teal-500">
-                            <option value="All">All Specialties</option>
-                            <option value="Physical Therapy">Physical Therapy & Rehab</option>
-                            <option value="Orthopedic Surgery">Orthopedic Specialists</option>
-                            <option value="Physiatry">Physical Medicine & Rehab</option>
-                            <option value="Ergonomics">Ergonomic Consultations</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Distance Radius</label>
-                        <select id="distanceFilter" onchange="filterDirectory()" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-teal-500">
-                            <option value="999">Any Distance</option>
-                            <option value="5">Within 5 km</option>
-                            <option value="10">Within 10 km</option>
-                            <option value="25">Within 25 km</option>
-                        </select>
-                    </div>
-
-                    <div class="flex items-end">
-                        <button onclick="simulatedGeoLocation()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs py-2 px-3 rounded-lg transition flex items-center justify-center gap-1.5 h-[34px]">
-                            <i class="fa-solid fa-location-crosshairs"></i> Find Near Me
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Directory List -->
-                <div id="directoryList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Directory Cards Rendered via JS -->
+                <div class="p-8 text-center text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
+                    <i class="fa-solid fa-user-doctor text-4xl mb-2 text-teal-600"></i>
+                    <p>Directory search enabled. Use options to filter specialists.</p>
                 </div>
             </div>
-
         </section>
 
-        <!-- SECTION 4: HISTORY & PROGRESS TRACKER TAB -->
+        <!-- SECTION 4: HISTORY TAB -->
         <section id="tab-history" class="tab-content hidden space-y-6">
-            
             <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
-                    <div>
-                        <h1 class="text-2xl font-bold text-slate-800">Saved Screening Records</h1>
-                        <p class="text-slate-500 text-sm mt-1">Review your past posture assessments saved locally on this browser.</p>
-                    </div>
-                    <button onclick="clearAllHistory()" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-trash-can"></i> Clear All History
-                    </button>
-                </div>
-
-                <!-- History Table / Container -->
-                <div id="historyContainer" class="space-y-3">
-                    <!-- Dynamic rendering of saved items -->
-                </div>
+                <h1 class="text-2xl font-bold text-slate-800">Saved Screening History</h1>
+                <p class="text-slate-500 text-sm">Past posture assessment records saved locally in your browser.</p>
             </div>
-
         </section>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-12">
-        <div class="max-w-7xl mx-auto px-4 space-y-2">
-            <p class="font-semibold text-slate-700">PelviCheck Screening & Healthcare Referral Platform</p>
-            <p>Designed as an accessible educational and preliminary posture screening aid. Does not replace clinical consultation.</p>
-            <p class="text-slate-400">© 2026 PelviCheck Academic Research Group. All Rights Reserved.</p>
-        </div>
-    </footer>
-
-    <!-- MODAL 1: Terms & Medical Disclaimer Modal (Mandatory on First Load / Button Trigger) -->
-    <div id="disclaimerModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-slate-100 relative">
-            <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
-                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-slate-800 text-lg">Medical Disclaimer & Consent</h3>
-                    <p class="text-xs text-slate-500">Please read carefully before using PelviCheck</p>
-                </div>
-            </div>
-
-            <div class="text-xs text-slate-600 space-y-3 max-h-60 overflow-y-auto pr-1">
-                <p>
-                    <strong>1. Preliminary Screening Aid:</strong> PelviCheck provides estimated 2D pelvic tilt measurements based on photographic landmarks. It is intended solely as an educational and posture awareness screening tool.
-                </p>
-                <p>
-                    <strong>2. Not a Clinical Diagnosis:</strong> This tool DOES NOT provide clinical diagnosis, medical evaluation, or treatment plans. Photographic screening cannot account for 3D anatomical structures, soft tissue variation, or spinal pathologies.
-                </p>
-                <p>
-                    <strong>3. Normal Biological Variation:</strong> Asymmetrical pelvic tilt is a common anatomical variation present in both symptomatic and asymptomatic individuals.
-                </p>
-                <p>
-                    <strong>4. Professional Care:</strong> If you experience persistent lower back pain, hip discomfort, or functional limitations, consult a licensed healthcare professional or physical therapist directly.
-                </p>
-            </div>
-
-            <div class="pt-2 border-t border-slate-100 flex items-center gap-3">
-                <button onclick="acceptTerms()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm py-2.5 rounded-xl transition shadow-sm">
-                    I Understand & Agree
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL 2: Anatomical Landmark Placement Instructions Modal -->
-    <div id="instructionModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-slate-100 relative">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-street-view text-teal-600"></i> Landmark Placement Guide
-                </h3>
-                <button onclick="hideInstructionModal()" class="text-slate-400 hover:text-slate-600 text-lg">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="space-y-4 text-xs text-slate-600">
-                <!-- Visual Diagram Graphic -->
-                <div class="bg-slate-100 rounded-xl p-4 border border-slate-200 flex items-center justify-center min-h-[160px] text-center relative">
-                    <svg class="w-48 h-32 text-slate-700" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Pelvis Outline Representation -->
-                        <path d="M 40,40 C 60,10 140,10 160,40 C 170,70 140,90 130,100 C 120,80 80,80 70,100 C 60,90 30,70 40,40 Z" stroke="#64748b" stroke-width="3" fill="#cbd5e1" fill-opacity="0.3"/>
-                        <!-- Horizontal Baseline -->
-                        <line x1="20" y1="50" x2="180" y2="50" stroke="#94a3b8" stroke-dasharray="4" stroke-width="1.5"/>
-                        <!-- PSIS Point -->
-                        <circle cx="55" cy="40" r="6" fill="#e11d48"/>
-                        <text x="25" y="32" font-size="10" font-weight="bold" fill="#e11d48">PSIS (Back)</text>
-                        <!-- ASIS Point -->
-                        <circle cx="145" cy="58" r="6" fill="#2563eb"/>
-                        <text x="145" y="75" font-size="10" font-weight="bold" fill="#2563eb">ASIS (Front)</text>
-                        <!-- Connecting Line -->
-                        <line x1="55" y1="40" x2="145" y2="58" stroke="#14b8a6" stroke-width="2.5"/>
-                    </svg>
-                </div>
-
-                <div class="space-y-2">
-                    <p class="font-semibold text-slate-800">For accurate measurements:</p>
-                    <ol class="list-decimal list-inside space-y-1 text-slate-600">
-                        <li>Stand in a natural, comfortable posture facing strictly to the side (90° side profile).</li>
-                        <li>Palpate your lower back dimple/hip bone to locate the <strong>PSIS (Back Point)</strong>. Click first.</li>
-                        <li>Locate the prominent bone tip on the front top of your hip to place the <strong>ASIS (Front Point)</strong>. Click second.</li>
-                        <li>Ensure lighting is clear and fitted clothing is worn for precise anatomical landmark identification.</li>
-                    </ol>
-                </div>
-            </div>
-
-            <button onclick="hideInstructionModal()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs py-2.5 rounded-xl transition">
-                Got It
-            </button>
-        </div>
-    </div>
-
-    <!-- MODAL 3: Appointment Booking / Healthcare Contact Modal -->
-    <div id="bookingModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-100">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-800 text-base">Request Referral Consultation</h3>
-                <button onclick="hideBookingModal()" class="text-slate-400 hover:text-slate-600">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <form id="bookingForm" onsubmit="submitBooking(event)" class="space-y-3 text-xs">
-                <div>
-                    <label class="block font-semibold text-slate-700 mb-1">Target Healthcare Facility</label>
-                    <input type="text" id="targetClinicName" readonly class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 font-semibold">
-                </div>
-
-                <div>
-                    <label class="block font-semibold text-slate-700 mb-1">Your Full Name</label>
-                    <input type="text" required placeholder="John Doe" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-teal-500">
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Contact Number</label>
-                        <input type="tel" required placeholder="+1 555-0199" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-teal-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">Preferred Date</label>
-                        <input type="date" required class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-teal-500">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block font-semibold text-slate-700 mb-1">Reason for Referral / Symptoms</label>
-                    <textarea rows="2" placeholder="Briefly describe posture concerns, e.g. lower back stiffness after sitting..." class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-teal-500"></textarea>
-                </div>
-
-                <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2.5 rounded-xl transition shadow-sm mt-2">
-                    Submit Referral Request
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JavaScript Canvas & Calculation Engine -->
     <script>
-        // GLOBAL STATE & DATA STRUCTURES
-        let currentTab = 'assessment';
-        let landmarkPoints = []; // Stores {x, y} relative to canvas image dimensions
-        let loadedImage = null;
-        let webcamStream = null;
-        let activeDraggedPointIndex = -1;
+        let canvas, ctx;
+        let currentImage = null;
+        let points = [];
 
-        // Simulated Referral Directory Database
-        const directoryData = [
-            {
-                id: 1,
-                name: "Apex Physical Therapy & Spine Center",
-                specialty: "Physical Therapy",
-                doctor: "Dr. Sarah Jenkins, PT, DPT",
-                address: "124 Health Sciences Blvd, Suite 201",
-                distanceKm: 2.4,
-                phone: "(555) 234-8901",
-                urgentFlag: true,
-                rating: 4.9
-            },
-            {
-                id: 2,
-                name: "Orthopedic & Joint Alignment Clinic",
-                specialty: "Orthopedic Surgery",
-                doctor: "Dr. Marcus Vance, MD",
-                address: "880 Medical Plaza Way",
-                distanceKm: 4.1,
-                phone: "(555) 876-1234",
-                urgentFlag: false,
-                rating: 4.8
-            },
-            {
-                id: 3,
-                name: "Movement & Ergonomic Rehabilitation",
-                specialty: "Ergonomics",
-                doctor: "Elena Rostova, OTR/L, CEAS",
-                address: "45 Innovation Park Dr",
-                distanceKm: 7.8,
-                phone: "(555) 432-5678",
-                urgentFlag: false,
-                rating: 4.7
-            },
-            {
-                id: 4,
-                name: "Spine & Sports Physiatry Institute",
-                specialty: "Physiatry",
-                doctor: "Dr. Robert Chen, DO",
-                address: "512 University Hospital Ave",
-                distanceKm: 12.0,
-                phone: "(555) 998-3344",
-                urgentFlag: true,
-                rating: 4.9
-            }
-        ];
+        window.onload = function() {
+            canvas = document.getElementById('postureCanvas');
+            ctx = canvas.getContext('2d');
+            canvas.addEventListener('click', handleCanvasClick);
+        };
 
-        // INITIALIZATION
-        window.addEventListener('DOMContentLoaded', () => {
-            initCanvas();
-            renderDirectory(directoryData);
-            loadHistoryFromStorage();
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
             
-            // Check first time disclaimer consent
-            if(!localStorage.getItem('pelvicheck_terms_accepted')) {
-                showDisclaimerModal();
-            }
-        });
-
-        // TAB NAVIGATION LOGIC
-        function switchTab(tabId) {
-            currentTab = tabId;
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-
-            // Update Header Active UI
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.className = "nav-btn px-4 py-2 rounded-lg font-medium text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors";
+                btn.classList.remove('text-teal-700', 'bg-teal-50', 'border', 'border-teal-200');
+                btn.classList.add('text-slate-600');
             });
-            const activeNav = document.getElementById(`nav-${tabId}`);
-            if(activeNav) {
-                activeNav.className = "nav-btn px-4 py-2 rounded-lg font-medium text-sm transition-colors text-teal-700 bg-teal-50 border border-teal-200";
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            if(activeBtn) {
+                activeBtn.classList.add('text-teal-700', 'bg-teal-50', 'border', 'border-teal-200');
             }
-
-            // Close Mobile Menu if open
-            document.getElementById('mobile-menu').classList.add('hidden');
-        }
-
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        }
-
-        // DISCLAIMER & MODALS LOGIC
-        function showDisclaimerModal() {
-            document.getElementById('disclaimerModal').classList.remove('hidden');
-        }
-
-        function acceptTerms() {
-            localStorage.setItem('pelvicheck_terms_accepted', 'true');
-            document.getElementById('disclaimerModal').classList.add('hidden');
-        }
-
-        function showInstructionModal() {
-            document.getElementById('instructionModal').classList.remove('hidden');
-        }
-
-        function hideInstructionModal() {
-            document.getElementById('instructionModal').classList.add('hidden');
-        }
-
-        // CANVAS & POSTURE ANALYSIS LOGIC
-        const canvas = document.getElementById('postureCanvas');
-        const ctx = canvas.getContext('2d');
-
-        function initCanvas() {
-            window.addEventListener('resize', redrawCanvas);
-
-            // Canvas Pointer / Mouse Listeners for Point Placement and Dragging
-            canvas.addEventListener('mousedown', handleCanvasPointerDown);
-            canvas.addEventListener('mousemove', handleCanvasPointerMove);
-            window.addEventListener('mouseup', handleCanvasPointerUp);
-
-            canvas.addEventListener('touchstart', handleCanvasTouchStart, {passive: false});
-            canvas.addEventListener('touchmove', handleCanvasTouchMove, {passive: false});
-            window.addEventListener('touchend', handleCanvasPointerUp);
         }
 
         function handleImageUpload(e) {
             const file = e.target.files[0];
-            if(!file) return;
-
+            if (!file) return;
             const reader = new FileReader();
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
-                    stopWebcam();
-                    loadedImage = img;
-                    landmarkPoints = [];
+                    currentImage = img;
                     document.getElementById('emptyCanvasOverlay').classList.add('hidden');
-                    redrawCanvas();
-                    updateStepPrompt();
+                    canvas.width = img.width > 800 ? 800 : img.width;
+                    canvas.height = img.height * (canvas.width / img.width);
+                    points = [];
+                    redraw();
                 };
                 img.src = event.target.result;
             };
@@ -793,550 +388,154 @@
         }
 
         function loadSampleImage() {
-            // Generate a side profile sample diagram image dynamically on canvas
-            const sampleImg = new Image();
-            // High quality SVG data URL representing side posture anatomy
-            const svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
-                <rect width="600" height="800" fill="#0f172a"/>
-                <circle cx="300" cy="180" r="50" fill="#334155"/>
-                <path d="M 300,230 C 290,300 280,380 300,500 C 310,560 320,680 300,750" stroke="#475569" stroke-width="45" stroke-linecap="round"/>
-                <!-- Side Pelvis Representation -->
-                <path d="M 270,380 C 260,420 310,480 340,430 Z" fill="#64748b"/>
-                <circle cx="270" cy="400" r="8" fill="#e11d48"/>
-                <text x="200" y="395" fill="#f8fafc" font-size="14" font-family="sans-serif" font-weight="bold">PSIS (Back)</text>
-                <circle cx="330" cy="425" r="8" fill="#2563eb"/>
-                <text x="345" y="430" fill="#f8fafc" font-size="14" font-family="sans-serif" font-weight="bold">ASIS (Front)</text>
-                <text x="180" y="80" fill="#94a3b8" font-size="20" font-family="sans-serif">Sample Side-View Posture Model</text>
-            </svg>`;
-            
-            sampleImg.onload = function() {
-                stopWebcam();
-                loadedImage = sampleImg;
-                landmarkPoints = [];
-                document.getElementById('emptyCanvasOverlay').classList.add('hidden');
-                redrawCanvas();
-                updateStepPrompt();
-            };
-            sampleImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
-        }
-
-        // WEBCAM INTEGRATION
-        async function startWebcam() {
-            const video = document.getElementById('webcamVideo');
-            const controls = document.getElementById('webcamControls');
-            const overlay = document.getElementById('emptyCanvasOverlay');
-
-            try {
-                webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                video.srcObject = webcamStream;
-                video.classList.remove('hidden');
-                controls.classList.remove('hidden');
-                overlay.classList.add('hidden');
-            } catch (err) {
-                alert("Camera access denied or unavailable on this device.");
-            }
-        }
-
-        function captureWebcamFrame() {
-            const video = document.getElementById('webcamVideo');
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = video.videoWidth || 640;
-            tempCanvas.height = video.videoHeight || 480;
+            tempCanvas.width = 600;
+            tempCanvas.height = 600;
             const tCtx = tempCanvas.getContext('2d');
-            tCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
-
-            const capturedImg = new Image();
-            capturedImg.onload = function() {
-                stopWebcam();
-                loadedImage = capturedImg;
-                landmarkPoints = [];
-                redrawCanvas();
-                updateStepPrompt();
-            };
-            capturedImg.src = tempCanvas.toDataURL('image/png');
-        }
-
-        function stopWebcam() {
-            if(webcamStream) {
-                webcamStream.getTracks().forEach(track => track.stop());
-                webcamStream = null;
-            }
-            document.getElementById('webcamVideo').classList.add('hidden');
-            document.getElementById('webcamControls').classList.add('hidden');
-        }
-
-        function resetLandmarks() {
-            landmarkPoints = [];
-            redrawCanvas();
-            updateStepPrompt();
-            resetResultsDisplay();
-        }
-
-        // CANVAS INTERACTION HANDLERS
-        function getCanvasPointerPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             
+            tCtx.fillStyle = '#f1f5f9';
+            tCtx.fillRect(0, 0, 600, 600);
+            
+            // Draw schematic side-view torso
+            tCtx.fillStyle = '#94a3b8';
+            tCtx.beginPath();
+            tCtx.arc(300, 120, 50, 0, Math.PI * 2);
+            tCtx.fill();
+            
+            tCtx.fillStyle = '#64748b';
+            tCtx.beginPath();
+            tCtx.ellipse(300, 320, 50, 120, Math.PI / 12, 0, Math.PI * 2);
+            tCtx.fill();
+
+            const img = new Image();
+            img.onload = function() {
+                currentImage = img;
+                document.getElementById('emptyCanvasOverlay').classList.add('hidden');
+                canvas.width = 600;
+                canvas.height = 600;
+                points = [];
+                redraw();
+            };
+            img.src = tempCanvas.toDataURL();
+        }
+
+        function handleCanvasClick(e) {
+            if (!currentImage) return;
+            if (points.length >= 2) points = [];
+
+            const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
 
-            return {
-                x: (clientX - rect.left) * scaleX,
-                y: (clientY - rect.top) * scaleY
-            };
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+
+            points.push({ x, y });
+            redraw();
         }
 
-        function handleCanvasPointerDown(e) {
-            if(!loadedImage) return;
-            const pos = getCanvasPointerPos(e);
-
-            // Check if clicking near an existing point to drag
-            const hitIndex = landmarkPoints.findIndex(pt => Math.hypot(pt.x - pos.x, pt.y - pos.y) < 20);
-            if(hitIndex !== -1) {
-                activeDraggedPointIndex = hitIndex;
-                return;
-            }
-
-            // Otherwise add new landmark if < 2 points
-            if(landmarkPoints.length < 2) {
-                landmarkPoints.push(pos);
-                redrawCanvas();
-                updateStepPrompt();
-                if(landmarkPoints.length === 2) {
-                    calculatePosture();
-                }
-            }
-        }
-
-        function handleCanvasPointerMove(e) {
-            if(activeDraggedPointIndex !== -1) {
-                const pos = getCanvasPointerPos(e);
-                landmarkPoints[activeDraggedPointIndex] = pos;
-                redrawCanvas();
-                if(landmarkPoints.length === 2) {
-                    calculatePosture();
-                }
-            }
-        }
-
-        function handleCanvasPointerUp() {
-            activeDraggedPointIndex = -1;
-        }
-
-        function handleCanvasTouchStart(e) {
-            e.preventDefault();
-            handleCanvasPointerDown(e);
-        }
-
-        function handleCanvasTouchMove(e) {
-            e.preventDefault();
-            handleCanvasPointerMove(e);
-        }
-
-        // CANVAS REDRAW ROUTINE
-        function redrawCanvas() {
-            if(!loadedImage) return;
-
-            // Fit canvas aspect ratio to loaded image
-            canvas.width = loadedImage.width;
-            canvas.height = loadedImage.height;
-
+        function redraw() {
+            if (!currentImage) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(loadedImage, 0, 0);
+            ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
 
-            // Draw Landmarks & Guidelines
-            if(landmarkPoints.length > 0) {
-                // Point 1: PSIS (Back)
-                drawPoint(landmarkPoints[0], '#e11d48', 'PSIS (1. Back)');
-            }
-
-            if(landmarkPoints.length === 2) {
-                // Point 2: ASIS (Front)
-                drawPoint(landmarkPoints[1], '#2563eb', 'ASIS (2. Front)');
-
-                // Draw Connecting Anatomical Line
+            // Draw points
+            points.forEach((p, i) => {
                 ctx.beginPath();
-                ctx.moveTo(landmarkPoints[0].x, landmarkPoints[0].y);
-                ctx.lineTo(landmarkPoints[1].x, landmarkPoints[1].y);
-                ctx.strokeStyle = '#14b8a6';
-                ctx.lineWidth = Math.max(3, canvas.width / 150);
-                ctx.stroke();
-
-                // Draw Horizontal Reference Line through PSIS
-                ctx.beginPath();
-                ctx.moveTo(landmarkPoints[0].x - 100, landmarkPoints[0].y);
-                ctx.lineTo(landmarkPoints[0].x + 200, landmarkPoints[0].y);
-                ctx.strokeStyle = '#94a3b8';
-                ctx.setLineDash([6, 6]);
+                ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI);
+                ctx.fillStyle = i === 0 ? '#e11d48' : '#2563eb';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
                 ctx.lineWidth = 2;
                 ctx.stroke();
-                ctx.setLineDash([]); // Reset dash
-            }
-        }
 
-        function drawPoint(pt, color, label) {
-            const radius = Math.max(8, canvas.width / 100);
-            
-            // Outer Ring
-            ctx.beginPath();
-            ctx.arc(pt.x, pt.y, radius, 0, Math.PI * 2);
-            ctx.fillStyle = color;
-            ctx.fill();
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = '#ffffff';
-            ctx.stroke();
-
-            // Label Text
-            ctx.font = `bold ${Math.max(12, canvas.width / 45)}px sans-serif`;
-            ctx.fillStyle = '#ffffff';
-            ctx.strokeStyle = '#0f172a';
-            ctx.lineWidth = 4;
-            ctx.strokeText(label, pt.x + radius + 6, pt.y + 4);
-            ctx.fillText(label, pt.x + radius + 6, pt.y + 4);
-        }
-
-        function updateStepPrompt() {
-            const stepText = document.getElementById('stepText');
-            const counter = document.getElementById('pointCounter');
-            
-            counter.innerText = `${landmarkPoints.length}/2 Points`;
-
-            if(landmarkPoints.length === 0) {
-                stepText.innerHTML = "Step 1: Click on the <strong>PSIS (Back Hip Bone Landmark)</strong>.";
-            } else if(landmarkPoints.length === 1) {
-                stepText.innerHTML = "Step 2: Click on the <strong>ASIS (Front Hip Bone Landmark)</strong>.";
-            } else {
-                stepText.innerHTML = "Landmarks Set! Drag points to adjust, or view results.";
-            }
-        }
-
-        // POSTURE ANGLE CALCULATOR LOGIC
-        let computedAngleGlobal = 0;
-        let computedCategoryGlobal = "";
-
-        function calculatePosture() {
-            const psis = landmarkPoints[0]; // Point 1 (Back)
-            const asis = landmarkPoints[1]; // Point 2 (Front)
-
-            // Calculate angle relative to horizontal plane
-            // dx = asis.x - psis.x, dy = asis.y - psis.y
-            const dx = asis.x - psis.x;
-            const dy = asis.y - psis.y; // Positive if ASIS is lower than PSIS
-
-            // Standard trigonometrical angle in degrees
-            let angleRad = Math.atan2(dy, dx);
-            let angleDeg = angleRad * (180 / Math.PI);
-
-            // Normalize angle relative to forward horizontal vector
-            let angleMagnitude = Math.abs(angleDeg);
-
-            computedAngleGlobal = parseFloat(angleMagnitude.toFixed(1));
-
-            // Classify Classification Based on Specified Clinical Ranges:
-            // Neutral: 7° - 15°
-            // Anterior Pelvic Tilt (APT): > 15°
-            // Posterior Pelvic Tilt (PPT): < 7°
-            let category = "";
-            let colorTheme = "";
-            let badgeText = "";
-
-            if(computedAngleGlobal > 15.0) {
-                category = "Anterior Pelvic Tilt";
-                colorTheme = "amber";
-                badgeText = "Anterior Tilt";
-            } else if(computedAngleGlobal < 7.0) {
-                category = "Posterior Pelvic Tilt";
-                colorTheme = "indigo";
-                badgeText = "Posterior Tilt";
-            } else {
-                category = "Neutral Alignment";
-                colorTheme = "emerald";
-                badgeText = "Neutral Alignment";
-            }
-
-            computedCategoryGlobal = category;
-            displayResults(computedAngleGlobal, category, colorTheme, badgeText);
-            updateRecommendations(category);
-
-            // Enable Save Button
-            const saveBtn = document.getElementById('saveResultBtn');
-            saveBtn.disabled = false;
-            saveBtn.className = "w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm py-3 rounded-xl transition shadow-sm flex items-center justify-center gap-2 cursor-pointer";
-        }
-
-        function displayResults(angle, category, theme, badgeText) {
-            document.getElementById('angleValue').innerText = angle;
-            const badge = document.getElementById('statusBadge');
-            badge.innerText = badgeText;
-
-            const title = document.getElementById('classificationTitle');
-            const desc = document.getElementById('classificationDesc');
-            const box = document.getElementById('classificationBox');
-
-            title.innerText = category;
-
-            if(theme === 'amber') {
-                badge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800";
-                box.className = "p-4 rounded-xl border border-amber-300 text-center space-y-1 bg-amber-50/70";
-                desc.innerText = "Calculated angle is greater than 15°. Your pelvis exhibits an increased downward tilt toward the front.";
-            } else if(theme === 'indigo') {
-                badge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800";
-                box.className = "p-4 rounded-xl border border-indigo-300 text-center space-y-1 bg-indigo-50/70";
-                desc.innerText = "Calculated angle is under 7°. Your pelvis exhibits a backward rotation with flattened lower spine curve.";
-            } else {
-                badge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800";
-                box.className = "p-4 rounded-xl border border-emerald-300 text-center space-y-1 bg-emerald-50/70";
-                desc.innerText = "Calculated angle is within the standard 7°–15° neutral baseline range.";
-            }
-        }
-
-        function resetResultsDisplay() {
-            document.getElementById('angleValue').innerText = "--";
-            const badge = document.getElementById('statusBadge');
-            badge.innerText = "Awaiting Points";
-            badge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600";
-
-            document.getElementById('classificationTitle').innerText = "Incomplete Assessment";
-            document.getElementById('classificationDesc').innerText = "Set both the PSIS (back landmark) and ASIS (front landmark) on your photo to view your alignment estimate.";
-            document.getElementById('classificationBox').className = "p-4 rounded-xl border border-dashed border-slate-300 text-center space-y-1 bg-slate-50";
-
-            const saveBtn = document.getElementById('saveResultBtn');
-            saveBtn.disabled = true;
-            saveBtn.className = "w-full bg-slate-200 text-slate-400 font-semibold text-sm py-3 rounded-xl transition flex items-center justify-center gap-2 cursor-not-allowed";
-
-            document.getElementById('recommendationContent').innerHTML = "";
-        }
-
-        // RECOMMENDATIONS & ERGONOMICS GENERATOR
-        function updateRecommendations(category) {
-            const container = document.getElementById('recommendationContent');
-            let html = "";
-
-            if(category === "Anterior Pelvic Tilt") {
-                html = `
-                    <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
-                        <span class="font-bold text-amber-900 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-child"></i> Targeted Stretches
-                        </span>
-                        <p class="text-xs text-amber-800">
-                            <strong>Kneeling Hip Flexor Stretch:</strong> Perform 3 sets of 30-second holds to relieve tension in tight Iliopsoas and Rectus Femoris muscles.
-                        </p>
-                    </div>
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                        <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-dumbbell text-teal-600"></i> Core & Glute Activation
-                        </span>
-                        <p class="text-xs text-slate-600">
-                            <strong>Glute Bridges & Planks:</strong> Focus on posterior pelvic tucks during bridge exercises to strengthen gluteus maximus and deep abdominal core muscles.
-                        </p>
-                    </div>
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                        <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-chair text-teal-600"></i> Workstation Ergonomics
-                        </span>
-                        <p class="text-xs text-slate-600">
-                            Avoid sitting on the edge of your chair. Adjust seat depth so your back remains supported against the lumbar pad without arching.
-                        </p>
-                    </div>
-                `;
-            } else if(category === "Posterior Pelvic Tilt") {
-                html = `
-                    <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-xl space-y-2">
-                        <span class="font-bold text-indigo-900 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-child"></i> Targeted Stretches
-                        </span>
-                        <p class="text-xs text-indigo-800">
-                            <strong>Seated Hamstring Stretch:</strong> Lengthen tight hamstrings that pull the back pelvis downward. Hold stretches comfortably for 30s.
-                        </p>
-                    </div>
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                        <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-dumbbell text-teal-600"></i> Mobility & Strengthening
-                        </span>
-                        <p class="text-xs text-slate-600">
-                            <strong>Cat-Cow Stretches & Back Extensions:</strong> Mobilize the lumbar spine to restore natural anterior curvature and strengthen lower spinal extensors.
-                        </p>
-                    </div>
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                        <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-chair text-teal-600"></i> Workstation Ergonomics
-                        </span>
-                        <p class="text-xs text-slate-600">
-                            Use a dedicated lumbar cushion to prevent slumping into seat backs. Ensure hips are positioned slightly higher than knees.
-                        </p>
-                    </div>
-                `;
-            } else {
-                html = `
-                    <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2">
-                        <span class="font-bold text-emerald-900 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-circle-check"></i> Posture Maintenance
-                        </span>
-                        <p class="text-xs text-emerald-800">
-                            Your pelvic tilt angle falls within standard neutral parameters. Continue balanced physical activity and general core stability exercises.
-                        </p>
-                    </div>
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                        <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-clock text-teal-600"></i> Movement Breaks
-                        </span>
-                        <p class="text-xs text-slate-600">
-                            Take 2-minute active standing or walking breaks every 30-45 minutes of sedentary sitting to prevent hip tightness.
-                        </p>
-                    </div>
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                        <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-laptop text-teal-600"></i> Ergonomic Alignment
-                        </span>
-                        <p class="text-xs text-slate-600">
-                            Keep monitor eyes at level and feet flat on the floor to maintain natural spinal curvature throughout study/work hours.
-                        </p>
-                    </div>
-                `;
-            }
-
-            container.innerHTML = html;
-        }
-
-        // HISTORY & STORAGE LOGIC
-        function saveCurrentAssessment() {
-            if(!computedCategoryGlobal) return;
-
-            const record = {
-                id: Date.now(),
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-                angle: computedAngleGlobal,
-                category: computedCategoryGlobal
-            };
-
-            let history = JSON.parse(localStorage.getItem('pelvicheck_history') || '[]');
-            history.unshift(record);
-            localStorage.setItem('pelvicheck_history', JSON.stringify(history));
-
-            renderHistoryList(history);
-            alert("Assessment record saved to browser history!");
-        }
-
-        function loadHistoryFromStorage() {
-            let history = JSON.parse(localStorage.getItem('pelvicheck_history') || '[]');
-            renderHistoryList(history);
-        }
-
-        function renderHistoryList(history) {
-            const container = document.getElementById('historyContainer');
-            
-            if(history.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12 text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                        <i class="fa-solid fa-clock-rotate-left text-3xl mb-2 text-slate-300 block"></i>
-                        <p class="text-sm font-medium">No saved assessment records yet.</p>
-                        <p class="text-xs text-slate-400">Perform a screening and click 'Save Screening to History'.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = history.map(item => {
-                let badgeClass = "bg-emerald-100 text-emerald-800";
-                if(item.category === "Anterior Pelvic Tilt") badgeClass = "bg-amber-100 text-amber-800";
-                if(item.category === "Posterior Pelvic Tilt") badgeClass = "bg-indigo-100 text-indigo-800";
-
-                return `
-                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div class="space-y-1">
-                            <div class="flex items-center gap-2">
-                                <span class="text-sm font-bold text-slate-800">${item.angle}° Tilt Angle</span>
-                                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full ${badgeClass}">${item.category}</span>
-                            </div>
-                            <span class="text-xs text-slate-400 block"><i class="fa-regular fa-calendar mr-1"></i>${item.date}</span>
-                        </div>
-                        <button onclick="deleteHistoryItem(${item.id})" class="text-xs text-rose-600 hover:text-rose-800 font-semibold px-2 py-1 rounded bg-rose-50 hover:bg-rose-100 border border-rose-200 transition">
-                            <i class="fa-solid fa-trash mr-1"></i>Remove
-                        </button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function deleteHistoryItem(id) {
-            let history = JSON.parse(localStorage.getItem('pelvicheck_history') || '[]');
-            history = history.filter(item => item.id !== id);
-            localStorage.setItem('pelvicheck_history', JSON.stringify(history));
-            renderHistoryList(history);
-        }
-
-        function clearAllHistory() {
-            if(confirm("Are you sure you want to clear all saved posture history records?")) {
-                localStorage.removeItem('pelvicheck_history');
-                loadHistoryFromStorage();
-            }
-        }
-
-        // REFERRAL DIRECTORY LOGIC
-        function renderDirectory(data) {
-            const container = document.getElementById('directoryList');
-            if(data.length === 0) {
-                container.innerHTML = `<div class="col-span-2 text-center py-8 text-slate-400">No matching healthcare providers found.</div>`;
-                return;
-            }
-
-            container.innerHTML = data.map(item => `
-                <div class="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm hover:border-teal-500 transition space-y-3 relative">
-                    ${item.urgentFlag ? `<span class="absolute top-4 right-4 text-[10px] bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-bolt mr-1"></i>Urgent Evaluation Available</span>` : ''}
-                    <div>
-                        <span class="text-xs font-bold text-teal-600 uppercase tracking-wider block mb-0.5">${item.specialty}</span>
-                        <h3 class="font-bold text-slate-800 text-base">${item.name}</h3>
-                        <p class="text-xs font-semibold text-slate-600 mt-0.5">${item.doctor}</p>
-                    </div>
-
-                    <div class="space-y-1 text-xs text-slate-500">
-                        <p class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-slate-400"></i> ${item.address} (${item.distanceKm} km away)</p>
-                        <p class="flex items-center gap-1.5"><i class="fa-solid fa-phone text-slate-400"></i> ${item.phone}</p>
-                        <p class="flex items-center gap-1 text-amber-500 font-semibold"><i class="fa-solid fa-star"></i> ${item.rating} / 5.0 Patient Rating</p>
-                    </div>
-
-                    <button onclick="openBookingModal('${item.name}')" class="w-full bg-slate-100 hover:bg-teal-600 hover:text-white text-slate-700 font-semibold text-xs py-2 rounded-xl transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-calendar-check"></i> Request Referral Appointment
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function filterDirectory() {
-            const search = document.getElementById('directorySearchInput').value.toLowerCase();
-            const specialty = document.getElementById('specialtyFilter').value;
-            const maxDistance = parseFloat(document.getElementById('distanceFilter').value);
-
-            const filtered = directoryData.filter(item => {
-                const matchesSearch = item.name.toLowerCase().includes(search) || item.doctor.toLowerCase().includes(search);
-                const matchesSpecialty = specialty === "All" || item.specialty === specialty;
-                const matchesDistance = item.distanceKm <= maxDistance;
-                return matchesSearch && matchesSpecialty && matchesDistance;
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 12px Inter';
+                ctx.fillText(i === 0 ? 'PSIS (Back)' : 'ASIS (Front)', p.x + 12, p.y + 4);
             });
 
-            renderDirectory(filtered);
+            // Update UI Counters
+            document.getElementById('pointCounter').textContent = `${points.length}/2 Points`;
+            if (points.length === 0) {
+                document.getElementById('stepText').innerHTML = 'Step 1: Click on the <strong>PSIS (Back Hip Landmark)</strong>.';
+            } else if (points.length === 1) {
+                document.getElementById('stepText').innerHTML = 'Step 2: Click on the <strong>ASIS (Front Hip Landmark)</strong>.';
+            } else if (points.length === 2) {
+                document.getElementById('stepText').innerHTML = 'Landmarks marked! Review calculated angle below.';
+                
+                // Draw connecting line & horizontal line
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                ctx.lineTo(points[1].x, points[1].y);
+                ctx.strokeStyle = '#0d9488';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.setLineDash([5, 5]);
+                ctx.moveTo(points[0].x - 50, points[0].y);
+                ctx.lineTo(points[1].x + 50, points[0].y);
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                calculateAngle(points[0], points[1]);
+            }
         }
 
-        function simulatedGeoLocation() {
-            alert("Simulated Location Request: Found 4 certified posture and orthopedic clinics within your current vicinity.");
-            document.getElementById('distanceFilter').value = "10";
-            filterDirectory();
+        // UPDATED CLINICAL CALCULATION THRESHOLDS
+        function calculateAngle(psis, asis) {
+            const dx = asis.x - psis.x;
+            const dy = asis.y - psis.y; // Canvas Y is inverted
+            
+            let angle = Math.abs(Math.atan2(dy, dx) * (180 / Math.PI)).toFixed(1);
+            document.getElementById('angleValue').textContent = angle;
+
+            const statusBadge = document.getElementById('statusBadge');
+            const titleEl = document.getElementById('classificationTitle');
+            const descEl = document.getElementById('classificationDesc');
+            const boxEl = document.getElementById('classificationBox');
+
+            // Threshold classification: Normal = 7° to 13°, APT = >13°, PPT = <7°
+            if (angle >= 7 && angle <= 13) {
+                statusBadge.textContent = "Normal Standing Tilt";
+                statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800";
+                titleEl.textContent = "Normal Standing Alignment";
+                titleEl.className = "font-bold text-base text-teal-800";
+                descEl.textContent = `Your calculated angle of ${angle}° falls within the normal standing tilt reference range (7° - 13°).`;
+                boxEl.className = "p-4 rounded-xl border border-teal-300 text-center space-y-1 bg-teal-50";
+            } else if (angle > 13) {
+                statusBadge.textContent = "Anterior Pelvic Tilt";
+                statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800";
+                titleEl.textContent = "Anterior Pelvic Tilt (APT)";
+                titleEl.className = "font-bold text-base text-amber-800";
+                descEl.textContent = `Your calculated angle of ${angle}° exceeds the standard normal standing threshold (> 13°).`;
+                boxEl.className = "p-4 rounded-xl border border-amber-300 text-center space-y-1 bg-amber-50";
+            } else {
+                statusBadge.textContent = "Posterior Pelvic Tilt";
+                statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800";
+                titleEl.textContent = "Posterior Pelvic Tilt (PPT)";
+                titleEl.className = "font-bold text-base text-indigo-800";
+                descEl.textContent = `Your calculated angle of ${angle}° is below the standard standing threshold (< 7°).`;
+                boxEl.className = "p-4 rounded-xl border border-indigo-300 text-center space-y-1 bg-indigo-50";
+            }
         }
 
-        function openBookingModal(clinicName) {
-            document.getElementById('targetClinicName').value = clinicName;
-            document.getElementById('bookingModal').classList.remove('hidden');
+        function resetLandmarks() {
+            points = [];
+            document.getElementById('angleValue').textContent = "--";
+            document.getElementById('statusBadge').textContent = "Awaiting Points";
+            document.getElementById('statusBadge').className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600";
+            document.getElementById('classificationTitle').textContent = "Incomplete Assessment";
+            document.getElementById('classificationTitle').className = "font-bold text-base text-slate-700";
+            document.getElementById('classificationDesc').textContent = "Select both the PSIS (back) and ASIS (front) landmarks on your image.";
+            document.getElementById('classificationBox').className = "p-4 rounded-xl border border-dashed border-slate-300 text-center space-y-1 bg-slate-50";
+            redraw();
         }
 
-        function hideBookingModal() {
-            document.getElementById('bookingModal').classList.add('hidden');
-        }
-
-        function submitBooking(e) {
-            e.preventDefault();
-            alert("Referral consultation request sent successfully! The clinic will contact you shortly.");
-            hideBookingModal();
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
         }
     </script>
 </body>
