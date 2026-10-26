@@ -58,39 +58,34 @@
         #postureCanvas {
             cursor: crosshair;
         }
-        /* Makes the logo crisp and removes dark border boxes on white headers */
-        .crisp-logo {
-            mix-blend-mode: multiply;
-            filter: contrast(110%) brightness(95%);
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
 
-    <!-- Navigation Header - Pure White Background (#FFFFFF) -->
+    <!-- Pure White Navigation Header (#FFFFFF) -->
     <header class="bg-white border-b border-brand-mint/40 sticky top-0 z-30 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-28 items-center py-2">
+            <div class="flex justify-between h-36 items-center py-2">
                 
-                <!-- Prominent, Large Crisp Logo Integration -->
+                <!-- Extra Large Crisp Logo Display -->
                 <div class="flex items-center gap-3">
                     <a href="#" class="flex items-center gap-3">
-                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-24 sm:h-26 w-auto max-w-[340px] object-contain crisp-logo" onerror="console.log('Image not found, check filename on GitHub');">
+                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-32 sm:h-36 w-auto max-w-[480px] object-contain drop-shadow-sm" onerror="console.log('Image not found, check filename on GitHub');">
                     </a>
                 </div>
 
-                <!-- Navigation Links with Highlighted Active Tab -->
+                <!-- Navigation Links - Only Active Tab is Colored Dark Teal -->
                 <nav class="hidden md:flex space-x-2">
-                    <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn px-4 py-2.5 rounded-xl font-bold text-sm transition-all text-white bg-brand-deep shadow-md">
+                    <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn px-5 py-3 rounded-xl font-bold text-base transition-all text-white bg-brand-deep shadow-md">
                         <i class="fa-solid fa-camera mr-2"></i>Screening
                     </button>
-                    <button onclick="switchTab('educational')" id="nav-educational" class="nav-btn px-4 py-2.5 rounded-xl font-semibold text-sm text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
+                    <button onclick="switchTab('educational')" id="nav-educational" class="nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
                         <i class="fa-solid fa-book-open mr-2 text-brand-deep"></i>Educational Hub
                     </button>
-                    <button onclick="switchTab('directory')" id="nav-directory" class="nav-btn px-4 py-2.5 rounded-xl font-semibold text-sm text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
+                    <button onclick="switchTab('directory')" id="nav-directory" class="nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
                         <i class="fa-solid fa-user-doctor mr-2 text-brand-deep"></i>Referral Directory
                     </button>
-                    <button onclick="switchTab('history')" id="nav-history" class="nav-btn px-4 py-2.5 rounded-xl font-semibold text-sm text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
+                    <button onclick="switchTab('history')" id="nav-history" class="nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
                         <i class="fa-solid fa-clock-rotate-left mr-2 text-brand-deep"></i>History
                     </button>
                 </nav>
@@ -98,7 +93,7 @@
                 <!-- Mobile Menu Button -->
                 <div class="md:hidden flex items-center">
                     <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="text-brand-dark hover:text-brand-deep p-2">
-                        <i class="fa-solid fa-bars text-2xl"></i>
+                        <i class="fa-solid fa-bars text-3xl"></i>
                     </button>
                 </div>
             </div>
@@ -338,7 +333,7 @@
 
     </main>
 
-    <!-- JavaScript Canvas & Dynamic Tab Selector Engine -->
+    <!-- JavaScript Canvas & Dynamic Header Active State Switcher -->
     <script>
         let canvas, ctx;
         let currentImage = null;
@@ -350,20 +345,20 @@
             canvas.addEventListener('click', handleCanvasClick);
         };
 
-        // Dynamic Tab Switcher with Header Dark Highlight on Active Tab
+        // Header Navigation Tab Switcher (Sets Active Tab to Dark Teal with White Text)
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
             
-            // Reset all header buttons to default light state
+            // Reset all header navigation buttons to simple dark text
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.className = "nav-btn px-4 py-2.5 rounded-xl font-semibold text-sm text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all";
+                btn.className = "nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all";
             });
 
-            // Set clicked button to dark active state
+            // Make the active clicked tab dark teal background (#174C5A) with crisp white text
             const activeBtn = document.getElementById(`nav-${tabName}`);
             if(activeBtn) {
-                activeBtn.className = "nav-btn px-4 py-2.5 rounded-xl font-bold text-sm text-white bg-brand-deep shadow-md";
+                activeBtn.className = "nav-btn px-5 py-3 rounded-xl font-bold text-base text-white bg-brand-deep shadow-md";
             }
         }
 
