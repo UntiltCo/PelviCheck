@@ -58,6 +58,11 @@
         #postureCanvas {
             cursor: crosshair;
         }
+        /* Maximizes image clarity and removes dark background boxes on white header */
+        .giant-logo {
+            mix-blend-mode: multiply;
+            filter: contrast(115%) brightness(95%);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
@@ -65,16 +70,16 @@
     <!-- Pure White Navigation Header (#FFFFFF) -->
     <header class="bg-white border-b border-brand-mint/40 sticky top-0 z-30 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-36 items-center py-2">
+            <div class="flex justify-between h-48 items-center py-2">
                 
-                <!-- Extra Large Crisp Logo Display -->
+                <!-- Extra Large / Giant Crisp Logo Display -->
                 <div class="flex items-center gap-3">
                     <a href="#" class="flex items-center gap-3">
-                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-32 sm:h-36 w-auto max-w-[480px] object-contain drop-shadow-sm" onerror="console.log('Image not found, check filename on GitHub');">
+                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-40 sm:h-44 w-auto max-w-[600px] object-contain giant-logo" onerror="console.log('Image not found, check filename on GitHub');">
                     </a>
                 </div>
 
-                <!-- Navigation Links - Only Active Tab is Colored Dark Teal -->
+                <!-- Navigation Links - Only Active Tab is Dark Teal (#174C5A) -->
                 <nav class="hidden md:flex space-x-2">
                     <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn px-5 py-3 rounded-xl font-bold text-base transition-all text-white bg-brand-deep shadow-md">
                         <i class="fa-solid fa-camera mr-2"></i>Screening
