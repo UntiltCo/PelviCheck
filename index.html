@@ -71,17 +71,17 @@
     <!-- Navigation Header -->
     <header class="bg-black border-b border-slate-800 sticky top-0 z-30 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
+            <div class="flex justify-between h-24 items-center py-2">
                 
-                <!-- Custom Logo Direct Integration -->
+                <!-- Custom Logo Direct Integration with prominent display -->
                 <div class="flex items-center gap-3">
                     <a href="#" class="flex items-center gap-3">
-                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-16 w-auto object-contain rounded-md" onerror="console.log('Image not found, check filename on GitHub');">
+                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-20 w-auto max-w-[260px] object-contain" onerror="console.log('Image not found, check filename on GitHub');">
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <nav class="hidden md:flex space-x-1 lg:space-x-2">
+                <nav class="hidden md:flex space-x-2">
                     <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn px-4 py-2 rounded-lg font-medium text-sm transition-colors text-teal-400 bg-slate-900 border border-teal-500/30">
                         <i class="fa-solid fa-camera mr-2"></i>Screening
                     </button>
@@ -331,4 +331,140 @@
 
         <!-- SECTION 4: HISTORY TAB -->
         <section id="tab-history" class="tab-content hidden space-y-6">
-            <div class="bg
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+                <h1 class="text-2xl font-bold text-slate-800">Saved Screening History</h1>
+                <p class="text-slate-500 text-sm">Past posture assessment records saved locally in your browser.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript Canvas & Calculation Engine -->
+    <script>
+        let canvas, ctx;
+        let currentImage = null;
+        let points = [];
+
+        window.onload = function() {
+            canvas = document.getElementById('postureCanvas');
+            ctx = canvas.getContext('2d');
+            canvas.addEventListener('click', handleCanvasClick);
+        };
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-teal-400', 'bg-slate-900', 'border', 'border-teal-500/30');
+                btn.classList.add('text-slate-300');
+            });
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            if(activeBtn) {
+                activeBtn.classList.add('text-teal-400', 'bg-slate-900', 'border', 'border-teal-500/30');
+            }
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    currentImage = img;
+                    document.getElementById('emptyCanvasOverlay').classList.add('hidden');
+                    canvas.width = img.width > 800 ? 800 : img.width;
+                    canvas.height = img.height * (canvas.width / img.width);
+                    points = [];
+                    redraw();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadSampleImage() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 600;
+            tempCanvas.height = 600;
+            const tCtx = tempCanvas.getContext('2d');
+            
+            tCtx.fillStyle = '#f1f5f9';
+            tCtx.fillRect(0, 0, 600, 600);
+            
+            tCtx.fillStyle = '#94a3b8';
+            tCtx.beginPath();
+            tCtx.arc(300, 120, 50, 0, Math.PI * 2);
+            tCtx.fill();
+            
+            tCtx.fillStyle = '#64748b';
+            tCtx.beginPath();
+            tCtx.ellipse(300, 320, 50, 120, Math.PI / 12, 0, Math.PI * 2);
+            tCtx.fill();
+
+            const img = new Image();
+            img.onload = function() {
+                currentImage = img;
+                document.getElementById('emptyCanvasOverlay').classList.add('hidden');
+                canvas.width = 600;
+                canvas.height = 600;
+                points = [];
+                redraw();
+            };
+            img.src = tempCanvas.toDataURL();
+        }
+
+        function handleCanvasClick(e) {
+            if (!currentImage) return;
+            if (points.length >= 2) points = [];
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+
+            points.push({ x, y });
+            redraw();
+        }
+
+        function redraw() {
+            if (!currentImage) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+
+            points.forEach((p, i) => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI);
+                ctx.fillStyle = i === 0 ? '#e11d48' : '#2563eb';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 12px Inter';
+                ctx.fillText(i === 0 ? 'PSIS (Back)' : 'ASIS (Front)', p.x + 12, p.y + 4);
+            });
+
+            document.getElementById('pointCounter').textContent = `${points.length}/2 Points`;
+            if (points.length === 0) {
+                document.getElementById('stepText').innerHTML = 'Step 1: Click on the <strong>PSIS (Back Hip Landmark)</strong>.';
+            } else if (points.length === 1) {
+                document.getElementById('stepText').innerHTML = 'Step 2: Click on the <strong>ASIS (Front Hip Landmark)</strong>.';
+            } else if (points.length === 2) {
+                document.getElementById('stepText').innerHTML = 'Landmarks marked! Review calculated angle below.';
+                
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                ctx.lineTo(points[1].x, points[1].y);
+                ctx.strokeStyle = '#0d9488';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.setLineDash([5, 5]);
+                ctx.moveTo(points[0].x - 50, points[0].y);
+                ctx.
