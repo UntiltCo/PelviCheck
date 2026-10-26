@@ -58,7 +58,6 @@
         #postureCanvas {
             cursor: crosshair;
         }
-        /* Maximizes image clarity and removes dark background boxes on white header */
         .giant-logo {
             mix-blend-mode: multiply;
             filter: contrast(115%) brightness(95%);
@@ -66,6 +65,68 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
+
+    <!-- MANDATORY MEDICAL NOTICE & GUIDELINES MODAL POPUP -->
+    <div id="disclaimerModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex items-center gap-3 border-b border-brand-ice pb-4">
+                <div class="w-12 h-12 rounded-2xl bg-brand-ice flex items-center justify-center text-brand-deep flex-shrink-0">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-brand-dark">Medical Notice & User Guidelines</h2>
+                    <p class="text-xs text-brand-dark/70">Please read carefully before proceeding to PelviCheck.</p>
+                </div>
+            </div>
+
+            <!-- Medical Notice Statement -->
+            <div class="p-4 rounded-xl bg-brand-ice border border-brand-mint/40 text-xs sm:text-sm text-brand-dark space-y-2">
+                <p class="font-bold text-brand-deep"><i class="fa-solid fa-circle-info mr-1"></i> Medical Disclaimer:</p>
+                <p>PelviCheck is a preliminary educational posture screening tool and does not provide clinical diagnoses. Always consult qualified physical therapists or medical specialists for clinical evaluations.</p>
+            </div>
+
+            <!-- Mandatory Screening Guidelines List -->
+            <div class="space-y-3 text-xs sm:text-sm text-brand-dark">
+                <h3 class="font-bold text-brand-deep uppercase tracking-wider text-xs">Screening Requirements & Setup</h3>
+                
+                <ul class="space-y-2.5">
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Posture:</strong> Follow the recommended posture for the assessment.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Body position:</strong> Position the body correctly within the camera view.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Clothing:</strong> Wear clothing that allows the required body landmarks to be visible.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Camera setup:</strong> Follow the recommended camera placement and distance.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Lighting and image quality:</strong> Ensure adequate lighting and a clear, unobstructed view.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Privacy and limitations:</strong> Be aware that some landmarks may not be visible. Do not interpret or rely on results when the image quality or landmark visibility is insufficient.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Action Button -->
+            <div class="pt-2 border-t border-brand-ice text-right">
+                <button onclick="acceptDisclaimer()" class="w-full sm:w-auto bg-brand-deep hover:bg-brand-dark text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all text-sm">
+                    I Agree and Understand
+                </button>
+            </div>
+
+        </div>
+    </div>
 
     <!-- Pure White Navigation Header (#FFFFFF) -->
     <header class="bg-white border-b border-brand-mint/40 sticky top-0 z-30 shadow-sm">
@@ -79,7 +140,7 @@
                     </a>
                 </div>
 
-                <!-- Navigation Links - Only Active Tab is Dark Teal (#174C5A) -->
+                <!-- Navigation Links -->
                 <nav class="hidden md:flex space-x-2">
                     <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn px-5 py-3 rounded-xl font-bold text-base transition-all text-white bg-brand-deep shadow-md">
                         <i class="fa-solid fa-camera mr-2"></i>Screening
@@ -128,6 +189,7 @@
                 <i class="fa-solid fa-circle-info text-brand-deep flex-shrink-0"></i>
                 <span><strong>Medical Notice:</strong> PelviCheck is a preliminary screening tool and does not replace a physical clinical diagnosis.</span>
             </div>
+            <button onclick="showDisclaimerModal()" class="text-xs text-brand-deep font-bold underline hover:text-brand-dark flex-shrink-0">View Setup Guidelines</button>
         </div>
     </div>
 
@@ -187,6 +249,27 @@
                                 <h3 class="text-lg font-semibold text-brand-white mb-1">No Image Loaded</h3>
                                 <p class="text-xs text-brand-ice/80 max-w-sm mb-4">Upload a side-view photo or load a demo image to start screening.</p>
                                 <button onclick="loadSampleImage()" class="bg-brand-deep hover:bg-brand-mint hover:text-brand-dark text-brand-white text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30">Try Demo Photo</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HELPFUL SETUP GUIDELINES (Always Available Below Canvas) -->
+                    <div class="bg-brand-white rounded-2xl p-5 border border-brand-mint/40 shadow-sm space-y-3">
+                        <h3 class="font-bold text-brand-dark text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-brand-deep"></i> Pre-Screening Guidelines & Recommendations
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-brand-dark">
+                            <div class="p-3 rounded-xl bg-brand-ice border border-brand-mint/30">
+                                <strong>Posture & Body Position:</strong> Position your body upright and side-facing fully within view.
+                            </div>
+                            <div class="p-3 rounded-xl bg-brand-ice border border-brand-mint/30">
+                                <strong>Clothing:</strong> Wear fitted clothing so PSIS and ASIS landmarks remain visible.
+                            </div>
+                            <div class="p-3 rounded-xl bg-brand-ice border border-brand-mint/30">
+                                <strong>Camera Setup & Lighting:</strong> Keep camera at waist height with clear, bright lighting.
+                            </div>
+                            <div class="p-3 rounded-xl bg-brand-ice border border-brand-mint/30">
+                                <strong>Privacy & Limitations:</strong> Do not rely on results if photo quality or landmarks are obstructed.
                             </div>
                         </div>
                     </div>
@@ -338,7 +421,7 @@
 
     </main>
 
-    <!-- JavaScript Canvas & Dynamic Header Active State Switcher -->
+    <!-- JavaScript Canvas & Modal System -->
     <script>
         let canvas, ctx;
         let currentImage = null;
@@ -350,17 +433,22 @@
             canvas.addEventListener('click', handleCanvasClick);
         };
 
-        // Header Navigation Tab Switcher (Sets Active Tab to Dark Teal with White Text)
+        function acceptDisclaimer() {
+            document.getElementById('disclaimerModal').classList.add('hidden');
+        }
+
+        function showDisclaimerModal() {
+            document.getElementById('disclaimerModal').classList.remove('hidden');
+        }
+
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
             
-            // Reset all header navigation buttons to simple dark text
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.className = "nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all";
             });
 
-            // Make the active clicked tab dark teal background (#174C5A) with crisp white text
             const activeBtn = document.getElementById(`nav-${tabName}`);
             if(activeBtn) {
                 activeBtn.className = "nav-btn px-5 py-3 rounded-xl font-bold text-base text-white bg-brand-deep shadow-md";
