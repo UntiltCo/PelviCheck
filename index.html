@@ -71,7 +71,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
 
-    <!-- 1. MANDATORY MEDICAL DISCLAIMER ONLY MODAL (Lalabas agad sa simula) -->
+    <!-- 1. MANDATORY MEDICAL DISCLAIMER ONLY MODAL -->
     <div id="disclaimerModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5">
             
@@ -209,7 +209,7 @@
         </div>
     </div>
 
-    <!-- 4. SYSTEM REJECTION ERROR MODAL (AWTO-REJECT KAPAG HINDI KITA ANG KATAWAN/WAIST) -->
+    <!-- 4. SYSTEM REJECTION ERROR MODAL (ENGLISH TRANSLATED) -->
     <div id="rejectionModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-red-200 text-center space-y-4">
             <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-2xl">
@@ -218,14 +218,14 @@
 
             <h3 class="font-bold text-lg text-brand-dark">Image Rejected by System</h3>
             <p id="rejectionReasonText" class="text-xs sm:text-sm text-brand-dark/80 leading-relaxed">
-                The uploaded photo was rejected because it does not show a clear view of the body or waist level where ASIS and PSIS landmarks are located.
+                The provided image was rejected because it does not show a clear view of the body or waist area required for landmark detection.
             </p>
 
             <div class="p-3 bg-brand-ice rounded-xl text-xs text-left border border-brand-mint/30 space-y-1">
                 <strong>System Quality Requirements:</strong>
                 <ul class="list-disc list-inside text-brand-dark/80 space-y-0.5">
-                    <li>Must show at least a waist-level or full-body side view.</li>
-                    <li>Hip and pelvis area must be unobstructed.</li>
+                    <li>Must capture at least a waist-level or full-body side view.</li>
+                    <li>Hip and pelvis region must be clearly visible and unobstructed.</li>
                 </ul>
             </div>
 
@@ -597,7 +597,7 @@
             }
         }
 
-        /* --- AUTOMATIC STRICT BODY & WAIST VISIBILITY CHECK --- */
+        /* --- AUTOMATIC STRICT BODY & WAIST VISIBILITY CHECK (ENGLISH REJECTION SYSTEM) --- */
         function runAutomaticStrictScan(imgObj) {
             document.getElementById('scanningOverlay').classList.remove('hidden');
 
@@ -615,7 +615,7 @@
                 
                 // Check if pose landmark keypoints exist
                 if (!results.poseLandmarks || results.poseLandmarks.length === 0) {
-                    showRejectionModal("Hindi ma-detect ng system ang katawan o tao sa litratong in-upload. Siguraduhing malinaw ang kuha ng katawan.");
+                    showRejectionModal("The system could not detect a person or body in the provided photo. Please ensure a clear, full-body or waist-level side profile image is captured.");
                     return;
                 }
 
@@ -627,7 +627,7 @@
                 const leftKnee = landmarks[25];
                 const rightKnee = landmarks[26];
 
-                // Validate visibility score (>0.4 confidence)
+                // Validate visibility score (>0.35 confidence)
                 const isHipVisible = (leftHip && leftHip.visibility > 0.35) || (rightHip && rightHip.visibility > 0.35);
                 const isLowerBodyVisible = (leftKnee && leftKnee.visibility > 0.25) || (rightKnee && rightKnee.visibility > 0.25);
 
@@ -636,7 +636,7 @@
                     acceptAndDisplayImage(imgObj);
                 } else {
                     // Rejected! Waist/hip area is not visible enough
-                    showRejectionModal("Sina-reject ng system ang litrato dahil hindi nakikita nang malinaw ang bahagi ng bewang/hips (waist-level) kung saan naroon ang ASIS at PSIS landmarks.");
+                    showRejectionModal("The system rejected the photo because the waist and hip region is not clearly visible. The ASIS and PSIS landmarks require an unobstructed side-view framing at waist level.");
                 }
             });
 
@@ -803,7 +803,7 @@
                 acceptAndDisplayImage(img);
             };
             img.onerror = function() {
-                alert("Hindi mahanap ang 'demo.jpg'. Siguraduhing naka-upload ang 'demo.jpg' sa main folder ng GitHub repository mo!");
+                alert("Could not find 'demo.jpg'. Please ensure 'demo.jpg' is uploaded directly to your GitHub repository root folder!");
             };
             img.src = 'demo.jpg?v=' + new Date().getTime();
         }
