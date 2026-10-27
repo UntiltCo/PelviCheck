@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- MediaPipe Pose Detection Scripts for Automatic Strict Verification -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -66,7 +71,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
 
-    <!-- 1. MANDATORY MEDICAL DISCLAIMER ONLY MODAL -->
+    <!-- 1. MANDATORY MEDICAL DISCLAIMER ONLY MODAL (Lalabas agad sa simula) -->
     <div id="disclaimerModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5">
             
@@ -152,47 +157,7 @@
         </div>
     </div>
 
-    <!-- 3. STRICT PHOTO QUALITY & LANDMARK CHECK MODAL (NAGSI-CHECK NG MGA KINUHA O IN-UPLOAD NA LITRATO) -->
-    <div id="verifyPhotoModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-brand-mint/30 space-y-4 text-center">
-            
-            <div class="w-12 h-12 rounded-2xl bg-brand-ice text-brand-deep mx-auto flex items-center justify-center text-xl">
-                <i class="fa-solid fa-shield-halved"></i>
-            </div>
-
-            <h3 class="font-bold text-lg text-brand-dark">Strict Posture Photo Verification</h3>
-            <p class="text-xs text-brand-dark/70">Suriin ang iyong litrato batay sa mga pamantayan ng PelviCheck bago magpatuloy:</p>
-
-            <!-- Preview Image -->
-            <div class="relative max-h-56 overflow-hidden rounded-2xl border border-brand-mint/40 bg-brand-dark flex items-center justify-center">
-                <img id="verifyImagePreview" src="" alt="Image Preview" class="max-h-56 w-auto object-contain">
-            </div>
-
-            <!-- Verification Checklist -->
-            <div class="bg-brand-ice rounded-xl p-3 text-left space-y-2 text-xs border border-brand-mint/30">
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" id="checkFullBody" class="w-4 h-4 accent-brand-deep rounded cursor-pointer" onchange="validateChecklist()">
-                    <label for="checkFullBody" class="cursor-pointer font-medium text-brand-dark">Kita ang buong katawan o ang bahagi ng bewang pababa (waist-level view).</label>
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" id="checkLandmarksVisible" class="w-4 h-4 accent-brand-deep rounded cursor-pointer" onchange="validateChecklist()">
-                    <label for="checkLandmarksVisible" class="cursor-pointer font-medium text-brand-dark">Malinaw at hindi nakatakip ang mga punto ng <strong>ASIS (Harap)</strong> at <strong>PSIS (Likod)</strong>.</label>
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex items-center justify-between gap-3 pt-2 border-t border-brand-ice">
-                <button onclick="rejectPhoto()" class="w-1/2 bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-xs py-3 rounded-xl transition flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-xmark"></i> Reject & Retake
-                </button>
-                <button id="acceptPhotoBtn" disabled onclick="acceptVerifiedPhoto()" class="w-1/2 bg-gray-300 text-gray-500 font-bold text-xs py-3 rounded-xl transition cursor-not-allowed flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-check"></i> Accept Photo
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4. DEMO IMAGE LANDMARK INSTRUCTIONS MODAL -->
+    <!-- 3. DEMO IMAGE LANDMARK INSTRUCTIONS MODAL -->
     <div id="demoGuideModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 max-h-[90vh] overflow-y-auto">
             
@@ -242,6 +207,38 @@
             </div>
 
         </div>
+    </div>
+
+    <!-- 4. SYSTEM REJECTION ERROR MODAL (AWTO-REJECT KAPAG HINDI KITA ANG KATAWAN/WAIST) -->
+    <div id="rejectionModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-red-200 text-center space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-2xl">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+
+            <h3 class="font-bold text-lg text-brand-dark">Image Rejected by System</h3>
+            <p id="rejectionReasonText" class="text-xs sm:text-sm text-brand-dark/80 leading-relaxed">
+                The uploaded photo was rejected because it does not show a clear view of the body or waist level where ASIS and PSIS landmarks are located.
+            </p>
+
+            <div class="p-3 bg-brand-ice rounded-xl text-xs text-left border border-brand-mint/30 space-y-1">
+                <strong>System Quality Requirements:</strong>
+                <ul class="list-disc list-inside text-brand-dark/80 space-y-0.5">
+                    <li>Must show at least a waist-level or full-body side view.</li>
+                    <li>Hip and pelvis area must be unobstructed.</li>
+                </ul>
+            </div>
+
+            <button onclick="closeRejectionModal()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm py-3 rounded-xl transition shadow-md">
+                Try Again with Valid Photo
+            </button>
+        </div>
+    </div>
+
+    <!-- LOADING SCANNER OVERLAY -->
+    <div id="scanningOverlay" class="fixed inset-0 z-50 hidden flex flex-col items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm text-white space-y-3">
+        <div class="w-12 h-12 border-4 border-brand-mint border-t-transparent rounded-full animate-spin"></div>
+        <p class="font-bold text-sm tracking-wide">System Scanning Image Quality & Body Visibility...</p>
     </div>
 
     <!-- LIVE CAMERA CAPTURE MODAL -->
@@ -566,22 +563,113 @@
 
     </main>
 
-    <!-- JavaScript Canvas & Camera Engine -->
+    <!-- JavaScript Canvas, MediaPipe AI Verification, & Camera Engine -->
     <script>
         let canvas, ctx;
         let currentImage = null;
-        let pendingTempImage = null; // Staging image for verification
         let points = [];
         let mediaStream = null;
         let facingMode = 'user';
         let pendingAction = null;
+        let poseModel = null;
 
         window.onload = function() {
             canvas = document.getElementById('postureCanvas');
             ctx = canvas.getContext('2d');
             canvas.addEventListener('click', handleCanvasClick);
+            initializeMediaPipePose();
         };
 
+        /* --- INITIALIZE MEDIAPIPE POSE AI --- */
+        function initializeMediaPipePose() {
+            try {
+                poseModel = new Pose({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+                });
+                poseModel.setOptions({
+                    modelComplexity: 1,
+                    smoothLandmarks: true,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+            } catch (err) {
+                console.warn("MediaPipe Pose load failed, using fallback strict checks:", err);
+            }
+        }
+
+        /* --- AUTOMATIC STRICT BODY & WAIST VISIBILITY CHECK --- */
+        function runAutomaticStrictScan(imgObj) {
+            document.getElementById('scanningOverlay').classList.remove('hidden');
+
+            if (!poseModel) {
+                // Fallback check if AI module fails to load
+                setTimeout(() => {
+                    document.getElementById('scanningOverlay').classList.add('hidden');
+                    acceptAndDisplayImage(imgObj);
+                }, 800);
+                return;
+            }
+
+            poseModel.onResults((results) => {
+                document.getElementById('scanningOverlay').classList.add('hidden');
+                
+                // Check if pose landmark keypoints exist
+                if (!results.poseLandmarks || results.poseLandmarks.length === 0) {
+                    showRejectionModal("Hindi ma-detect ng system ang katawan o tao sa litratong in-upload. Siguraduhing malinaw ang kuha ng katawan.");
+                    return;
+                }
+
+                const landmarks = results.poseLandmarks;
+
+                // Index 23: Left Hip, Index 24: Right Hip, Index 25: Left Knee, Index 26: Right Knee
+                const leftHip = landmarks[23];
+                const rightHip = landmarks[24];
+                const leftKnee = landmarks[25];
+                const rightKnee = landmarks[26];
+
+                // Validate visibility score (>0.4 confidence)
+                const isHipVisible = (leftHip && leftHip.visibility > 0.35) || (rightHip && rightHip.visibility > 0.35);
+                const isLowerBodyVisible = (leftKnee && leftKnee.visibility > 0.25) || (rightKnee && rightKnee.visibility > 0.25);
+
+                if (isHipVisible && isLowerBodyVisible) {
+                    // Passed AI body visibility check!
+                    acceptAndDisplayImage(imgObj);
+                } else {
+                    // Rejected! Waist/hip area is not visible enough
+                    showRejectionModal("Sina-reject ng system ang litrato dahil hindi nakikita nang malinaw ang bahagi ng bewang/hips (waist-level) kung saan naroon ang ASIS at PSIS landmarks.");
+                }
+            });
+
+            // Feed image to AI scanner
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = imgObj.width;
+            tempCanvas.height = imgObj.height;
+            const tCtx = tempCanvas.getContext('2d');
+            tCtx.drawImage(imgObj, 0, 0);
+            
+            poseModel.send({ image: tempCanvas });
+        }
+
+        function acceptAndDisplayImage(imgObj) {
+            currentImage = imgObj;
+            document.getElementById('emptyCanvasOverlay').classList.add('hidden');
+            canvas.width = imgObj.width > 800 ? 800 : imgObj.width;
+            canvas.height = imgObj.height * (canvas.width / imgObj.width);
+            points = [];
+            redraw();
+        }
+
+        function showRejectionModal(reasonText) {
+            document.getElementById('rejectionReasonText').textContent = reasonText;
+            document.getElementById('rejectionModal').classList.remove('hidden');
+        }
+
+        function closeRejectionModal() {
+            document.getElementById('rejectionModal').classList.add('hidden');
+            document.getElementById('imageInput').value = ""; // Clear invalid file
+        }
+
+        /* --- MODAL CONTROLS --- */
         function acceptDisclaimer() {
             document.getElementById('disclaimerModal').classList.add('hidden');
         }
@@ -590,7 +678,6 @@
             document.getElementById('disclaimerModal').classList.remove('hidden');
         }
 
-        /* --- SETUP GUIDELINES PROMPT LOGIC --- */
         function triggerUploadPrompt() {
             pendingAction = 'upload';
             document.getElementById('setupGuidelinesModal').classList.remove('hidden');
@@ -616,7 +703,6 @@
             pendingAction = null;
         }
 
-        /* --- DEMO IMAGE PROMPT LOGIC --- */
         function triggerDemoPrompt() {
             document.getElementById('demoGuideModal').classList.remove('hidden');
         }
@@ -628,49 +714,6 @@
         function confirmLoadDemo() {
             closeDemoGuide();
             loadSampleImage();
-        }
-
-        /* --- STRICT PHOTO VERIFICATION SYSTEM --- */
-        function startPhotoVerification(imgObj) {
-            pendingTempImage = imgObj;
-            document.getElementById('verifyImagePreview').src = imgObj.src;
-            document.getElementById('checkFullBody').checked = false;
-            document.getElementById('checkLandmarksVisible').checked = false;
-            validateChecklist();
-            document.getElementById('verifyPhotoModal').classList.remove('hidden');
-        }
-
-        function validateChecklist() {
-            const check1 = document.getElementById('checkFullBody').checked;
-            const check2 = document.getElementById('checkLandmarksVisible').checked;
-            const acceptBtn = document.getElementById('acceptPhotoBtn');
-
-            if (check1 && check2) {
-                acceptBtn.disabled = false;
-                acceptBtn.className = "w-1/2 bg-brand-deep hover:bg-brand-dark text-white font-bold text-xs py-3 rounded-xl transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer";
-            } else {
-                acceptBtn.disabled = true;
-                acceptBtn.className = "w-1/2 bg-gray-300 text-gray-500 font-bold text-xs py-3 rounded-xl transition cursor-not-allowed flex items-center justify-center gap-1.5";
-            }
-        }
-
-        function acceptVerifiedPhoto() {
-            if (!pendingTempImage) return;
-            currentImage = pendingTempImage;
-            document.getElementById('emptyCanvasOverlay').classList.add('hidden');
-            canvas.width = currentImage.width > 800 ? 800 : currentImage.width;
-            canvas.height = currentImage.height * (canvas.width / currentImage.width);
-            points = [];
-            redraw();
-            
-            document.getElementById('verifyPhotoModal').classList.add('hidden');
-            pendingTempImage = null;
-        }
-
-        function rejectPhoto() {
-            document.getElementById('verifyPhotoModal').classList.add('hidden');
-            pendingTempImage = null;
-            alert("Litrato pinalitan/tinanggihan. Pakisiguradong buo o waist-level ang kuha at malinaw ang ASIS at PSIS bago subukang muli.");
         }
 
         /* --- LIVE CAMERA LOGIC --- */
@@ -721,7 +764,7 @@
             const img = new Image();
             img.onload = function() {
                 closeCameraModal();
-                startPhotoVerification(img);
+                runAutomaticStrictScan(img);
             };
             img.src = tempCanvas.toDataURL('image/jpeg');
         }
@@ -747,7 +790,7 @@
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
-                    startPhotoVerification(img);
+                    runAutomaticStrictScan(img);
                 };
                 img.src = event.target.result;
             };
@@ -757,12 +800,7 @@
         function loadSampleImage() {
             const img = new Image();
             img.onload = function() {
-                currentImage = img;
-                document.getElementById('emptyCanvasOverlay').classList.add('hidden');
-                canvas.width = img.width > 800 ? 800 : img.width;
-                canvas.height = img.height * (canvas.width / img.width);
-                points = [];
-                redraw();
+                acceptAndDisplayImage(img);
             };
             img.onerror = function() {
                 alert("Hindi mahanap ang 'demo.jpg'. Siguraduhing naka-upload ang 'demo.jpg' sa main folder ng GitHub repository mo!");
