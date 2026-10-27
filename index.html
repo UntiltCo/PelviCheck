@@ -66,7 +66,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
 
-    <!-- 1. MANDATORY MEDICAL DISCLAIMER ONLY MODAL (Lalabas agad sa simula) -->
+    <!-- 1. MANDATORY MEDICAL DISCLAIMER ONLY MODAL -->
     <div id="disclaimerModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5">
             
@@ -80,13 +80,11 @@
                 </div>
             </div>
 
-            <!-- Medical Notice Statement -->
             <div class="p-4 rounded-xl bg-brand-ice border border-brand-mint/40 text-xs sm:text-sm text-brand-dark space-y-2">
                 <p class="font-bold text-brand-deep"><i class="fa-solid fa-circle-info mr-1"></i> Medical Disclaimer:</p>
                 <p class="leading-relaxed">PelviCheck is a preliminary educational posture screening tool and does not provide clinical diagnoses. Always consult qualified physical therapists or medical specialists for clinical evaluations.</p>
             </div>
 
-            <!-- Action Button -->
             <div class="pt-2 border-t border-brand-ice text-right">
                 <button onclick="acceptDisclaimer()" class="w-full sm:w-auto bg-brand-deep hover:bg-brand-dark text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all text-sm">
                     I Agree and Understand
@@ -96,7 +94,7 @@
         </div>
     </div>
 
-    <!-- 2. SCREENING REQUIREMENTS & SETUP MODAL (Lalabas bago mag-Upload o Take Photo) -->
+    <!-- 2. SCREENING REQUIREMENTS & SETUP MODAL -->
     <div id="setupGuidelinesModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 max-h-[90vh] overflow-y-auto">
             
@@ -115,7 +113,6 @@
                 </button>
             </div>
 
-            <!-- Mandatory Screening Guidelines List -->
             <div class="space-y-3 text-xs sm:text-sm text-brand-dark">
                 <ul class="space-y-2.5">
                     <li class="flex items-start gap-2.5">
@@ -124,7 +121,7 @@
                     </li>
                     <li class="flex items-start gap-2.5">
                         <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
-                        <span><strong>Body position:</strong> Position the body correctly within the camera view (full side-profile).</span>
+                        <span><strong>Body position:</strong> Position the body correctly within the camera view (full side-profile or waist-level framed).</span>
                     </li>
                     <li class="flex items-start gap-2.5">
                         <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
@@ -145,7 +142,6 @@
                 </ul>
             </div>
 
-            <!-- Action Button -->
             <div class="pt-2 border-t border-brand-ice flex justify-end gap-2">
                 <button onclick="closeSetupGuidelines()" class="px-5 py-2.5 rounded-xl border border-brand-mint/40 text-xs font-semibold text-brand-dark hover:bg-brand-ice">Cancel</button>
                 <button onclick="proceedToSource()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition-all text-xs sm:text-sm">
@@ -156,7 +152,47 @@
         </div>
     </div>
 
-    <!-- 3. DEMO IMAGE LANDMARK INSTRUCTIONS MODAL (Lalabas kapag pinindot ang Demo Image) -->
+    <!-- 3. STRICT PHOTO QUALITY & LANDMARK CHECK MODAL (NAGSI-CHECK NG MGA KINUHA O IN-UPLOAD NA LITRATO) -->
+    <div id="verifyPhotoModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-brand-mint/30 space-y-4 text-center">
+            
+            <div class="w-12 h-12 rounded-2xl bg-brand-ice text-brand-deep mx-auto flex items-center justify-center text-xl">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+
+            <h3 class="font-bold text-lg text-brand-dark">Strict Posture Photo Verification</h3>
+            <p class="text-xs text-brand-dark/70">Suriin ang iyong litrato batay sa mga pamantayan ng PelviCheck bago magpatuloy:</p>
+
+            <!-- Preview Image -->
+            <div class="relative max-h-56 overflow-hidden rounded-2xl border border-brand-mint/40 bg-brand-dark flex items-center justify-center">
+                <img id="verifyImagePreview" src="" alt="Image Preview" class="max-h-56 w-auto object-contain">
+            </div>
+
+            <!-- Verification Checklist -->
+            <div class="bg-brand-ice rounded-xl p-3 text-left space-y-2 text-xs border border-brand-mint/30">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="checkFullBody" class="w-4 h-4 accent-brand-deep rounded cursor-pointer" onchange="validateChecklist()">
+                    <label for="checkFullBody" class="cursor-pointer font-medium text-brand-dark">Kita ang buong katawan o ang bahagi ng bewang pababa (waist-level view).</label>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="checkLandmarksVisible" class="w-4 h-4 accent-brand-deep rounded cursor-pointer" onchange="validateChecklist()">
+                    <label for="checkLandmarksVisible" class="cursor-pointer font-medium text-brand-dark">Malinaw at hindi nakatakip ang mga punto ng <strong>ASIS (Harap)</strong> at <strong>PSIS (Likod)</strong>.</label>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-between gap-3 pt-2 border-t border-brand-ice">
+                <button onclick="rejectPhoto()" class="w-1/2 bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-xs py-3 rounded-xl transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-xmark"></i> Reject & Retake
+                </button>
+                <button id="acceptPhotoBtn" disabled onclick="acceptVerifiedPhoto()" class="w-1/2 bg-gray-300 text-gray-500 font-bold text-xs py-3 rounded-xl transition cursor-not-allowed flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-check"></i> Accept Photo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. DEMO IMAGE LANDMARK INSTRUCTIONS MODAL -->
     <div id="demoGuideModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 max-h-[90vh] overflow-y-auto">
             
@@ -175,7 +211,6 @@
                 </button>
             </div>
 
-            <!-- Landmark Guide Table -->
             <div class="overflow-x-auto rounded-xl border border-brand-mint/40">
                 <table class="w-full text-xs sm:text-sm text-left text-brand-dark">
                     <thead class="bg-brand-deep text-white font-bold text-xs uppercase tracking-wider">
@@ -200,7 +235,6 @@
                 </table>
             </div>
 
-            <!-- Action Button -->
             <div class="pt-2 border-t border-brand-ice text-right">
                 <button onclick="confirmLoadDemo()" class="w-full sm:w-auto bg-brand-deep hover:bg-brand-dark text-white font-bold px-8 py-3 rounded-xl shadow-lg transition-all text-xs sm:text-sm">
                     Got it, Load Demo Image
@@ -222,12 +256,10 @@
                 </button>
             </div>
 
-            <!-- Video Viewport -->
             <div class="relative bg-brand-dark rounded-2xl overflow-hidden aspect-video flex items-center justify-center border border-brand-deep">
                 <video id="cameraStream" autoplay playsinline class="w-full h-full object-cover"></video>
             </div>
 
-            <!-- Controls -->
             <div class="flex items-center justify-between gap-3 pt-2">
                 <button onclick="switchCameraMode()" class="bg-brand-ice hover:bg-brand-mint/30 text-brand-dark font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition border border-brand-mint/40 flex items-center gap-2">
                     <i class="fa-solid fa-rotate text-brand-deep"></i> Flip Camera
@@ -245,14 +277,12 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-48 items-center py-2">
                 
-                <!-- Extra Large Crisp Logo Display -->
                 <div class="flex items-center gap-3">
                     <a href="#" class="flex items-center gap-3">
                         <img src="logo.jpg" alt="PelviCheck Logo" class="h-40 sm:h-44 w-auto max-w-[600px] object-contain giant-logo" onerror="console.log('Logo image not found');">
                     </a>
                 </div>
 
-                <!-- Navigation Links -->
                 <nav class="hidden md:flex space-x-2">
                     <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn px-5 py-3 rounded-xl font-bold text-base transition-all text-white bg-brand-deep shadow-md">
                         <i class="fa-solid fa-camera mr-2"></i>Screening
@@ -268,7 +298,6 @@
                     </button>
                 </nav>
 
-                <!-- Mobile Menu Button -->
                 <div class="md:hidden flex items-center">
                     <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="text-brand-dark hover:text-brand-deep p-2">
                         <i class="fa-solid fa-bars text-3xl"></i>
@@ -277,7 +306,6 @@
             </div>
         </div>
 
-        <!-- Mobile Navigation Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-brand-mint/40 px-4 pt-2 pb-4 space-y-1">
             <button onclick="switchTab('assessment')" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-white bg-brand-deep">
                 <i class="fa-solid fa-camera mr-2"></i>Screening Assessment
@@ -311,7 +339,6 @@
         <!-- SECTION 1: ASSESSMENT TAB -->
         <section id="tab-assessment" class="tab-content block space-y-6">
             
-            <!-- Banner -->
             <div class="bg-brand-deep text-brand-white rounded-2xl p-6 shadow-lg border border-brand-mint/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 class="text-2xl sm:text-3xl font-bold">Pelvic Alignment Screening</h1>
@@ -321,14 +348,11 @@
                 </div>
             </div>
 
-            <!-- Workspace Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                <!-- Left Column: Canvas Workspace -->
                 <div class="lg:col-span-8 space-y-4">
                     <div class="bg-brand-white rounded-2xl p-4 sm:p-5 border border-brand-mint/40 shadow-sm space-y-4">
                         
-                        <!-- Toolbar Controls -->
                         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-brand-ice">
                             <div class="flex flex-wrap items-center gap-2">
                                 <button onclick="triggerUploadPrompt()" class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-2">
@@ -350,7 +374,6 @@
                             </button>
                         </div>
 
-                        <!-- Step Prompt -->
                         <div id="stepInstruction" class="bg-brand-ice border border-brand-mint/50 rounded-xl px-4 py-3 text-brand-dark text-sm flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <span id="stepText" class="font-medium">Step 1: Click on the <strong>PSIS (Back Hip Bone Landmark)</strong>.</span>
@@ -358,7 +381,6 @@
                             <span id="pointCounter" class="text-xs bg-brand-deep text-brand-white font-bold px-2.5 py-1 rounded-full">0/2 Points</span>
                         </div>
 
-                        <!-- Canvas Workspace -->
                         <div class="canvas-container w-full bg-brand-dark rounded-xl overflow-hidden flex items-center justify-center min-h-[380px] max-h-[600px] border border-brand-deep relative">
                             <canvas id="postureCanvas" class="max-w-full h-auto max-h-[580px] object-contain"></canvas>
                             <div id="emptyCanvasOverlay" class="absolute inset-0 flex flex-col items-center justify-center text-brand-ice/70 p-6 text-center bg-brand-dark/95">
@@ -382,7 +404,6 @@
                             <span id="exerciseTag" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-brand-ice text-brand-deep border border-brand-mint/30">General Care</span>
                         </div>
 
-                        <!-- Dynamic Content Container -->
                         <div id="exerciseList" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-brand-dark">
                             <div class="p-3.5 rounded-xl bg-brand-ice border border-brand-mint/30 space-y-1">
                                 <strong class="text-brand-deep block text-sm"><i class="fa-solid fa-chair mr-1"></i> Ergonomic Sitting Habit</strong>
@@ -404,7 +425,6 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Results & Clinical Guidance -->
                 <div class="lg:col-span-4 space-y-4">
                     <div class="bg-brand-white rounded-2xl p-5 border border-brand-mint/40 shadow-sm space-y-4">
                         <div class="border-b border-brand-ice pb-3 flex justify-between items-center">
@@ -412,7 +432,6 @@
                             <span id="statusBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-ice text-brand-dark border border-brand-mint/30">Awaiting Points</span>
                         </div>
 
-                        <!-- Calculated Angle -->
                         <div class="bg-brand-ice rounded-xl p-4 text-center border border-brand-mint/40">
                             <span class="text-xs font-semibold text-brand-deep uppercase tracking-wider block mb-1">Estimated Pelvic Tilt Angle</span>
                             <div class="flex items-baseline justify-center gap-1">
@@ -421,7 +440,6 @@
                             </div>
                         </div>
 
-                        <!-- Classification Output -->
                         <div id="classificationBox" class="p-4 rounded-xl border border-dashed border-brand-mint text-center space-y-1 bg-brand-ice">
                             <div id="classificationTitle" class="font-bold text-base text-brand-dark">Incomplete Assessment</div>
                             <p id="classificationDesc" class="text-xs text-brand-dark/80 leading-relaxed">
@@ -429,7 +447,6 @@
                             </p>
                         </div>
 
-                        <!-- CLINICAL REFERENCE THRESHOLDS -->
                         <div class="space-y-2 pt-2 border-t border-brand-ice">
                             <span class="text-xs font-bold text-brand-dark uppercase tracking-wider block">Clinical Reference Thresholds</span>
                             <div class="space-y-1.5 text-xs">
@@ -497,7 +514,6 @@
                     </div>
                 </div>
 
-                <!-- SCIENTIFIC CITATION BOX -->
                 <div class="bg-brand-ice border border-brand-mint/50 rounded-2xl p-6 space-y-4">
                     <h3 class="text-lg font-bold text-brand-dark flex items-center gap-2">
                         <i class="fa-solid fa-microscope text-brand-deep"></i> Clinical Research & Literature Norms
@@ -554,10 +570,11 @@
     <script>
         let canvas, ctx;
         let currentImage = null;
+        let pendingTempImage = null; // Staging image for verification
         let points = [];
         let mediaStream = null;
         let facingMode = 'user';
-        let pendingAction = null; // Stores 'upload' or 'camera'
+        let pendingAction = null;
 
         window.onload = function() {
             canvas = document.getElementById('postureCanvas');
@@ -565,7 +582,6 @@
             canvas.addEventListener('click', handleCanvasClick);
         };
 
-        /* --- MODAL CONTROL FUNCTIONS --- */
         function acceptDisclaimer() {
             document.getElementById('disclaimerModal').classList.add('hidden');
         }
@@ -574,7 +590,7 @@
             document.getElementById('disclaimerModal').classList.remove('hidden');
         }
 
-        /* --- SETUP GUIDELINES TRIGGER LOGIC --- */
+        /* --- SETUP GUIDELINES PROMPT LOGIC --- */
         function triggerUploadPrompt() {
             pendingAction = 'upload';
             document.getElementById('setupGuidelinesModal').classList.remove('hidden');
@@ -600,7 +616,7 @@
             pendingAction = null;
         }
 
-        /* --- DEMO IMAGE GUIDE MODAL LOGIC --- */
+        /* --- DEMO IMAGE PROMPT LOGIC --- */
         function triggerDemoPrompt() {
             document.getElementById('demoGuideModal').classList.remove('hidden');
         }
@@ -612,6 +628,49 @@
         function confirmLoadDemo() {
             closeDemoGuide();
             loadSampleImage();
+        }
+
+        /* --- STRICT PHOTO VERIFICATION SYSTEM --- */
+        function startPhotoVerification(imgObj) {
+            pendingTempImage = imgObj;
+            document.getElementById('verifyImagePreview').src = imgObj.src;
+            document.getElementById('checkFullBody').checked = false;
+            document.getElementById('checkLandmarksVisible').checked = false;
+            validateChecklist();
+            document.getElementById('verifyPhotoModal').classList.remove('hidden');
+        }
+
+        function validateChecklist() {
+            const check1 = document.getElementById('checkFullBody').checked;
+            const check2 = document.getElementById('checkLandmarksVisible').checked;
+            const acceptBtn = document.getElementById('acceptPhotoBtn');
+
+            if (check1 && check2) {
+                acceptBtn.disabled = false;
+                acceptBtn.className = "w-1/2 bg-brand-deep hover:bg-brand-dark text-white font-bold text-xs py-3 rounded-xl transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer";
+            } else {
+                acceptBtn.disabled = true;
+                acceptBtn.className = "w-1/2 bg-gray-300 text-gray-500 font-bold text-xs py-3 rounded-xl transition cursor-not-allowed flex items-center justify-center gap-1.5";
+            }
+        }
+
+        function acceptVerifiedPhoto() {
+            if (!pendingTempImage) return;
+            currentImage = pendingTempImage;
+            document.getElementById('emptyCanvasOverlay').classList.add('hidden');
+            canvas.width = currentImage.width > 800 ? 800 : currentImage.width;
+            canvas.height = currentImage.height * (canvas.width / currentImage.width);
+            points = [];
+            redraw();
+            
+            document.getElementById('verifyPhotoModal').classList.add('hidden');
+            pendingTempImage = null;
+        }
+
+        function rejectPhoto() {
+            document.getElementById('verifyPhotoModal').classList.add('hidden');
+            pendingTempImage = null;
+            alert("Litrato pinalitan/tinanggihan. Pakisiguradong buo o waist-level ang kuha at malinaw ang ASIS at PSIS bago subukang muli.");
         }
 
         /* --- LIVE CAMERA LOGIC --- */
@@ -661,13 +720,8 @@
 
             const img = new Image();
             img.onload = function() {
-                currentImage = img;
-                document.getElementById('emptyCanvasOverlay').classList.add('hidden');
-                canvas.width = img.width > 800 ? 800 : img.width;
-                canvas.height = img.height * (canvas.width / img.width);
-                points = [];
-                redraw();
                 closeCameraModal();
+                startPhotoVerification(img);
             };
             img.src = tempCanvas.toDataURL('image/jpeg');
         }
@@ -693,19 +747,13 @@
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
-                    currentImage = img;
-                    document.getElementById('emptyCanvasOverlay').classList.add('hidden');
-                    canvas.width = img.width > 800 ? 800 : img.width;
-                    canvas.height = img.height * (canvas.width / img.width);
-                    points = [];
-                    redraw();
+                    startPhotoVerification(img);
                 };
                 img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        /* --- LOADS DEMO IMAGE WITH CACHE BUSTER --- */
         function loadSampleImage() {
             const img = new Image();
             img.onload = function() {
@@ -807,7 +855,6 @@
                 descEl.textContent = `Your calculated angle of ${angle}° falls within the normal standing tilt reference range (7° - 13°).`;
                 boxEl.className = "p-4 rounded-xl border border-brand-mint text-center space-y-1 bg-brand-ice";
 
-                // Exercise recommendations for Normal Tilt
                 exerciseTag.textContent = "Normal Alignment Care";
                 exerciseList.innerHTML = `
                     <div class="p-3.5 rounded-xl bg-brand-ice border border-brand-mint/30 space-y-1">
@@ -835,7 +882,6 @@
                 descEl.textContent = `Your calculated angle of ${angle}° exceeds the standard normal standing threshold (> 13°).`;
                 boxEl.className = "p-4 rounded-xl border border-brand-deep text-center space-y-1 bg-brand-ice";
 
-                // Exercise recommendations for APT
                 exerciseTag.textContent = "Recommended for Anterior Tilt";
                 exerciseList.innerHTML = `
                     <div class="p-3.5 rounded-xl bg-brand-ice border border-brand-mint/30 space-y-1">
@@ -863,7 +909,6 @@
                 descEl.textContent = `Your calculated angle of ${angle}° is below the standard standing threshold (< 7°).`;
                 boxEl.className = "p-4 rounded-xl border border-brand-dark text-center space-y-1 bg-brand-ice";
 
-                // Exercise recommendations for PPT
                 exerciseTag.textContent = "Recommended for Posterior Tilt";
                 exerciseList.innerHTML = `
                     <div class="p-3.5 rounded-xl bg-brand-ice border border-brand-mint/30 space-y-1">
@@ -896,7 +941,6 @@
             document.getElementById('classificationDesc').textContent = "Select both the PSIS (back) and ASIS (front) landmarks on your image.";
             document.getElementById('classificationBox').className = "p-4 rounded-xl border border-dashed border-brand-mint text-center space-y-1 bg-brand-ice";
 
-            // Reset exercise section to general care
             document.getElementById('exerciseTag').textContent = "General Care";
             document.getElementById('exerciseList').innerHTML = `
                 <div class="p-3.5 rounded-xl bg-brand-ice border border-brand-mint/30 space-y-1">
