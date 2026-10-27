@@ -163,7 +163,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-48 items-center py-2">
                 
-                <!-- Extra Large / Giant Crisp Logo Display -->
+                <!-- Extra Large Crisp Logo Display -->
                 <div class="flex items-center gap-3">
                     <a href="#" class="flex items-center gap-3">
                         <img src="logo.jpg" alt="PelviCheck Logo" class="h-40 sm:h-44 w-auto max-w-[600px] object-contain giant-logo" onerror="console.log('Image not found, check filename on GitHub');">
@@ -246,7 +246,7 @@
                 <div class="lg:col-span-8 space-y-4">
                     <div class="bg-brand-white rounded-2xl p-4 sm:p-5 border border-brand-mint/40 shadow-sm space-y-4">
                         
-                        <!-- Toolbar Controls (File Upload + Open Camera) -->
+                        <!-- Toolbar Controls (File Upload + Open Camera + Custom Demo) -->
                         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-brand-ice">
                             <div class="flex flex-wrap items-center gap-2">
                                 <label class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl cursor-pointer transition shadow-sm flex items-center gap-2">
@@ -572,35 +572,21 @@
             reader.readAsDataURL(file);
         }
 
+        /* --- LOADS CUSTOM GITHUB DEMO IMAGE (demo.jpg) --- */
         function loadSampleImage() {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 600;
-            tempCanvas.height = 600;
-            const tCtx = tempCanvas.getContext('2d');
-            
-            tCtx.fillStyle = '#EAF5F3';
-            tCtx.fillRect(0, 0, 600, 600);
-            
-            tCtx.fillStyle = '#72B7B0';
-            tCtx.beginPath();
-            tCtx.arc(300, 120, 50, 0, Math.PI * 2);
-            tCtx.fill();
-            
-            tCtx.fillStyle = '#174C5A';
-            tCtx.beginPath();
-            tCtx.ellipse(300, 320, 50, 120, Math.PI / 12, 0, Math.PI * 2);
-            tCtx.fill();
-
             const img = new Image();
             img.onload = function() {
                 currentImage = img;
                 document.getElementById('emptyCanvasOverlay').classList.add('hidden');
-                canvas.width = 600;
-                canvas.height = 600;
+                canvas.width = img.width > 800 ? 800 : img.width;
+                canvas.height = img.height * (canvas.width / img.width);
                 points = [];
                 redraw();
             };
-            img.src = tempCanvas.toDataURL();
+            img.onerror = function() {
+                alert("Please upload 'demo.jpg' to your GitHub repository first!");
+            };
+            img.src = 'demo.jpg';
         }
 
         function handleCanvasClick(e) {
