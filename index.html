@@ -166,7 +166,7 @@
                 <!-- Extra Large Crisp Logo Display -->
                 <div class="flex items-center gap-3">
                     <a href="#" class="flex items-center gap-3">
-                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-40 sm:h-44 w-auto max-w-[600px] object-contain giant-logo" onerror="console.log('Image not found, check filename on GitHub');">
+                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-40 sm:h-44 w-auto max-w-[600px] object-contain giant-logo" onerror="console.log('Logo image not found');">
                     </a>
                 </div>
 
@@ -246,7 +246,7 @@
                 <div class="lg:col-span-8 space-y-4">
                     <div class="bg-brand-white rounded-2xl p-4 sm:p-5 border border-brand-mint/40 shadow-sm space-y-4">
                         
-                        <!-- Toolbar Controls (File Upload + Open Camera + Custom Demo) -->
+                        <!-- Toolbar Controls -->
                         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-brand-ice">
                             <div class="flex flex-wrap items-center gap-2">
                                 <label class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl cursor-pointer transition shadow-sm flex items-center gap-2">
@@ -572,7 +572,7 @@
             reader.readAsDataURL(file);
         }
 
-        /* --- LOADS CUSTOM GITHUB DEMO IMAGE (demo.jpg) --- */
+        /* --- LOADS DEMO IMAGE WITH CACHE BUSTER --- */
         function loadSampleImage() {
             const img = new Image();
             img.onload = function() {
@@ -584,9 +584,10 @@
                 redraw();
             };
             img.onerror = function() {
-                alert("Please upload 'demo.jpg' to your GitHub repository first!");
+                alert("Hindi mahanap ang 'demo.jpg'. Siguraduhing naka-upload ang 'demo.jpg' (lowercase) sa mismong main folder ng GitHub repository mo!");
             };
-            img.src = 'demo.jpg';
+            // Pinipilit nito ang browser na kukunin ang pinakabagong demo.jpg
+            img.src = 'demo.jpg?v=' + new Date().getTime();
         }
 
         function handleCanvasClick(e) {
