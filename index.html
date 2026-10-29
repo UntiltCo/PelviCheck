@@ -209,7 +209,7 @@
         </div>
     </div>
 
-    <!-- 4. SYSTEM REJECTION ERROR MODAL (ENGLISH TRANSLATED) -->
+    <!-- 4. SYSTEM REJECTION ERROR MODAL -->
     <div id="rejectionModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-red-200 text-center space-y-4">
             <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-2xl">
@@ -269,35 +269,37 @@
         </div>
     </div>
 
-    <!-- Pure White Navigation Header (#FFFFFF) -->
+    <!-- Pure White Navigation Header (#FFFFFF) - UPDATED HEIGHT & SPACING -->
     <header class="bg-white border-b border-brand-mint/40 sticky top-0 z-30 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-48 items-center py-2">
+            <div class="flex justify-between h-20 items-center">
                 
+                <!-- Logo with Compact Vertical Framing -->
                 <div class="flex items-center gap-3">
                     <a href="#" class="flex items-center gap-3">
-                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-40 sm:h-44 w-auto max-w-[600px] object-contain giant-logo" onerror="console.log('Logo image not found');">
+                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-12 sm:h-14 w-auto object-contain giant-logo" onerror="console.log('Logo image not found');">
                     </a>
                 </div>
 
+                <!-- Navigation Links -->
                 <nav class="hidden md:flex space-x-2">
-                    <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn px-5 py-3 rounded-xl font-bold text-base transition-all text-white bg-brand-deep shadow-md">
+                    <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn px-4 py-2 rounded-xl font-bold text-sm transition-all text-white bg-brand-deep shadow-md">
                         <i class="fa-solid fa-camera mr-2"></i>Screening
                     </button>
-                    <button onclick="switchTab('educational')" id="nav-educational" class="nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
+                    <button onclick="switchTab('educational')" id="nav-educational" class="nav-btn px-4 py-2 rounded-xl font-semibold text-sm text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
                         <i class="fa-solid fa-book-open mr-2 text-brand-deep"></i>Educational Hub
                     </button>
-                    <button onclick="switchTab('directory')" id="nav-directory" class="nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
+                    <button onclick="switchTab('directory')" id="nav-directory" class="nav-btn px-4 py-2 rounded-xl font-semibold text-sm text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
                         <i class="fa-solid fa-user-doctor mr-2 text-brand-deep"></i>Referral Directory
                     </button>
-                    <button onclick="switchTab('history')" id="nav-history" class="nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
+                    <button onclick="switchTab('history')" id="nav-history" class="nav-btn px-4 py-2 rounded-xl font-semibold text-sm text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
                         <i class="fa-solid fa-clock-rotate-left mr-2 text-brand-deep"></i>History
                     </button>
                 </nav>
 
                 <div class="md:hidden flex items-center">
                     <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="text-brand-dark hover:text-brand-deep p-2">
-                        <i class="fa-solid fa-bars text-3xl"></i>
+                        <i class="fa-solid fa-bars text-2xl"></i>
                     </button>
                 </div>
             </div>
@@ -602,7 +604,6 @@
             document.getElementById('scanningOverlay').classList.remove('hidden');
 
             if (!poseModel) {
-                // Fallback check if AI module fails to load
                 setTimeout(() => {
                     document.getElementById('scanningOverlay').classList.add('hidden');
                     acceptAndDisplayImage(imgObj);
@@ -613,7 +614,6 @@
             poseModel.onResults((results) => {
                 document.getElementById('scanningOverlay').classList.add('hidden');
                 
-                // Check if pose landmark keypoints exist
                 if (!results.poseLandmarks || results.poseLandmarks.length === 0) {
                     showRejectionModal("The system could not detect a person or body in the provided photo. Please ensure a clear, full-body or waist-level side profile image is captured.");
                     return;
@@ -621,26 +621,21 @@
 
                 const landmarks = results.poseLandmarks;
 
-                // Index 23: Left Hip, Index 24: Right Hip, Index 25: Left Knee, Index 26: Right Knee
                 const leftHip = landmarks[23];
                 const rightHip = landmarks[24];
                 const leftKnee = landmarks[25];
                 const rightKnee = landmarks[26];
 
-                // Validate visibility score (>0.35 confidence)
                 const isHipVisible = (leftHip && leftHip.visibility > 0.35) || (rightHip && rightHip.visibility > 0.35);
                 const isLowerBodyVisible = (leftKnee && leftKnee.visibility > 0.25) || (rightKnee && rightKnee.visibility > 0.25);
 
                 if (isHipVisible && isLowerBodyVisible) {
-                    // Passed AI body visibility check!
                     acceptAndDisplayImage(imgObj);
                 } else {
-                    // Rejected! Waist/hip area is not visible enough
                     showRejectionModal("The system rejected the photo because the waist and hip region is not clearly visible. The ASIS and PSIS landmarks require an unobstructed side-view framing at waist level.");
                 }
             });
 
-            // Feed image to AI scanner
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = imgObj.width;
             tempCanvas.height = imgObj.height;
@@ -666,7 +661,7 @@
 
         function closeRejectionModal() {
             document.getElementById('rejectionModal').classList.add('hidden');
-            document.getElementById('imageInput').value = ""; // Clear invalid file
+            document.getElementById('imageInput').value = "";
         }
 
         /* --- MODAL CONTROLS --- */
@@ -774,12 +769,12 @@
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
             
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.className = "nav-btn px-5 py-3 rounded-xl font-semibold text-base text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all";
+                btn.className = "nav-btn px-4 py-2 rounded-xl font-semibold text-sm text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all";
             });
 
             const activeBtn = document.getElementById(`nav-${tabName}`);
             if(activeBtn) {
-                activeBtn.className = "nav-btn px-5 py-3 rounded-xl font-bold text-base text-white bg-brand-deep shadow-md";
+                activeBtn.className = "nav-btn px-4 py-2 rounded-xl font-bold text-sm text-white bg-brand-deep shadow-md";
             }
         }
 
