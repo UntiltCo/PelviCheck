@@ -379,3 +379,50 @@ function onDeviceDisconnected() {
 
     alert("PelviCheck Belt disconnected. Please reconnect your device.");
 }
+// Import Firebase SDK (lagay rin sa index.html)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "YOUR_FIREBASE_API_KEY",
+    authDomain: "pelvicheck-pro.firebaseapp.com",
+    projectId: "pelvicheck-pro"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// SIGN UP (Magse-send ng totoong link/OTP sa Gmail)
+async function handleFirebaseSignUp(email, password, role) {
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // I-send ang email verification sa Gmail
+        await sendEmailVerification(user);
+        
+        // Ipakita sa UI na kailangan tingnan ang Gmail Inbox
+        document.getElementById('statusText').textContent = `Verification link sent to ${email}. Please check your Gmail inbox to activate your account.`;
+        switchToSignIn();
+    } catch (error) {
+        alert("Sign Up Error: " + error.message);
+    }
+}
+
+// SIGN IN (HINDI MAKAKAPASOK KAPAG HINDI PA NA-VERIFY SA GMAIL)
+async function handleFirebaseSignIn(email, password) {
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        if (!user.emailVerified) {
+            alert("Access Denied: Your email is not verified yet. Please check your Gmail Inbox and click the verification link.");
+            return;
+        }
+
+        // Kapag verified na sa Gmail, papapasukin sa portal
+        selectUserRole(userRole);
+    } catch (error) {
+        alert("Invalid email or password!");
+    }
+}
