@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PelviCheck Pro - Pelvic Posture Screening & Partner Portal</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js for Partner Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- MediaPipe Pose Detection Scripts for Automatic Strict Verification -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#293943',
+                            deep: '#174C5A',
+                            mint: '#72B7B0',
+                            ice: '#EAF5F3',
+                            white: '#FFFFFF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS File -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
+
+    <!-- 1. MANDATORY MEDICAL DISCLAIMER ONLY MODAL -->
+    <div id="disclaimerModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5">
+            
+            <div class="flex items-center gap-3 border-b border-brand-ice pb-4">
+                <div class="w-12 h-12 rounded-2xl bg-brand-ice flex items-center justify-center text-brand-deep flex-shrink-0">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-brand-dark">Medical Notice</h2>
+                    <p class="text-xs text-brand-dark/70">Important disclaimer before using PelviCheck.</p>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-brand-ice border border-brand-mint/40 text-xs sm:text-sm text-brand-dark space-y-2">
+                <p class="font-bold text-brand-deep"><i class="fa-solid fa-circle-info mr-1"></i> Medical Disclaimer:</p>
+                <p class="leading-relaxed">PelviCheck is a preliminary educational posture screening tool and does not provide clinical diagnoses. Always consult qualified physical therapists or medical specialists for clinical evaluations.</p>
+            </div>
+
+            <div class="pt-2 border-t border-brand-ice text-right">
+                <button onclick="acceptDisclaimer()" class="w-full sm:w-auto bg-brand-deep hover:bg-brand-dark text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all text-sm">
+                    I Agree and Understand
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 2. SCREENING REQUIREMENTS & SETUP MODAL -->
+    <div id="setupGuidelinesModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex items-center justify-between border-b border-brand-ice pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-brand-ice flex items-center justify-center text-brand-deep flex-shrink-0">
+                        <i class="fa-solid fa-camera text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-brand-dark">Screening Requirements & Setup</h2>
+                        <p class="text-xs text-brand-dark/70">Please follow these instructions for accurate results.</p>
+                    </div>
+                </div>
+                <button onclick="closeSetupGuidelines()" class="text-brand-dark/60 hover:text-brand-dark p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs sm:text-sm text-brand-dark">
+                <ul class="space-y-2.5">
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Posture:</strong> Stand naturally in your usual, comfortable posture. Do not adjust or force a posture to match the demo photo.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Body position:</strong> Position the body correctly within the camera view (full side-profile or waist-level framed).</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Clothing:</strong> Wear clothing that allows the required body landmarks (PSIS and ASIS) to be clearly visible.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Camera setup:</strong> Follow the recommended camera placement and distance at waist level.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Lighting and image quality:</strong> Ensure adequate lighting and a clear, unobstructed view.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
+                        <span><strong>Privacy and limitations:</strong> Be aware that some landmarks may not be visible. Do not interpret or rely on results when the image quality or landmark visibility is insufficient.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="pt-2 border-t border-brand-ice flex justify-end gap-2">
+                <button onclick="closeSetupGuidelines()" class="px-5 py-2.5 rounded-xl border border-brand-mint/40 text-xs font-semibold text-brand-dark hover:bg-brand-ice">Cancel</button>
+                <button onclick="proceedToSource()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition-all text-xs sm:text-sm">
+                    Proceed to Assessment
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 3. DEMO IMAGE LANDMARK INSTRUCTIONS MODAL -->
+    <div id="demoGuideModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex items-center justify-between border-b border-brand-ice pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-brand-ice flex items-center justify-center text-brand-deep flex-shrink-0">
+                        <i class="fa-solid fa-location-dot text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-brand-dark">How to Find Anatomic Landmarks</h2>
+                        <p class="text-xs text-brand-dark/70">Guide for locating ASIS and PSIS landmarks before assessment.</p>
+                    </div>
+                </div>
+                <button onclick="closeDemoGuide()" class="text-brand-dark/60 hover:text-brand-dark p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-brand-mint/40">
+                <table class="w-full text-xs sm:text-sm text-left text-brand-dark">
+                    <thead class="bg-brand-deep text-white font-bold text-xs uppercase tracking-wider">
+                        <tr>
+                            <th scope="col" class="px-4 py-3">Landmark</th>
+                            <th scope="col" class="px-4 py-3">Body Location</th>
+                            <th scope="col" class="px-4 py-3">How to Find and Feel It</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-brand-mint/30 bg-brand-ice/50">
+                        <tr class="hover:bg-brand-ice">
+                            <td class="px-4 py-3.5 font-bold text-brand-deep">ASIS</td>
+                            <td class="px-4 py-3.5 font-semibold">The Front</td>
+                            <td class="px-4 py-3.5 text-brand-dark/90">The two hard, prominent bony bumps on the front of your hips. These are the bones your hands naturally rest on when you put your hands on your hips.</td>
+                        </tr>
+                        <tr class="hover:bg-brand-ice">
+                            <td class="px-4 py-3.5 font-bold text-brand-deep">PSIS</td>
+                            <td class="px-4 py-3.5 font-semibold">The Back</td>
+                            <td class="px-4 py-3.5 text-brand-dark/90">The two bony points that create the "dimples" on your lower back. They are located just above the buttocks, on either side of the spine.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pt-2 border-t border-brand-ice text-right">
+                <button onclick="confirmLoadDemo()" class="w-full sm:w-auto bg-brand-deep hover:bg-brand-dark text-white font-bold px-8 py-3 rounded-xl shadow-lg transition-all text-xs sm:text-sm">
+                    Got it, Load Demo Image
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 4. SYSTEM REJECTION ERROR MODAL -->
+    <div id="rejectionModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-red-200 text-center space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-2xl">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+
+            <h3 class="font-bold text-lg text-brand-dark">Image Rejected by System</h3>
+            <p id="rejectionReasonText" class="text-xs sm:text-sm text-brand-dark/80 leading-relaxed">
+                The provided image was rejected because it does not show a clear view of the body or waist area required for landmark detection.
+            </p>
+
+            <div class="p-3 bg-brand-ice rounded-xl text-xs text-left border border-brand-mint/30 space-y-1">
+                <strong>System Quality Requirements:</strong>
+                <ul class="list-disc list-inside text-brand-dark/80 space-y-0.5">
+                    <li>Must capture at least a waist-level or full-body side view.</li>
+                    <li>Hip and pelvis region must be clearly visible and unobstructed.</li>
+                </ul>
+            </div>
+
+            <button onclick="closeRejectionModal()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm py-3 rounded-xl transition shadow-md">
+                Try Again with Valid Photo
+            </button>
+        </div>
+    </div>
+
+    <!-- 5. PATIENT PROGRESS ANALYTICS MODAL -->
+    <div id="progressModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5">
+            
+            <div class="flex justify-between items-center border-b border-brand-ice pb-3">
+                <div>
+                    <h3 id="modalPatientName" class="font-bold text-lg text-brand-dark">Patient Progress Analytics</h3>
+                    <p class="text-xs text-brand-dark/70">Longitudinal pelvic tilt progression across physical therapy sessions.</p>
+                </div>
+                <button onclick="closeProgressModal()" class="text-brand-dark/60 hover:text-brand-dark text-xl p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-4 bg-brand-ice rounded-2xl border border-brand-mint/30">
+                <canvas id="progressChart" class="max-h-64"></canvas>
+            </div>
+
+            <div class="flex justify-between items-center text-xs text-brand-dark/80 pt-2 border-t border-brand-ice">
+                <span>Target Standing Range: <strong class="text-brand-deep">7.0° - 13.0°</strong></span>
+                <button onclick="closeProgressModal()" class="bg-brand-deep text-white px-5 py-2 rounded-xl font-bold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOADING SCANNER OVERLAY -->
+    <div id="scanningOverlay" class="fixed inset-0 z-50 hidden flex flex-col items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm text-white space-y-3">
+        <div class="w-12 h-12 border-4 border-brand-mint border-t-transparent rounded-full animate-spin"></div>
+        <p class="font-bold text-sm tracking-wide">System Scanning Image Quality & Body Visibility...</p>
+    </div>
+
+    <!-- LIVE CAMERA CAPTURE MODAL -->
+    <div id="cameraModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-brand-mint/30 space-y-4">
+            <div class="flex justify-between items-center border-b border-brand-ice pb-3">
+                <h3 class="font-bold text-lg text-brand-dark flex items-center gap-2">
+                    <i class="fa-solid fa-video text-brand-deep"></i> Live Camera Screening
+                </h3>
+                <button onclick="closeCameraModal()" class="text-brand-dark/60 hover:text-brand-dark p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="relative bg-brand-dark rounded-2xl overflow-hidden aspect-video flex items-center justify-center border border-brand-deep">
+                <video id="cameraStream" autoplay playsinline class="w-full h-full object-cover"></video>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 pt-2">
+                <button onclick="switchCameraMode()" class="bg-brand-ice hover:bg-brand-mint/30 text-brand-dark font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition border border-brand-mint/40 flex items-center gap-2">
+                    <i class="fa-solid fa-rotate text-brand-deep"></i> Flip Camera
+                </button>
+
+                <button onclick="captureCameraPhoto()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                    <i class="fa-solid fa-circle-dot text-brand-mint"></i> Capture Photo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pure White Navigation Header (#FFFFFF) -->
+    <header class="bg-white border-b border-brand-mint/40 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                
+                <div class="flex items-center gap-3">
+                    <a href="#" class="flex items-center gap-2">
+                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-12 sm:h-14 w-auto object-contain giant-logo" onerror="console.log('Logo image not found');">
+                        <span class="text-xs bg-brand-deep text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">Pro</span>
+                    </a>
+                </div>
+
+                <nav class="hidden md:flex space-x-2">
+                    <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn px-4 py-2 rounded-xl font-bold text-sm text-white bg-brand-deep shadow-md">
+                        <i class="fa-solid fa-camera mr-2"></i>Screening
+                    </button>
+                    <button onclick="switchTab('educational')" id="nav-educational" class="nav-btn px-4 py-2 rounded-xl font-semibold text-sm text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
+                        <i class="fa-solid fa-book-open mr-2 text-brand-deep"></i>Educational Hub
+                    </button>
+                    <button onclick="switchTab('partner')" id="nav-partner" class="nav-btn px-4 py-2 rounded-xl font-semibold text-sm text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all">
+                        <i class="fa-solid fa-user-doctor mr-2 text-brand-deep"></i>Partner Portal
+                    </button>
+                </nav>
+
+                <div class="hidden md:flex items-center gap-2">
+                    <button onclick="openCreditPurchaseModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-mint hover:bg-brand-deep shadow-sm flex items-center gap-1.5">
+                        <i class="fa-solid fa-coins"></i> Credits: <span id="userCreditCount">10</span>
+                    </button>
+                </div>
+
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="text-brand-dark hover:text-brand-deep p-2">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-brand-mint/40 px-4 pt-2 pb-4 space-y-1">
+            <button onclick="switchTab('assessment')" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-white bg-brand-deep">
+                <i class="fa-solid fa-camera mr-2"></i>Screening Assessment
+            </button>
+            <button onclick="switchTab('educational')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-brand-dark hover:bg-brand-ice">
+                <i class="fa-solid fa-book-open mr-2 text-brand-deep"></i>Educational Hub
+            </button>
+            <button onclick="switchTab('partner')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-brand-dark hover:bg-brand-ice">
+                <i class="fa-solid fa-user-doctor mr-2 text-brand-deep"></i>Partner Portal
+            </button>
+        </div>
+    </header>
+
+    <!-- Medical Notice Bar -->
+    <div class="bg-brand-ice border-b border-brand-mint/40 text-brand-dark px-4 py-2.5 text-xs sm:text-sm">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-brand-deep flex-shrink-0"></i>
+                <span><strong>Medical Notice:</strong> PelviCheck is a preliminary screening tool and does not replace a physical clinical diagnosis.</span>
+            </div>
+            <button onclick="showDisclaimerModal()" class="text-xs text-brand-deep font-bold underline hover:text-brand-dark flex-shrink-0">View Medical Notice</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- SECTION 1: ASSESSMENT TAB -->
+        <section id="tab-assessment" class="tab-content block space-y-6">
+            
+            <div class="bg-brand-deep text-brand-white rounded-2xl p-6 shadow-lg border border-brand-mint/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold">Pelvic Alignment Screening</h1>
+                    <p class="text-brand-ice text-sm sm:text-base mt-1 max-w-2xl">
+                        Upload or capture a side-view photo to measure the tilt angle between your PSIS (Back) and ASIS (Front) landmarks.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <div class="lg:col-span-8 space-y-4">
+                    <div class="bg-brand-white rounded-2xl p-4 sm:p-5 border border-brand-mint/40 shadow-sm space-y-4">
+                        
+                        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-brand-ice">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button onclick="triggerUploadPrompt()" class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-upload text-brand-mint"></i> Upload Photo
+                                </button>
+                                <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+
+                                <button onclick="triggerCameraPrompt()" class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-camera text-brand-mint"></i> Take Photo
+                                </button>
+
+                                <button onclick="triggerDemoPrompt()" class="bg-brand-ice hover:bg-brand-mint/20 text-brand-dark text-xs sm:text-sm font-medium px-3 py-2 rounded-xl transition border border-brand-mint/30">
+                                    Demo Image
+                                </button>
+                            </div>
+
+                            <button onclick="resetLandmarks()" class="text-xs sm:text-sm bg-brand-ice text-brand-dark hover:bg-brand-mint/30 border border-brand-mint px-3 py-2 rounded-xl font-medium transition flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-left text-brand-deep"></i> Reset Points
+                            </button>
+                        </div>
+
+                        <div id="stepInstruction" class="bg-brand-ice border border-brand-mint/50 rounded-xl px-4 py-3 text-brand-dark text-sm flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span id="stepText" class="font-medium">Step 1: Click on the <strong>PSIS (Back Hip Bone Landmark)</strong>.</span>
+                            </div>
+                            <span id="pointCounter" class="text-xs bg-brand-deep text-brand-white font-bold px-2.5 py-1 rounded-full">0/2 Points</span>
+                        </div>
+
+                        <div class="canvas-container w-full bg-brand-dark rounded-xl overflow-hidden flex items-center justify-center min-h-[380px] max-h-[600px] border border-brand-deep relative">
+                            <canvas id="postureCanvas" class="max-w-full h-auto max-h-[580px] object-contain"></canvas>
+                            <div id="emptyCanvasOverlay" class="absolute inset-0 flex flex-col items-center justify-center text-brand-ice/70 p-6 text-center bg-brand-dark/95">
+                                <i class="fa-solid fa-image text-3xl mb-2 text-brand-mint"></i>
+                                <h3 class="text-lg font-semibold text-brand-white mb-1">No Image Loaded</h3>
+                                <p class="text-xs text-brand-ice/80 max-w-sm mb-4">Upload a side-view photo, take a live camera picture, or try a demo photo to start screening.</p>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="triggerCameraPrompt()" class="bg-brand-deep hover:bg-brand-mint hover:text-brand-dark text-brand-white text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30 flex items-center gap-1.5"><i class="fa-solid fa-camera"></i> Open Camera</button>
+                                    <button onclick="triggerDemoPrompt()" class="bg-brand-ice text-brand-dark text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30">Demo Photo</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="exerciseGuidanceBox" class="bg-brand-white rounded-2xl p-5 border border-brand-mint/40 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between border-b border-brand-ice pb-2">
+                            <h3 id="exerciseTitle" class="font-bold text-brand-dark text-sm sm:text-base flex items-center gap-2">
+                                <i class="fa-solid fa-person-running text-brand-deep"></i> Recommended Habits & Exercises
+                            </h3>
+                            <span id="exerciseTag" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-brand-ice text-brand-deep border border-brand-mint/30">General Care</span>
+                        </div>
+
+                        <div id="exerciseList" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-brand-dark">
+                            <div class="p-3.5 rounded-xl bg-brand-ice border border-brand-mint/30 space-y-1">
+                                <strong class="text-brand-deep block text-sm"><i class="fa-solid fa-chair mr-1"></i> Ergonomic Sitting Habit</strong>
+                                <p class="text-brand-dark/80">Avoid slouching or staying seated for more than 45 minutes continuously. Keep feet flat on the floor.</p>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-brand-ice border border-brand-mint/30 space-y-1">
+                                <strong class="text-brand-deep block text-sm"><i class="fa-solid fa-child mr-1"></i> Standing Posture Mindful Awareness</strong>
+                                <p class="text-brand-dark/80">Distribute your body weight evenly on both feet rather than leaning onto one hip.</p>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-brand-ice border border-brand-mint/30 space-y-1">
+                                <strong class="text-brand-deep block text-sm"><i class="fa-solid fa-person-walking mr-1"></i> Daily Mobility Breaks</strong>
+                                <p class="text-brand-dark/80">Take short 2-minute walking breaks every hour to maintain joint fluid movement.</p>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-brand-ice border border-brand-mint/30 space-y-1">
+                                <strong class="text-brand-deep block text-sm"><i class="fa-solid fa-mattress-pillow mr-1"></i> Sleep Support Habit</strong>
+                                <p class="text-brand-dark/80">Place a small pillow under your knees when sleeping on your back to reduce lumbar pressure.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="bg-brand-white rounded-2xl p-5 border border-brand-mint/40 shadow-sm space-y-4">
+                        <div class="border-b border-brand-ice pb-3 flex justify-between items-center">
+                            <h2 class="font-bold text-brand-dark text-base">Screening Results</h2>
+                            <span id="statusBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-ice text-brand-dark border border-brand-mint/30">Awaiting Points</span>
+                        </div>
+
+                        <div class="bg-brand-ice rounded-xl p-4 text-center border border-brand-mint/40">
+                            <span class="text-xs font-semibold text-brand-deep uppercase tracking-wider block mb-1">Estimated Pelvic Tilt Angle</span>
+                            <div class="flex items-baseline justify-center gap-1">
+                                <span id="angleValue" class="text-4xl sm:text-5xl font-black text-brand-dark">--</span>
+                                <span class="text-xl font-bold text-brand-deep">°</span>
+                            </div>
+                        </div>
+
+                        <div id="classificationBox" class="p-4 rounded-xl border border-dashed border-brand-mint text-center space-y-1 bg-brand-ice">
+                            <div id="classificationTitle" class="font-bold text-base text-brand-dark">Incomplete Assessment</div>
+                            <p id="classificationDesc" class="text-xs text-brand-dark/80 leading-relaxed">
+                                Select both the PSIS (back) and ASIS (front) landmarks on your image.
+                            </p>
+                        </div>
+
+                        <div class="space-y-2 pt-2 border-t border-brand-ice">
+                            <span class="text-xs font-bold text-brand-dark uppercase tracking-wider block">Clinical Reference Thresholds</span>
+                            <div class="space-y-1.5 text-xs">
+                                <div class="flex justify-between items-center p-2.5 rounded-lg bg-brand-ice border border-brand-mint/40">
+                                    <span class="font-semibold text-brand-dark flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-brand-mint"></span> Normal Standing Tilt
+                                    </span>
+                                    <span class="font-bold text-brand-deep">7° to 13°</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2.5 rounded-lg bg-brand-ice border border-brand-mint/40">
+                                    <span class="font-semibold text-brand-dark flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-brand-deep"></span> Anterior Pelvic Tilt (APT)
+                                    </span>
+                                    <span class="font-bold text-brand-deep">&gt; 13°</span>
+                                </div>
+                                <div class="flex justify-between items-center p-2.5 rounded-lg bg-brand-ice border border-brand-mint/40">
+                                    <span class="font-semibold text-brand-dark flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-brand-dark"></span> Posterior Pelvic Tilt (PPT)
+                                    </span>
+                                    <span class="font-bold text-brand-deep">&lt; 7°</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: EDUCATIONAL HUB TAB -->
+        <section id="tab-educational" class="tab-content hidden space-y-6">
+            <div class="bg-brand-white rounded-2xl p-6 border border-brand-mint/40 shadow-sm space-y-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-brand-dark">Pelvic Alignment Educational Hub</h1>
+                    <p class="text-brand-dark/70 text-sm mt-1">Evidence-based postural reference ranges and biomechanical orientation principles.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="border border-brand-mint/50 bg-brand-ice rounded-2xl p-5 space-y-3">
+                        <h3 class="font-bold text-lg text-brand-dark">Normal Standing Tilt</h3>
+                        <p class="text-xs text-brand-dark/80 leading-relaxed">In normal standing, the human pelvis naturally exhibits a mild anterior orientation.</p>
+                        <ul class="text-xs text-brand-dark/80 space-y-1.5 list-disc list-inside pt-2 border-t border-brand-mint/30">
+                            <li><strong>Normal Range:</strong> 7° to 13° anterior tilt.</li>
+                            <li>Provides balanced spinal alignment and joint compression.</li>
+                        </ul>
+                    </div>
+
+                    <div class="border border-brand-mint/50 bg-brand-ice rounded-2xl p-5 space-y-3">
+                        <h3 class="font-bold text-lg text-brand-dark">Anterior Pelvic Tilt (APT)</h3>
+                        <p class="text-xs text-brand-dark/80 leading-relaxed">The pelvis rotates forward, dropping the front relative to the back.</p>
+                        <ul class="text-xs text-brand-dark/80 space-y-1.5 list-disc list-inside pt-2 border-t border-brand-mint/30">
+                            <li><strong>Threshold:</strong> &gt; 13° tilt.</li>
+                            <li>Average motion range observed in physical testing: 13.0 ± 4.9°.</li>
+                        </ul>
+                    </div>
+
+                    <div class="border border-brand-mint/50 bg-brand-ice rounded-2xl p-5 space-y-3">
+                        <h3 class="font-bold text-lg text-brand-dark">Posterior Pelvic Tilt (PPT)</h3>
+                        <p class="text-xs text-brand-dark/80 leading-relaxed">The pelvis rotates backward, tucking under and flattening the lumbar spine curve.</p>
+                        <ul class="text-xs text-brand-dark/80 space-y-1.5 list-disc list-inside pt-2 border-t border-brand-mint/30">
+                            <li><strong>Threshold:</strong> &lt; 7° tilt.</li>
+                            <li>Average motion range observed in physical testing: 8.9 ± 4.5°.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-brand-ice border border-brand-mint/50 rounded-2xl p-6 space-y-4">
+                    <h3 class="text-lg font-bold text-brand-dark flex items-center gap-2">
+                        <i class="fa-solid fa-microscope text-brand-deep"></i> Clinical Research & Literature Norms
+                    </h3>
+                    <p class="text-sm text-brand-dark/80 leading-relaxed">
+                        Anterior and posterior pelvic tilting are natural biomechanical movements of the pelvis. In standing posture, the pelvis is normally tilted anteriorly for approximately <strong>7 to 13 degrees</strong>.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center my-2">
+                        <div class="p-4 bg-brand-white rounded-xl border border-brand-mint/40">
+                            <span class="text-2xl font-black text-brand-deep">13.0 ± 4.9°</span>
+                            <span class="block text-xs font-semibold text-brand-dark mt-1">Anterior Tilting Range</span>
+                            <span class="text-[11px] text-brand-dark/70">Average clinical motion range</span>
+                        </div>
+                        <div class="p-4 bg-brand-white rounded-xl border border-brand-mint/40">
+                            <span class="text-2xl font-black text-brand-dark">8.9 ± 4.5°</span>
+                            <span class="block text-xs font-semibold text-brand-dark mt-1">Posterior Tilting Range</span>
+                            <span class="text-[11px] text-brand-dark/70">Average clinical motion range</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-brand-dark/70 space-y-1 pt-2 border-t border-brand-mint/30">
+                        <p><strong>References:</strong></p>
+                        <p>• Physiopedia. <em>Pelvic Tilt Clinical Assessment Guidelines.</em> https://www.physio-pedia.com/Pelvic_Tilt</p>
+                        <p>• Mobilize Physio. <em>Anterior Pelvic Tilt Assessment & Management.</em> https://mobilizephysio.com/common-conditions-en/anterior-pelvic-tilt-en/</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PARTNER PORTAL TAB -->
+        <section id="tab-partner" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-brand-mint/40 shadow-sm space-y-6">
+                
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-brand-ice pb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-brand-dark">Partner Portal & Patient Directory</h1>
+                        <p class="text-xs sm:text-sm text-brand-dark/70">Manage clinic records, track treatment progress, and assign posture screenings.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="openNewPatientModal()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold px-5 py-2.5 rounded-xl shadow-md text-xs sm:text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-user-plus"></i> Add New Patient
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="p-4 rounded-2xl bg-brand-ice border border-brand-mint/30 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-brand-deep text-white flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-brand-dark/70 font-semibold block">Total Active Patients</span>
+                            <span class="text-2xl font-black text-brand-dark">24</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-brand-ice border border-brand-mint/30 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-brand-mint text-white flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-brand-dark/70 font-semibold block">Avg. Progress Rate</span>
+                            <span class="text-2xl font-black text-brand-deep">+4.2° Alignment</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-brand-ice border border-brand-mint/30 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-brand-dark text-white flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-brand-dark/70 font-semibold block">Remaining Credits</span>
+                            <span class="text-2xl font-black text-brand-dark">18 Credits</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-base text-brand-dark">Patient Medical Files</h3>
+                        <input type="text" placeholder="Search patient name..." class="px-4 py-2 rounded-xl border border-brand-mint/40 text-xs bg-brand-ice focus:outline-none focus:border-brand-deep w-64">
+                    </div>
+
+                    <div class="overflow-x-auto rounded-2xl border border-brand-mint/40">
+                        <table class="w-full text-xs sm:text-sm text-left text-brand-dark">
+                            <thead class="bg-brand-deep text-white font-bold text-xs uppercase tracking-wider">
+                                <tr>
+                                    <th class="px-4 py-3.5">Patient ID & Name</th>
+                                    <th class="px-4 py-3.5">Initial Tilt Angle</th>
+                                    <th class="px-4 py-3.5">Latest Tilt Angle</th>
+                                    <th class="px-4 py-3.5">Status</th>
+                                    <th class="px-4 py-3.5 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-brand-mint/20 bg-brand-ice/30">
+                                <tr class="hover:bg-brand-ice/80 transition">
+                                    <td class="px-4 py-4 font-bold text-brand-deep">
+                                        #PT-1042 - Juan Dela Cruz
+                                        <span class="block text-[11px] font-normal text-brand-dark/70">Last scan: Nov 10, 2026</span>
+                                    </td>
+                                    <td class="px-4 py-4 font-semibold text-red-600">18.4° (APT)</td>
+                                    <td class="px-4 py-4 font-semibold text-brand-deep">11.2° (Normal)</td>
+                                    <td class="px-4 py-4">
+                                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-100 text-green-800 border border-green-300">Improving</span>
+                                    </td>
+                                    <td class="px-4 py-4 text-right space-x-2">
+                                        <button onclick="viewPatientProgress('Juan Dela Cruz', [18.4, 15.2, 13.1, 11.2])" class="px-3 py-1.5 rounded-lg bg-brand-deep text-white font-bold text-xs hover:bg-brand-dark">
+                                            View Trend Chart
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom Modular JavaScript Files -->
+    <script src="js/app.js"></script>
+    <script src="js/canvas.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/scanner.js"></script>
+    <script src="js/partner.js"></script>
+</body>
+</html>
