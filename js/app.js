@@ -1,10 +1,61 @@
-// Application State Variables
+// Global Application State Variables
+let currentUserRole = 'doctor'; // Default initial view: Doctor/Clinic Admin
 let pendingAction = null;
 
 // Page Initialization
 window.addEventListener('DOMContentLoaded', () => {
-    // Initial setup routines if needed
+    selectUserRole('doctor');
 });
+
+// Dynamic User Role Selector Gateway
+function selectUserRole(role) {
+    currentUserRole = role;
+    
+    // Hide all portal containers
+    document.querySelectorAll('.role-portal').forEach(portal => portal.classList.add('hidden'));
+
+    // Show active portal container
+    const activePortal = document.getElementById(`portal-${role}`);
+    if (activePortal) {
+        activePortal.classList.remove('hidden');
+    }
+
+    // Update Header Badge and Subscription Button Visibility
+    const roleBadge = document.getElementById('userRoleBadge');
+    const patientPayBtn = document.getElementById('patientPayBtn');
+
+    if (roleBadge) {
+        if (role === 'admin') {
+            roleBadge.textContent = 'SUPER ADMIN';
+            roleBadge.className = 'text-xs bg-red-600 text-white px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
+            if (patientPayBtn) patientPayBtn.classList.add('hidden');
+        } else if (role === 'doctor') {
+            roleBadge.textContent = 'CLINIC / DOCTOR (FREE ADMIN)';
+            roleBadge.className = 'text-xs bg-brand-deep text-white px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
+            if (patientPayBtn) patientPayBtn.classList.add('hidden');
+        } else {
+            roleBadge.textContent = 'PATIENT (SUBSCRIBED)';
+            roleBadge.className = 'text-xs bg-brand-mint text-brand-dark px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
+            if (patientPayBtn) patientPayBtn.classList.remove('hidden');
+        }
+    }
+
+    closeRoleSelectModal();
+}
+
+// Role Selection Modal Triggers
+function openRoleSelectModal() {
+    document.getElementById('roleSelectModal').classList.remove('hidden');
+}
+
+function closeRoleSelectModal() {
+    document.getElementById('roleSelectModal').classList.add('hidden');
+}
+
+// Patient Subscription Checkout Trigger
+function processSubscriptionCheckout(planType) {
+    alert(`Redirecting to PayMongo/GCash for Patient ${planType.toUpperCase()} subscription checkout...`);
+}
 
 // Modal Controls - Medical Disclaimer
 function acceptDisclaimer() {
@@ -53,28 +104,4 @@ function closeDemoGuide() {
 function confirmLoadDemo() {
     closeDemoGuide();
     loadSampleImage();
-}
-
-// Tab Switching Navigation
-function switchTab(tabName) {
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-    
-    const targetTab = document.getElementById(`tab-${tabName}`);
-    if (targetTab) {
-        targetTab.classList.remove('hidden');
-    }
-
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.className = "nav-btn px-4 py-2 rounded-xl font-semibold text-sm text-brand-dark hover:text-brand-deep hover:bg-brand-ice transition-all";
-    });
-
-    const activeBtn = document.getElementById(`nav-${tabName}`);
-    if (activeBtn) {
-        activeBtn.className = "nav-btn px-4 py-2 rounded-xl font-bold text-sm text-white bg-brand-deep shadow-md";
-    }
-}
-
-// Mobile Menu Toggle
-function toggleMobileMenu() {
-    document.getElementById('mobile-menu').classList.toggle('hidden');
 }
