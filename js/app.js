@@ -26,7 +26,7 @@ try {
 }
 
 // System Configurations
-const EXCLUSIVE_ADMIN_EMAIL = "admin@pelvicheck.com";
+const EXCLUSIVE_ADMIN_EMAIL = "23-06638@g.batstate-u.edu.ph";
 
 // Store Registered Doctors Approval Status
 let doctorAccounts = [
