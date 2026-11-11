@@ -45,89 +45,152 @@
 </head>
 <body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
 
-  <!-- 1. ROLE SELECTION GATEWAY MODAL (NO BADGES + DIRECT CLICK TO AUTH) -->
-<div id="roleSelectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
-    <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-6 text-center">
-        
-        <div>
-            <h2 class="text-2xl font-extrabold text-brand-dark">Welcome to PelviCheck Pro</h2>
-            <p class="text-xs sm:text-sm text-brand-dark/70 mt-1">Please select your role to continue to Sign In.</p>
+    <!-- 1. MANDATORY ROLE SELECTION GATEWAY MODAL (NO BADGES + DIRECT CLICK TO AUTH) -->
+    <div id="roleSelectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-6 text-center">
+            
+            <div>
+                <h2 class="text-2xl font-extrabold text-brand-dark">Welcome to PelviCheck Pro</h2>
+                <p class="text-xs sm:text-sm text-brand-dark/70 mt-1">Please select your role to continue to Sign In.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+                <!-- Patient Card -->
+                <div onclick="openAuthModalForRole('patient')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-brand-deep cursor-pointer transition space-y-2 text-center group">
+                    <div class="w-12 h-12 rounded-xl bg-brand-mint/20 text-brand-deep mx-auto flex items-center justify-center text-xl group-hover:bg-brand-deep group-hover:text-white transition">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <strong class="block text-brand-dark text-sm font-bold">Patient</strong>
+                    <span class="text-[11px] text-brand-dark/70 block">Self-Assessment & Personal History</span>
+                </div>
+
+                <!-- Doctor / Clinic Card -->
+                <div onclick="openAuthModalForRole('doctor')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-brand-deep cursor-pointer transition space-y-2 text-center group">
+                    <div class="w-12 h-12 rounded-xl bg-brand-deep text-white mx-auto flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <strong class="block text-brand-dark text-sm font-bold">Clinic / Doctor</strong>
+                    <span class="text-[11px] text-brand-dark/70 block">Patient Monitoring Admin</span>
+                </div>
+
+                <!-- Platform Super Admin Card -->
+                <div onclick="openAuthModalForRole('admin')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-red-600 cursor-pointer transition space-y-2 text-center group">
+                    <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-xl group-hover:bg-red-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <strong class="block text-brand-dark text-sm font-bold">Super Admin</strong>
+                    <span class="text-[11px] text-brand-dark/70 block">System Oversight & Revenue</span>
+                </div>
+            </div>
+
         </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-            <!-- Patient Card -->
-            <div onclick="openAuthModalForRole('patient')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-brand-deep cursor-pointer transition space-y-2 text-center group">
-                <div class="w-12 h-12 rounded-xl bg-brand-mint/20 text-brand-deep mx-auto flex items-center justify-center text-xl group-hover:bg-brand-deep group-hover:text-white transition">
-                    <i class="fa-solid fa-user"></i>
-                </div>
-                <strong class="block text-brand-dark text-sm font-bold">Patient</strong>
-                <span class="text-[11px] text-brand-dark/70 block">Self-Assessment & Personal History</span>
-            </div>
-
-            <!-- Doctor / Clinic Card -->
-            <div onclick="openAuthModalForRole('doctor')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-brand-deep cursor-pointer transition space-y-2 text-center group">
-                <div class="w-12 h-12 rounded-xl bg-brand-deep text-white mx-auto flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-user-doctor"></i>
-                </div>
-                <strong class="block text-brand-dark text-sm font-bold">Clinic / Doctor</strong>
-                <span class="text-[11px] text-brand-dark/70 block">Patient Monitoring Admin</span>
-            </div>
-
-            <!-- Platform Super Admin Card -->
-            <div onclick="openAuthModalForRole('admin')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-red-600 cursor-pointer transition space-y-2 text-center group">
-                <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-xl group-hover:bg-red-600 group-hover:text-white transition">
-                    <i class="fa-solid fa-user-shield"></i>
-                </div>
-                <strong class="block text-brand-dark text-sm font-bold">Super Admin</strong>
-                <span class="text-[11px] text-brand-dark/70 block">System Oversight & Revenue</span>
-            </div>
-        </div>
-
     </div>
-</div>
 
-<!-- 2. POP-UP LOG IN / SIGN UP MODAL -->
-<div id="authModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 relative">
-        
-        <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-brand-dark/60 hover:text-brand-dark text-xl p-1">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-
-        <div class="text-center space-y-1">
-            <h2 id="authModalTitle" class="text-2xl font-black text-brand-dark">Sign In</h2>
-            <p class="text-xs text-brand-dark/70">Enter your account details to access your portal.</p>
-        </div>
-
-        <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
-            <input type="hidden" id="selectedRoleInput" value="patient">
-
-            <div>
-                <label class="block font-bold text-brand-dark mb-1">Email Address</label>
-                <input type="email" required placeholder="user@domain.com" class="w-full p-3 rounded-xl border border-brand-mint/40 bg-brand-ice text-brand-dark focus:outline-none focus:border-brand-deep">
-            </div>
-
-            <div>
-                <label class="block font-bold text-brand-dark mb-1">Password</label>
-                <input type="password" required placeholder="••••••••" class="w-full p-3 rounded-xl border border-brand-mint/40 bg-brand-ice text-brand-dark focus:outline-none focus:border-brand-deep">
-            </div>
-
-            <button type="submit" class="w-full bg-brand-deep hover:bg-brand-dark text-white font-bold py-3 rounded-xl shadow-md transition text-sm">
-                Sign In to Portal
+    <!-- 2. AUTHENTICATION POP-UP MODAL (SIGN IN & SIGN UP) -->
+    <div id="authModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 relative">
+            
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-brand-dark/60 hover:text-brand-dark text-xl p-1">
+                <i class="fa-solid fa-xmark"></i>
             </button>
-        </form>
 
-        <div class="text-center text-xs text-brand-dark/70 pt-2 border-t border-brand-ice">
-            Don't have an account? <a href="#" onclick="alert('Sign up backend integration ready.');" class="font-bold text-brand-deep underline">Create New Account</a>
+            <!-- VIEW 1: SIGN IN FORM -->
+            <div id="signInContainer" class="space-y-4">
+                <div class="text-center space-y-1">
+                    <h2 id="authModalTitle" class="text-2xl font-black text-brand-dark">Sign In</h2>
+                    <p class="text-xs text-brand-dark/70">Enter your credentials to access your portal.</p>
+                </div>
+
+                <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
+                    <input type="hidden" id="selectedRoleInput" value="patient">
+
+                    <div>
+                        <label class="block font-bold text-brand-dark mb-1">Email Address</label>
+                        <input type="email" required placeholder="user@domain.com" class="w-full p-3 rounded-xl border border-brand-mint/40 bg-brand-ice text-brand-dark focus:outline-none focus:border-brand-deep">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-brand-dark mb-1">Password</label>
+                        <input type="password" required placeholder="••••••••" class="w-full p-3 rounded-xl border border-brand-mint/40 bg-brand-ice text-brand-dark focus:outline-none focus:border-brand-deep">
+                    </div>
+
+                    <button type="submit" class="w-full bg-brand-deep hover:bg-brand-dark text-white font-bold py-3 rounded-xl shadow-md transition text-sm">
+                        Sign In to Portal
+                    </button>
+                </form>
+
+                <div class="text-center text-xs text-brand-dark/70 pt-2 border-t border-brand-ice">
+                    Don't have an account? 
+                    <button type="button" onclick="switchToSignUp()" class="font-bold text-brand-deep underline">Create New Account</button>
+                </div>
+            </div>
+
+            <!-- VIEW 2: SIGN UP FORM -->
+            <div id="signUpContainer" class="space-y-4 hidden">
+                <div class="text-center space-y-1">
+                    <h2 id="signUpModalTitle" class="text-2xl font-black text-brand-dark">Create Account</h2>
+                    <p class="text-xs text-brand-dark/70">Register a new profile to get started.</p>
+                </div>
+
+                <form onsubmit="handleSignUpSubmit(event)" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-bold text-brand-dark mb-1">Full Name</label>
+                        <input type="text" required placeholder="Juan Dela Cruz" class="w-full p-3 rounded-xl border border-brand-mint/40 bg-brand-ice text-brand-dark focus:outline-none focus:border-brand-deep">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-brand-dark mb-1">Email Address</label>
+                        <input type="email" required placeholder="user@domain.com" class="w-full p-3 rounded-xl border border-brand-mint/40 bg-brand-ice text-brand-dark focus:outline-none focus:border-brand-deep">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-brand-dark mb-1">Create Password</label>
+                        <input type="password" required placeholder="••••••••" class="w-full p-3 rounded-xl border border-brand-mint/40 bg-brand-ice text-brand-dark focus:outline-none focus:border-brand-deep">
+                    </div>
+
+                    <button type="submit" class="w-full bg-brand-deep hover:bg-brand-dark text-white font-bold py-3 rounded-xl shadow-md transition text-sm">
+                        Register & Enter Portal
+                    </button>
+                </form>
+
+                <div class="text-center text-xs text-brand-dark/70 pt-2 border-t border-brand-ice">
+                    Already have an account? 
+                    <button type="button" onclick="switchToSignIn()" class="font-bold text-brand-deep underline">Sign In Here</button>
+                </div>
+            </div>
+
         </div>
-
     </div>
-</div>
 
-    <!-- 3. SCREENING REQUIREMENTS & SETUP MODAL -->
+    <!-- 3. MEDICAL DISCLAIMER MODAL -->
+    <div id="disclaimerModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5">
+            <div class="flex items-center gap-3 border-b border-brand-ice pb-4">
+                <div class="w-12 h-12 rounded-2xl bg-brand-ice flex items-center justify-center text-brand-deep flex-shrink-0">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-brand-dark">Medical Notice</h2>
+                    <p class="text-xs text-brand-dark/70">Important disclaimer before using PelviCheck.</p>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-brand-ice border border-brand-mint/40 text-xs sm:text-sm text-brand-dark space-y-2">
+                <p class="font-bold text-brand-deep"><i class="fa-solid fa-circle-info mr-1"></i> Medical Disclaimer:</p>
+                <p class="leading-relaxed">PelviCheck is a preliminary educational posture screening tool and does not provide clinical diagnoses. Always consult qualified physical therapists or medical specialists for clinical evaluations.</p>
+            </div>
+
+            <div class="pt-2 border-t border-brand-ice text-right">
+                <button onclick="acceptDisclaimer()" class="w-full sm:w-auto bg-brand-deep hover:bg-brand-dark text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all text-sm">
+                    I Agree and Understand
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. SCREENING REQUIREMENTS & SETUP MODAL -->
     <div id="setupGuidelinesModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 max-h-[90vh] overflow-y-auto">
-            
             <div class="flex items-center justify-between border-b border-brand-ice pb-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-brand-ice flex items-center justify-center text-brand-deep flex-shrink-0">
@@ -165,10 +228,6 @@
                         <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
                         <span><strong>Lighting and image quality:</strong> Ensure adequate lighting and a clear, unobstructed view.</span>
                     </li>
-                    <li class="flex items-start gap-2.5">
-                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
-                        <span><strong>Privacy and limitations:</strong> Be aware that some landmarks may not be visible. Do not interpret or rely on results when the image quality or landmark visibility is insufficient.</span>
-                    </li>
                 </ul>
             </div>
 
@@ -178,14 +237,12 @@
                     Proceed to Assessment
                 </button>
             </div>
-
         </div>
     </div>
 
-    <!-- 4. DEMO IMAGE LANDMARK INSTRUCTIONS MODAL -->
+    <!-- 5. DEMO IMAGE LANDMARK INSTRUCTIONS MODAL -->
     <div id="demoGuideModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 max-h-[90vh] overflow-y-auto">
-            
             <div class="flex items-center justify-between border-b border-brand-ice pb-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-brand-ice flex items-center justify-center text-brand-deep flex-shrink-0">
@@ -214,12 +271,12 @@
                         <tr class="hover:bg-brand-ice">
                             <td class="px-4 py-3.5 font-bold text-brand-deep">ASIS</td>
                             <td class="px-4 py-3.5 font-semibold">The Front</td>
-                            <td class="px-4 py-3.5 text-brand-dark/90">The two hard, prominent bony bumps on the front of your hips. These are the bones your hands naturally rest on when you put your hands on your hips.</td>
+                            <td class="px-4 py-3.5 text-brand-dark/90">The two hard, prominent bony bumps on the front of your hips.</td>
                         </tr>
                         <tr class="hover:bg-brand-ice">
                             <td class="px-4 py-3.5 font-bold text-brand-deep">PSIS</td>
                             <td class="px-4 py-3.5 font-semibold">The Back</td>
-                            <td class="px-4 py-3.5 text-brand-dark/90">The two bony points that create the "dimples" on your lower back. They are located just above the buttocks, on either side of the spine.</td>
+                            <td class="px-4 py-3.5 text-brand-dark/90">The two bony points that create the "dimples" on your lower back.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -230,11 +287,10 @@
                     Got it, Load Demo Image
                 </button>
             </div>
-
         </div>
     </div>
 
-    <!-- 5. SYSTEM REJECTION ERROR MODAL -->
+    <!-- 6. SYSTEM REJECTION ERROR MODAL -->
     <div id="rejectionModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-red-200 text-center space-y-4">
             <div class="w-14 h-14 rounded-2xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-2xl">
@@ -246,24 +302,15 @@
                 The provided image was rejected because it does not show a clear view of the body or waist area required for landmark detection.
             </p>
 
-            <div class="p-3 bg-brand-ice rounded-xl text-xs text-left border border-brand-mint/30 space-y-1">
-                <strong>System Quality Requirements:</strong>
-                <ul class="list-disc list-inside text-brand-dark/80 space-y-0.5">
-                    <li>Must capture at least a waist-level or full-body side view.</li>
-                    <li>Hip and pelvis region must be clearly visible and unobstructed.</li>
-                </ul>
-            </div>
-
             <button onclick="closeRejectionModal()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm py-3 rounded-xl transition shadow-md">
                 Try Again with Valid Photo
             </button>
         </div>
     </div>
 
-    <!-- 6. PATIENT PROGRESS ANALYTICS MODAL (FOR DOCTOR MONITORING) -->
+    <!-- 7. PATIENT PROGRESS ANALYTICS MODAL -->
     <div id="progressModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5">
-            
             <div class="flex justify-between items-center border-b border-brand-ice pb-3">
                 <div>
                     <h3 id="modalPatientName" class="font-bold text-lg text-brand-dark">Patient Progress Analytics</h3>
@@ -274,370 +321,4 @@
                 </button>
             </div>
 
-            <div class="p-4 bg-brand-ice rounded-2xl border border-brand-mint/30">
-                <canvas id="progressChart" class="max-h-64"></canvas>
-            </div>
-
-            <div class="flex justify-between items-center text-xs text-brand-dark/80 pt-2 border-t border-brand-ice">
-                <span>Target Standing Range: <strong class="text-brand-deep">7.0° - 13.0°</strong></span>
-                <button onclick="closeProgressModal()" class="bg-brand-deep text-white px-5 py-2 rounded-xl font-bold">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- LOADING SCANNER OVERLAY -->
-    <div id="scanningOverlay" class="fixed inset-0 z-50 hidden flex flex-col items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm text-white space-y-3">
-        <div class="w-12 h-12 border-4 border-brand-mint border-t-transparent rounded-full animate-spin"></div>
-        <p class="font-bold text-sm tracking-wide">System Scanning Image Quality & Body Visibility...</p>
-    </div>
-
-    <!-- LIVE CAMERA CAPTURE MODAL -->
-    <div id="cameraModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
-        <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-brand-mint/30 space-y-4">
-            <div class="flex justify-between items-center border-b border-brand-ice pb-3">
-                <h3 class="font-bold text-lg text-brand-dark flex items-center gap-2">
-                    <i class="fa-solid fa-video text-brand-deep"></i> Live Camera Screening
-                </h3>
-                <button onclick="closeCameraModal()" class="text-brand-dark/60 hover:text-brand-dark p-1">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-
-            <div class="relative bg-brand-dark rounded-2xl overflow-hidden aspect-video flex items-center justify-center border border-brand-deep">
-                <video id="cameraStream" autoplay playsinline class="w-full h-full object-cover"></video>
-            </div>
-
-            <div class="flex items-center justify-between gap-3 pt-2">
-                <button onclick="switchCameraMode()" class="bg-brand-ice hover:bg-brand-mint/30 text-brand-dark font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition border border-brand-mint/40 flex items-center gap-2">
-                    <i class="fa-solid fa-rotate text-brand-deep"></i> Flip Camera
-                </button>
-
-                <button onclick="captureCameraPhoto()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
-                    <i class="fa-solid fa-circle-dot text-brand-mint"></i> Capture Photo
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Navigation Header -->
-    <header class="bg-white border-b border-brand-mint/40 sticky top-0 z-30 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
-                
-                <div class="flex items-center gap-3">
-                    <a href="#" class="flex items-center gap-2">
-                        <img src="logo.jpg" alt="PelviCheck Logo" class="h-12 sm:h-14 w-auto object-contain giant-logo" onerror="console.log('Logo image missing');">
-                        <span id="userRoleBadge" class="text-xs bg-brand-deep text-white px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider">DOCTOR / CLINIC ADMIN</span>
-                    </a>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <button onclick="openRoleSelectModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-brand-dark bg-brand-ice border border-brand-mint/40 hover:bg-brand-mint/30 flex items-center gap-1.5">
-                        <i class="fa-solid fa-right-left"></i> Switch Role
-                    </button>
-
-                    <!-- Show Pay Subscription only for Patients -->
-                    <button id="patientPayBtn" onclick="processSubscriptionCheckout('patient')" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-deep hover:bg-brand-dark shadow-sm flex items-center gap-1.5">
-                        <i class="fa-solid fa-crown text-yellow-400"></i> Patient Subscription Plan
-                    </button>
-                </div>
-
-            </div>
-        </div>
-    </header>
-
-    <!-- Medical Notice Bar -->
-    <div class="bg-brand-ice border-b border-brand-mint/40 text-brand-dark px-4 py-2.5 text-xs sm:text-sm">
-        <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-circle-info text-brand-deep flex-shrink-0"></i>
-                <span><strong>Medical Notice:</strong> PelviCheck is a preliminary screening tool and does not replace a physical clinical diagnosis.</span>
-            </div>
-            <button onclick="showDisclaimerModal()" class="text-xs text-brand-deep font-bold underline hover:text-brand-dark flex-shrink-0">View Medical Notice</button>
-        </div>
-    </div>
-
-    <!-- Main Content Dynamic Role Portals -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-        <!-- PORTAL 1: PATIENT DASHBOARD (PAID ACCESS FOR SCREENING) -->
-        <div id="portal-patient" class="role-portal hidden space-y-6">
-            
-            <div class="bg-brand-deep text-brand-white rounded-2xl p-6 shadow-lg border border-brand-mint/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold">Pelvic Alignment Screening</h1>
-                    <p class="text-brand-ice text-sm sm:text-base mt-1 max-w-2xl">
-                        Upload or capture a side-view photo to measure the tilt angle between your PSIS (Back) and ASIS (Front) landmarks.
-                    </p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                <div class="lg:col-span-8 space-y-4">
-                    <div class="bg-brand-white rounded-2xl p-4 sm:p-5 border border-brand-mint/40 shadow-sm space-y-4">
-                        
-                        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-brand-ice">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <button onclick="triggerUploadPrompt()" class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-2">
-                                    <i class="fa-solid fa-upload text-brand-mint"></i> Upload Photo
-                                </button>
-                                <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-
-                                <button onclick="triggerCameraPrompt()" class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-2">
-                                    <i class="fa-solid fa-camera text-brand-mint"></i> Take Photo
-                                </button>
-
-                                <button onclick="triggerDemoPrompt()" class="bg-brand-ice hover:bg-brand-mint/20 text-brand-dark text-xs sm:text-sm font-medium px-3 py-2 rounded-xl transition border border-brand-mint/30">
-                                    Demo Image
-                                </button>
-                            </div>
-
-                            <button onclick="resetLandmarks()" class="text-xs sm:text-sm bg-brand-ice text-brand-dark hover:bg-brand-mint/30 border border-brand-mint px-3 py-2 rounded-xl font-medium transition flex items-center gap-1">
-                                <i class="fa-solid fa-rotate-left text-brand-deep"></i> Reset Points
-                            </button>
-                        </div>
-
-                        <div id="stepInstruction" class="bg-brand-ice border border-brand-mint/50 rounded-xl px-4 py-3 text-brand-dark text-sm flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <span id="stepText" class="font-medium">Step 1: Click on the <strong>PSIS (Back Hip Bone Landmark)</strong>.</span>
-                            </div>
-                            <span id="pointCounter" class="text-xs bg-brand-deep text-brand-white font-bold px-2.5 py-1 rounded-full">0/2 Points</span>
-                        </div>
-
-                        <div class="canvas-container w-full bg-brand-dark rounded-xl overflow-hidden flex items-center justify-center min-h-[380px] max-h-[600px] border border-brand-deep relative">
-                            <canvas id="postureCanvas" class="max-w-full h-auto max-h-[580px] object-contain"></canvas>
-                            <div id="emptyCanvasOverlay" class="absolute inset-0 flex flex-col items-center justify-center text-brand-ice/70 p-6 text-center bg-brand-dark/95">
-                                <i class="fa-solid fa-image text-3xl mb-2 text-brand-mint"></i>
-                                <h3 class="text-lg font-semibold text-brand-white mb-1">No Image Loaded</h3>
-                                <p class="text-xs text-brand-ice/80 max-w-sm mb-4">Upload a side-view photo, take a live camera picture, or try a demo photo to start screening.</p>
-                                <div class="flex items-center gap-2">
-                                    <button onclick="triggerCameraPrompt()" class="bg-brand-deep hover:bg-brand-mint hover:text-brand-dark text-brand-white text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30 flex items-center gap-1.5"><i class="fa-solid fa-camera"></i> Open Camera</button>
-                                    <button onclick="triggerDemoPrompt()" class="bg-brand-ice text-brand-dark text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30">Demo Photo</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="exerciseGuidanceBox" class="bg-brand-white rounded-2xl p-5 border border-brand-mint/40 shadow-sm space-y-3">
-                        <div class="flex items-center justify-between border-b border-brand-ice pb-2">
-                            <h3 id="exerciseTitle" class="font-bold text-brand-dark text-sm sm:text-base flex items-center gap-2">
-                                <i class="fa-solid fa-person-running text-brand-deep"></i> Recommended Habits & Exercises
-                            </h3>
-                            <span id="exerciseTag" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-brand-ice text-brand-deep border border-brand-mint/30">General Care</span>
-                        </div>
-
-                        <div id="exerciseList" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-brand-dark">
-                            <div class="p-3.5 rounded-xl bg-brand-ice border border-brand-mint/30 space-y-1">
-                                <strong class="text-brand-deep block text-sm"><i class="fa-solid fa-chair mr-1"></i> Ergonomic Sitting Habit</strong>
-                                <p class="text-brand-dark/80">Avoid slouching or staying seated for more than 45 minutes continuously. Keep feet flat on the floor.</p>
-                            </div>
-                            <div class="p-3.5 rounded-xl bg-brand-ice border border-brand-mint/30 space-y-1">
-                                <strong class="text-brand-deep block text-sm"><i class="fa-solid fa-child mr-1"></i> Standing Posture Mindful Awareness</strong>
-                                <p class="text-brand-dark/80">Distribute your body weight evenly on both feet rather than leaning onto one hip.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-4 space-y-4">
-                    <div class="bg-brand-white rounded-2xl p-5 border border-brand-mint/40 shadow-sm space-y-4">
-                        <div class="border-b border-brand-ice pb-3 flex justify-between items-center">
-                            <h2 class="font-bold text-brand-dark text-base">Screening Results</h2>
-                            <span id="statusBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-ice text-brand-dark border border-brand-mint/30">Awaiting Points</span>
-                        </div>
-
-                        <div class="bg-brand-ice rounded-xl p-4 text-center border border-brand-mint/40">
-                            <span class="text-xs font-semibold text-brand-deep uppercase tracking-wider block mb-1">Estimated Pelvic Tilt Angle</span>
-                            <div class="flex items-baseline justify-center gap-1">
-                                <span id="angleValue" class="text-4xl sm:text-5xl font-black text-brand-dark">--</span>
-                                <span class="text-xl font-bold text-brand-deep">°</span>
-                            </div>
-                        </div>
-
-                        <div id="classificationBox" class="p-4 rounded-xl border border-dashed border-brand-mint text-center space-y-1 bg-brand-ice">
-                            <div id="classificationTitle" class="font-bold text-base text-brand-dark">Incomplete Assessment</div>
-                            <p id="classificationDesc" class="text-xs text-brand-dark/80 leading-relaxed">
-                                Select both the PSIS (back) and ASIS (front) landmarks on your image.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- PORTAL 2: DOCTOR / CLINIC DASHBOARD (FREE CLINIC MONITORING ADMIN) -->
-        <div id="portal-doctor" class="role-portal block space-y-6">
-            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-brand-mint/40 shadow-sm space-y-6">
-                
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-brand-ice pb-6">
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h1 class="text-2xl font-bold text-brand-dark">Clinic Partner Portal</h1>
-                            <span class="text-xs bg-green-100 text-green-800 font-bold px-2.5 py-0.5 rounded-full border border-green-300">Free Doctor Access</span>
-                        </div>
-                        <p class="text-xs sm:text-sm text-brand-dark/70">Monitor assigned patient records, evaluate tilt angles, and track rehabilitation progress.</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <button onclick="openNewPatientModal()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold px-5 py-2.5 rounded-xl shadow-md text-xs sm:text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-user-plus"></i> Assign / Register Patient
-                        </button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="p-4 rounded-2xl bg-brand-ice border border-brand-mint/30 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-brand-deep text-white flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-users"></i>
-                        </div>
-                        <div>
-                            <span class="text-xs text-brand-dark/70 font-semibold block">Monitored Patients</span>
-                            <span class="text-2xl font-black text-brand-dark">24 Patients</span>
-                        </div>
-                    </div>
-
-                    <div class="p-4 rounded-2xl bg-brand-ice border border-brand-mint/30 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-brand-mint text-white flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-chart-line"></i>
-                        </div>
-                        <div>
-                            <span class="text-xs text-brand-dark/70 font-semibold block">Avg. Rehabilitation Trend</span>
-                            <span class="text-2xl font-black text-brand-deep">+4.2° Alignment</span>
-                        </div>
-                    </div>
-
-                    <div class="p-4 rounded-2xl bg-brand-ice border border-brand-mint/30 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-brand-dark text-white flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-clipboard-check"></i>
-                        </div>
-                        <div>
-                            <span class="text-xs text-brand-dark/70 font-semibold block">Completed Reviews</span>
-                            <span class="text-2xl font-black text-brand-dark">142 Scans</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="font-bold text-base text-brand-dark">Patient Medical Files</h3>
-                        <input type="text" placeholder="Search patient name..." class="px-4 py-2 rounded-xl border border-brand-mint/40 text-xs bg-brand-ice focus:outline-none focus:border-brand-deep w-64">
-                    </div>
-
-                    <div class="overflow-x-auto rounded-2xl border border-brand-mint/40">
-                        <table class="w-full text-xs sm:text-sm text-left text-brand-dark">
-                            <thead class="bg-brand-deep text-white font-bold text-xs uppercase tracking-wider">
-                                <tr>
-                                    <th class="px-4 py-3.5">Patient ID & Name</th>
-                                    <th class="px-4 py-3.5">Baseline Angle</th>
-                                    <th class="px-4 py-3.5">Latest Tilt Angle</th>
-                                    <th class="px-4 py-3.5">Rehab Status</th>
-                                    <th class="px-4 py-3.5 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-brand-mint/20 bg-brand-ice/30">
-                                <tr class="hover:bg-brand-ice/80 transition">
-                                    <td class="px-4 py-4 font-bold text-brand-deep">
-                                        #PT-1042 - Juan Dela Cruz
-                                        <span class="block text-[11px] font-normal text-brand-dark/70">Last scan: Nov 10, 2026</span>
-                                    </td>
-                                    <td class="px-4 py-4 font-semibold text-red-600">18.4° (APT)</td>
-                                    <td class="px-4 py-4 font-semibold text-brand-deep">11.2° (Normal)</td>
-                                    <td class="px-4 py-4">
-                                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-100 text-green-800 border border-green-300">Improving</span>
-                                    </td>
-                                    <td class="px-4 py-4 text-right space-x-2">
-                                        <button onclick="viewPatientProgress('Juan Dela Cruz', [18.4, 15.2, 13.1, 11.2])" class="px-3 py-1.5 rounded-lg bg-brand-deep text-white font-bold text-xs hover:bg-brand-dark">
-                                            View Progress Chart
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PORTAL 3: PLATFORM SUPER ADMIN CONTROL CENTER (SYSTEM OWNER) -->
-        <div id="portal-admin" class="role-portal hidden space-y-6">
-            <div class="bg-white rounded-3xl p-6 border border-red-200 shadow-sm space-y-6">
-                <div class="border-b border-red-100 pb-4 flex justify-between items-center">
-                    <div>
-                        <h1 class="text-2xl font-bold text-red-700">Platform Super Admin Dashboard</h1>
-                        <p class="text-xs text-brand-dark/70">Monetization tracking, patient subscriptions, and clinic account management.</p>
-                    </div>
-                    <span class="text-xs bg-red-100 text-red-700 font-bold px-3 py-1 rounded-full border border-red-200">System Owner</span>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                    <div class="p-4 bg-red-50 rounded-2xl border border-red-200">
-                        <span class="text-red-700 font-bold block">Patient Subscription Revenue</span>
-                        <span class="text-2xl font-black text-brand-dark mt-1">₱94,500 / mo</span>
-                    </div>
-                    <div class="p-4 bg-brand-ice rounded-2xl border border-brand-mint/30">
-                        <span class="text-brand-deep font-bold block">Registered Partner Clinics</span>
-                        <span class="text-2xl font-black text-brand-dark mt-1">38 Active Clinics</span>
-                    </div>
-                    <div class="p-4 bg-brand-ice rounded-2xl border border-brand-mint/30">
-                        <span class="text-brand-deep font-bold block">Total Paid Patient Scans</span>
-                        <span class="text-2xl font-black text-brand-dark mt-1">1,920 Scans</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-<!-- SIGN IN / SIGN UP MANDATORY MODAL -->
-<div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5">
-        
-        <div class="text-center space-y-1">
-            <h2 class="text-2xl font-black text-brand-dark">Sign In to PelviCheck</h2>
-            <p class="text-xs text-brand-dark/70">Access your personalized posture portal or clinic dashboard.</p>
-        </div>
-
-        <form onsubmit="handleLogin(event)" class="space-y-4 text-xs">
-            
-            <!-- Select Account Type -->
-            <div>
-                <label class="block font-bold text-brand-dark mb-1">I am signing in as:</label>
-                <select id="loginRoleSelect" class="w-full p-3 rounded-xl border border-brand-mint/40 bg-brand-ice font-semibold text-brand-dark focus:outline-none focus:border-brand-deep">
-                    <option value="patient">Patient (Pay-Per-Scan / Subscription)</option>
-                    <option value="doctor">Clinic / Doctor (Free Monitoring Access)</option>
-                    <option value="admin">System Super Admin</option>
-                </select>
-            </div>
-
-            <!-- Email Address -->
-            <div>
-                <label class="block font-bold text-brand-dark mb-1">Email Address</label>
-                <input type="email" required placeholder="doctor@clinic.com or patient@mail.com" class="w-full p-3 rounded-xl border border-brand-mint/40 bg-brand-ice text-brand-dark focus:outline-none focus:border-brand-deep">
-            </div>
-
-            <!-- Password -->
-            <div>
-                <label class="block font-bold text-brand-dark mb-1">Password</label>
-                <input type="password" required placeholder="••••••••" class="w-full p-3 rounded-xl border border-brand-mint/40 bg-brand-ice text-brand-dark focus:outline-none focus:border-brand-deep">
-            </div>
-
-            <!-- Submit Button -->
-            <button type="submit" class="w-full bg-brand-deep hover:bg-brand-dark text-white font-bold py-3 rounded-xl shadow-md transition text-sm">
-                Sign In / Access Portal
-            </button>
-        </form>
-
-        <div class="text-center text-xs text-brand-dark/70 pt-2 border-t border-brand-ice">
-            Don't have an account? <a href="#" onclick="alert('Sign up form connection ready for backend API integration.');" class="font-bold text-brand-deep underline">Create New Account</a>
-        </div>
-
-    </div>
-</div>
-    </main>
-
-    <!-- Custom Modular JavaScript Files -->
-    <script src="js/app.js"></script>
-    <script src="js/canvas.js"></script>
-    <script src="js/camera.js"></script>
-    <script src="js/scanner.js"></script>
-    <script src="js/partner.js"></script>
-</body>
-</html>
+            <div class="p-4 bg-brand
