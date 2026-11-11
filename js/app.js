@@ -7,9 +7,9 @@ import {
     signInWithEmailAndPassword 
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-// Firebase Config Credentials (Gamitin ang totoong keys mula sa Firebase Console)
+// Firebase Config Credentials
 const firebaseConfig = {
-    apiKey: "AIzaSyBkK-jTh-OBMPsquwAf1t18PcRTYY_dWxc",
+    apiKey: "AIzaSyBkJ-jTh-OBMPsquAf1t18PcRTYY_dWxc",
     authDomain: "pelvicheck-pro.firebaseapp.com",
     projectId: "pelvicheck-pro",
     storageBucket: "pelvicheck-pro.firebasestorage.app",
@@ -101,7 +101,7 @@ async function handleLoginSubmit(event) {
         const user = userCredential.user;
 
         if (!user.emailVerified) {
-            alert(`ACCESS DENIED!\n\nAng email na '${email}' ay HINDI pa na-ve-verify sa Gmail.\n\nPumunta sa iyong Gmail Inbox o Spam folder at i-click ang verification link mula sa Firebase bago mag-log in.`);
+            alert(`ACCESS DENIED!\n\nThe account for '${email}' is not yet verified.\n\nPlease check your Gmail Inbox or Spam folder and click the verification link before signing in.`);
             return;
         }
 
@@ -128,7 +128,7 @@ async function handleSignUpSubmit(event) {
         // Send activation link directly to Gmail Inbox
         await sendEmailVerification(user);
 
-        alert(`SUCCESS!\n\nMay pinadalang activation link sa iyong Gmail (${email}).\n\nTingnan ang iyong Gmail Inbox o Spam folder at i-click ang link para ma-activate ang account.`);
+        alert(`REGISTRATION SUCCESSFUL!\n\nAn activation link has been sent to your email (${email}).\n\nPlease check your Gmail Inbox or Spam folder and click the link to verify your account.`);
         
         switchToSignIn();
     } catch (error) {
@@ -171,13 +171,13 @@ function confirmPayment(gateway) {
         roleBadge.className = 'text-xs bg-brand-mint text-brand-dark px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
     }
 
-    alert(`[PAYMENT SUCCESSFUL]\n\nThank you! Your payment via ${gateway} was received.\n\nYou now have full access to Posture Scanning and Bluetooth Tracking!`);
+    alert(`[PAYMENT SUCCESSFUL]\n\nThank you! Your payment via ${gateway} has been successfully processed.\n\nYou now have full access to Posture Scanning and Bluetooth Tracking!`);
 }
 
 // Subscription Guard Protection for Scanning Actions
 function checkSubscriptionAndProceed(actionCallback) {
     if (currentUserRole === 'patient' && !isPatientSubscribed) {
-        alert("SUBSCRIPTION REQUIRED!\n\nHindi ka pa makakapag-scan hangga't wala ka pang active subscription.");
+        alert("SUBSCRIPTION REQUIRED!\n\nYou must have an active subscription or single-scan pass to perform a posture scan.");
         processSubscriptionCheckout('patient');
         return;
     }
@@ -268,7 +268,7 @@ async function connectPelviBelt() {
         if (btBtn) btBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm flex items-center gap-2 transition";
         if (btText) btText.textContent = "Belt Connected";
 
-        alert("PelviCheck Belt connected successfully!");
+        alert("PelviCheck Belt connected successfully! Live sensor stream active.");
 
     } catch (error) {
         console.error("Bluetooth Connection Failed:", error);
@@ -307,7 +307,7 @@ function onDeviceDisconnected() {
     if (btBtn) btBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm flex items-center gap-2 transition";
     if (btText) btText.textContent = "Connect Belt";
 
-    alert("PelviCheck Belt disconnected.");
+    alert("PelviCheck Belt disconnected. Please reconnect your device.");
 }
 
 // Role Dashboard Switcher
