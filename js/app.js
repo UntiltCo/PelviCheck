@@ -9,7 +9,7 @@ import {
 
 // Firebase Config Credentials (Gamitin ang totoong keys mula sa Firebase Console)
 const firebaseConfig = {
-    apiKey: "AIzaSyBkJ-jTh-OBMPsquAf1t18PcRTYY_dWxc",
+    apiKey: "AIzaSyBkK-jTh-OBMPsquwAf1t18PcRTYY_dWxc",
     authDomain: "pelvicheck-pro.firebaseapp.com",
     projectId: "pelvicheck-pro",
     storageBucket: "pelvicheck-pro.firebasestorage.app",
