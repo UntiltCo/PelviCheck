@@ -424,3 +424,72 @@ window.triggerCameraPrompt = triggerCameraPrompt;
 window.connectPelviBelt = connectPelviBelt;
 window.renderAdminPatientCalendar = renderAdminPatientCalendar;
 window.approveDoctor = approveDoctor;
+let mediaStream = null;
+
+// File Upload Handler Connection
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (typeof loadImageToCanvas === 'function') {
+                loadImageToCanvas(e.target.result);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Camera Modal Opening & WebCam Stream Trigger
+async function openCameraModal() {
+    const modal = document.getElementById('cameraModal');
+    const video = document.getElementById('webcamVideo');
+    if (!modal || !video) return;
+
+    try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: "environment" }, 
+            audio: false 
+        });
+        video.srcObject = mediaStream;
+        modal.classList.remove('hidden');
+    } catch (err) {
+        alert("Camera Access Error: " + err.message + "\nPlease grant camera permission in your browser settings.");
+    }
+}
+
+function closeCameraModal() {
+    const modal = document.getElementById('cameraModal');
+    const video = document.getElementById('webcamVideo');
+    if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+    }
+    if (video) video.srcObject = null;
+    if (modal) modal.classList.add('hidden');
+}
+
+function capturePhotoFromWebcam() {
+    const video = document.getElementById('webcamVideo');
+    const captureCanvas = document.getElementById('captureCanvas');
+    if (!video || !captureCanvas) return;
+
+    captureCanvas.width = video.videoWidth || 640;
+    captureCanvas.height = video.videoHeight || 480;
+
+    const ctx = captureCanvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+
+    const dataUrl = captureCanvas.toDataURL('image/png');
+    
+    if (typeof loadImageToCanvas === 'function') {
+        loadImageToCanvas(dataUrl);
+    }
+    closeCameraModal();
+}
+
+// EXPOSE FUNCTIONS TO WINDOW SCOPE
+window.handleImageUpload = handleImageUpload;
+window.openCameraModal = openCameraModal;
+window.closeCameraModal = closeCameraModal;
+window.capturePhotoFromWebcam = capturePhotoFromWebcam;
