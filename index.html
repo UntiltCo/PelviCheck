@@ -45,13 +45,6 @@
 </head>
 <body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
 
-    <!-- Web Bluetooth Seamless Connection Header Action -->
-<div class="flex items-center gap-2">
-    <button type="button" id="btConnectBtn" onclick="connectPelviBelt()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm flex items-center gap-2 transition">
-        <i class="fa-solid fa-bluetooth"></i> <span id="btStatusText">Connect Belt</span>
-    </button>
-</div>
-    
     <!-- 1. MANDATORY ROLE SELECTION GATEWAY MODAL -->
     <div id="roleSelectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
         <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-6 text-center">
@@ -168,42 +161,7 @@
 
         </div>
     </div>
-<!-- EMAIL OTP VERIFICATION POP-UP MODAL -->
-<div id="otpModal" class="fixed inset-0 z-[70] hidden flex items-center justify-center p-4 bg-brand-dark/95 backdrop-blur-md">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 text-center relative">
-        
-        <button type="button" onclick="closeOtpModal()" class="absolute top-4 right-4 text-brand-dark/60 hover:text-brand-dark text-xl p-1">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
 
-        <div class="w-14 h-14 rounded-2xl bg-brand-ice text-brand-deep mx-auto flex items-center justify-center text-2xl border border-brand-mint/40">
-            <i class="fa-solid fa-envelope-circle-check"></i>
-        </div>
-
-        <div class="space-y-1">
-            <h2 class="text-2xl font-black text-brand-dark">Verify Your Email</h2>
-            <p class="text-xs text-brand-dark/70">We sent a 6-digit verification code to <br><strong id="userRegisteredEmail" class="text-brand-deep">user@gmail.com</strong></p>
-        </div>
-
-        <form onsubmit="handleOtpSubmit(event)" class="space-y-4">
-            <!-- 6-digit Code Input -->
-            <div>
-                <input type="text" id="otpInput" maxlength="6" required placeholder="1 2 3 4 5 6" 
-                       class="w-full p-3.5 text-center text-xl font-mono font-bold tracking-widest rounded-xl border border-brand-mint/40 bg-brand-ice text-brand-dark focus:outline-none focus:border-brand-deep">
-            </div>
-
-            <button type="submit" class="w-full bg-brand-deep hover:bg-brand-dark text-white font-bold py-3 rounded-xl shadow-md transition text-sm">
-                Verify & Activate Account
-            </button>
-        </form>
-
-        <div class="text-xs text-brand-dark/70 pt-2 border-t border-brand-ice flex justify-between items-center">
-            <span>Didn't receive the code?</span>
-            <button type="button" onclick="resendOtpCode()" class="font-bold text-brand-deep underline hover:text-brand-dark">Resend Code</button>
-        </div>
-
-    </div>
-</div>
     <!-- 3. MEDICAL DISCLAIMER MODAL -->
     <div id="disclaimerModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5">
@@ -413,6 +371,11 @@
                 </div>
 
                 <div class="flex items-center gap-2">
+                    <!-- Web Bluetooth Connect Button -->
+                    <button type="button" id="btConnectBtn" onclick="connectPelviBelt()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm flex items-center gap-2 transition">
+                        <i class="fa-solid fa-bluetooth"></i> <span id="btStatusText">Connect Belt</span>
+                    </button>
+
                     <button type="button" onclick="openRoleSelectModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-brand-dark bg-brand-ice border border-brand-mint/40 hover:bg-brand-mint/30 flex items-center gap-1.5">
                         <i class="fa-solid fa-right-left"></i> Switch Role / Sign Out
                     </button>
