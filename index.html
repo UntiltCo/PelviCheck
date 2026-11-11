@@ -45,77 +45,84 @@
 </head>
 <body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
 
-    <!-- 1. MANDATORY ROLE SELECTION GATEWAY MODAL -->
-    <div id="roleSelectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
-        <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-6 text-center">
-            
+  <!-- 1. ROLE SELECTION GATEWAY MODAL (NO BADGES + DIRECT CLICK TO AUTH) -->
+<div id="roleSelectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-6 text-center">
+        
+        <div>
+            <h2 class="text-2xl font-extrabold text-brand-dark">Welcome to PelviCheck Pro</h2>
+            <p class="text-xs sm:text-sm text-brand-dark/70 mt-1">Please select your role to continue to Sign In.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+            <!-- Patient Card -->
+            <div onclick="openAuthModalForRole('patient')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-brand-deep cursor-pointer transition space-y-2 text-center group">
+                <div class="w-12 h-12 rounded-xl bg-brand-mint/20 text-brand-deep mx-auto flex items-center justify-center text-xl group-hover:bg-brand-deep group-hover:text-white transition">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <strong class="block text-brand-dark text-sm font-bold">Patient</strong>
+                <span class="text-[11px] text-brand-dark/70 block">Self-Assessment & Personal History</span>
+            </div>
+
+            <!-- Doctor / Clinic Card -->
+            <div onclick="openAuthModalForRole('doctor')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-brand-deep cursor-pointer transition space-y-2 text-center group">
+                <div class="w-12 h-12 rounded-xl bg-brand-deep text-white mx-auto flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-user-doctor"></i>
+                </div>
+                <strong class="block text-brand-dark text-sm font-bold">Clinic / Doctor</strong>
+                <span class="text-[11px] text-brand-dark/70 block">Patient Monitoring Admin</span>
+            </div>
+
+            <!-- Platform Super Admin Card -->
+            <div onclick="openAuthModalForRole('admin')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-red-600 cursor-pointer transition space-y-2 text-center group">
+                <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-xl group-hover:bg-red-600 group-hover:text-white transition">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <strong class="block text-brand-dark text-sm font-bold">Super Admin</strong>
+                <span class="text-[11px] text-brand-dark/70 block">System Oversight & Revenue</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- 2. POP-UP LOG IN / SIGN UP MODAL -->
+<div id="authModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 relative">
+        
+        <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-brand-dark/60 hover:text-brand-dark text-xl p-1">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="text-center space-y-1">
+            <h2 id="authModalTitle" class="text-2xl font-black text-brand-dark">Sign In</h2>
+            <p class="text-xs text-brand-dark/70">Enter your account details to access your portal.</p>
+        </div>
+
+        <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
+            <input type="hidden" id="selectedRoleInput" value="patient">
+
             <div>
-                <h2 class="text-2xl font-extrabold text-brand-dark">Welcome to PelviCheck Pro</h2>
-                <p class="text-xs sm:text-sm text-brand-dark/70 mt-1">Please select your role to open your dedicated portal.</p>
+                <label class="block font-bold text-brand-dark mb-1">Email Address</label>
+                <input type="email" required placeholder="user@domain.com" class="w-full p-3 rounded-xl border border-brand-mint/40 bg-brand-ice text-brand-dark focus:outline-none focus:border-brand-deep">
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-                <!-- Patient Card -->
-                <div onclick="selectUserRole('patient')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-brand-deep cursor-pointer transition space-y-2 text-center group">
-                    <div class="w-12 h-12 rounded-xl bg-brand-mint/20 text-brand-deep mx-auto flex items-center justify-center text-xl group-hover:bg-brand-deep group-hover:text-white transition">
-                        <i class="fa-solid fa-user"></i>
-                    </div>
-                    <strong class="block text-brand-dark text-sm font-bold">Patient</strong>
-                    <span class="text-[11px] text-brand-dark/70 block">Self-Assessment & Personal History</span>
-                    <span class="inline-block mt-2 text-[10px] bg-brand-deep text-white font-bold px-2 py-0.5 rounded-full">Subscribed / Paid</span>
-                </div>
-
-                <!-- Doctor / Clinic Card (FREE CLINIC ADMIN) -->
-                <div onclick="selectUserRole('doctor')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-brand-deep cursor-pointer transition space-y-2 text-center group">
-                    <div class="w-12 h-12 rounded-xl bg-brand-deep text-white mx-auto flex items-center justify-center text-xl">
-                        <i class="fa-solid fa-user-doctor"></i>
-                    </div>
-                    <strong class="block text-brand-dark text-sm font-bold">Clinic / Doctor</strong>
-                    <span class="text-[11px] text-brand-dark/70 block">Patient Monitoring Admin</span>
-                    <span class="inline-block mt-2 text-[10px] bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded-full border border-green-300">Free Partner Access</span>
-                </div>
-
-                <!-- Platform Super Admin Card -->
-                <div onclick="selectUserRole('admin')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-red-600 cursor-pointer transition space-y-2 text-center group">
-                    <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-xl group-hover:bg-red-600 group-hover:text-white transition">
-                        <i class="fa-solid fa-user-shield"></i>
-                    </div>
-                    <strong class="block text-brand-dark text-sm font-bold">Super Admin</strong>
-                    <span class="text-[11px] text-brand-dark/70 block">System Oversight & Revenue</span>
-                    <span class="inline-block mt-2 text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">Full Control</span>
-                </div>
+            <div>
+                <label class="block font-bold text-brand-dark mb-1">Password</label>
+                <input type="password" required placeholder="••••••••" class="w-full p-3 rounded-xl border border-brand-mint/40 bg-brand-ice text-brand-dark focus:outline-none focus:border-brand-deep">
             </div>
 
+            <button type="submit" class="w-full bg-brand-deep hover:bg-brand-dark text-white font-bold py-3 rounded-xl shadow-md transition text-sm">
+                Sign In to Portal
+            </button>
+        </form>
+
+        <div class="text-center text-xs text-brand-dark/70 pt-2 border-t border-brand-ice">
+            Don't have an account? <a href="#" onclick="alert('Sign up backend integration ready.');" class="font-bold text-brand-deep underline">Create New Account</a>
         </div>
+
     </div>
-
-    <!-- 2. MANDATORY MEDICAL DISCLAIMER ONLY MODAL -->
-    <div id="disclaimerModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5">
-            
-            <div class="flex items-center gap-3 border-b border-brand-ice pb-4">
-                <div class="w-12 h-12 rounded-2xl bg-brand-ice flex items-center justify-center text-brand-deep flex-shrink-0">
-                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold text-brand-dark">Medical Notice</h2>
-                    <p class="text-xs text-brand-dark/70">Important disclaimer before using PelviCheck.</p>
-                </div>
-            </div>
-
-            <div class="p-4 rounded-xl bg-brand-ice border border-brand-mint/40 text-xs sm:text-sm text-brand-dark space-y-2">
-                <p class="font-bold text-brand-deep"><i class="fa-solid fa-circle-info mr-1"></i> Medical Disclaimer:</p>
-                <p class="leading-relaxed">PelviCheck is a preliminary educational posture screening tool and does not provide clinical diagnoses. Always consult qualified physical therapists or medical specialists for clinical evaluations.</p>
-            </div>
-
-            <div class="pt-2 border-t border-brand-ice text-right">
-                <button onclick="acceptDisclaimer()" class="w-full sm:w-auto bg-brand-deep hover:bg-brand-dark text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all text-sm">
-                    I Agree and Understand
-                </button>
-            </div>
-
-        </div>
-    </div>
+</div>
 
     <!-- 3. SCREENING REQUIREMENTS & SETUP MODAL -->
     <div id="setupGuidelinesModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/80 backdrop-blur-sm">
