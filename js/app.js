@@ -1,11 +1,34 @@
 // Global Application State Variables
-let currentUserRole = 'doctor'; // Default initial view: Doctor/Clinic Admin
+let currentUserRole = null; 
 let pendingAction = null;
 
-// Page Initialization
+// Page Initialization - Sign In Modal Muna ang Lalabas
 window.addEventListener('DOMContentLoaded', () => {
-    selectUserRole('doctor');
+    // Itago muna ang lahat ng role portals
+    document.querySelectorAll('.role-portal').forEach(portal => portal.classList.add('hidden'));
+    
+    // Ipakita ang Sign In / Sign Up Modal
+    openAuthModal();
 });
+
+// Auth Modal Controls
+function openAuthModal() {
+    document.getElementById('authModal').classList.remove('hidden');
+}
+
+function closeAuthModal() {
+    document.getElementById('authModal').classList.add('hidden');
+}
+
+// Function kapag nag-submit ng Sign In / Sign Up form
+function handleLogin(event) {
+    event.preventDefault();
+    const selectedRole = document.getElementById('loginRoleSelect').value;
+    
+    // Matapos mag-login, buksan ang portal batay sa napiling role
+    selectUserRole(selectedRole);
+    closeAuthModal();
+}
 
 // Dynamic User Role Selector Gateway
 function selectUserRole(role) {
@@ -20,7 +43,7 @@ function selectUserRole(role) {
         activePortal.classList.remove('hidden');
     }
 
-    // Update Header Badge and Subscription Button Visibility
+    // Update Header Badge
     const roleBadge = document.getElementById('userRoleBadge');
     const patientPayBtn = document.getElementById('patientPayBtn');
 
@@ -39,69 +62,4 @@ function selectUserRole(role) {
             if (patientPayBtn) patientPayBtn.classList.remove('hidden');
         }
     }
-
-    closeRoleSelectModal();
-}
-
-// Role Selection Modal Triggers
-function openRoleSelectModal() {
-    document.getElementById('roleSelectModal').classList.remove('hidden');
-}
-
-function closeRoleSelectModal() {
-    document.getElementById('roleSelectModal').classList.add('hidden');
-}
-
-// Patient Subscription Checkout Trigger
-function processSubscriptionCheckout(planType) {
-    alert(`Redirecting to PayMongo/GCash for Patient ${planType.toUpperCase()} subscription checkout...`);
-}
-
-// Modal Controls - Medical Disclaimer
-function acceptDisclaimer() {
-    document.getElementById('disclaimerModal').classList.add('hidden');
-}
-
-function showDisclaimerModal() {
-    document.getElementById('disclaimerModal').classList.remove('hidden');
-}
-
-// Setup Guidelines Modal Controls
-function triggerUploadPrompt() {
-    pendingAction = 'upload';
-    document.getElementById('setupGuidelinesModal').classList.remove('hidden');
-}
-
-function triggerCameraPrompt() {
-    pendingAction = 'camera';
-    document.getElementById('setupGuidelinesModal').classList.remove('hidden');
-}
-
-function closeSetupGuidelines() {
-    document.getElementById('setupGuidelinesModal').classList.add('hidden');
-    pendingAction = null;
-}
-
-function proceedToSource() {
-    document.getElementById('setupGuidelinesModal').classList.add('hidden');
-    if (pendingAction === 'upload') {
-        document.getElementById('imageInput').click();
-    } else if (pendingAction === 'camera') {
-        openCameraModal();
-    }
-    pendingAction = null;
-}
-
-// Demo Guide Modal Controls
-function triggerDemoPrompt() {
-    document.getElementById('demoGuideModal').classList.remove('hidden');
-}
-
-function closeDemoGuide() {
-    document.getElementById('demoGuideModal').classList.add('hidden');
-}
-
-function confirmLoadDemo() {
-    closeDemoGuide();
-    loadSampleImage();
 }
