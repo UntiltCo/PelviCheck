@@ -7,22 +7,25 @@ window.addEventListener('DOMContentLoaded', () => {
     // Hide all portal dashboards on initial load
     document.querySelectorAll('.role-portal').forEach(portal => portal.classList.add('hidden'));
     
-    // Open Role Selection Gateway Modal first
+    // Open Role Selection Gateway Modal
     openRoleSelectModal();
 });
 
 // Role Gateway Modals
 function openRoleSelectModal() {
-    document.getElementById('roleSelectModal').classList.remove('hidden');
+    const roleModal = document.getElementById('roleSelectModal');
+    if (roleModal) roleModal.classList.remove('hidden');
 }
 
 function closeRoleSelectModal() {
-    document.getElementById('roleSelectModal').classList.add('hidden');
+    const roleModal = document.getElementById('roleSelectModal');
+    if (roleModal) roleModal.classList.add('hidden');
 }
 
 // Click Trigger when selecting Patient, Doctor, or Admin role
 function openAuthModalForRole(role) {
-    document.getElementById('selectedRoleInput').value = role;
+    const roleInput = document.getElementById('selectedRoleInput');
+    if (roleInput) roleInput.value = role;
     
     const titleEl = document.getElementById('authModalTitle');
     const signUpTitleEl = document.getElementById('signUpModalTitle');
@@ -36,30 +39,38 @@ function openAuthModalForRole(role) {
 
     switchToSignIn();
     closeRoleSelectModal();
-    document.getElementById('authModal').classList.remove('hidden');
+    
+    const authModal = document.getElementById('authModal');
+    if (authModal) authModal.classList.remove('hidden');
 }
 
 function closeAuthModal() {
-    document.getElementById('authModal').classList.add('hidden');
+    const authModal = document.getElementById('authModal');
+    if (authModal) authModal.classList.add('hidden');
     openRoleSelectModal(); // Return to role selection if modal is closed
 }
 
 // Switch between Sign In and Sign Up Views inside Modal
 function switchToSignUp() {
-    document.getElementById('signInContainer').classList.add('hidden');
-    document.getElementById('signUpContainer').classList.remove('hidden');
+    const signIn = document.getElementById('signInContainer');
+    const signUp = document.getElementById('signUpContainer');
+    if (signIn) signIn.classList.add('hidden');
+    if (signUp) signUp.classList.remove('hidden');
 }
 
 function switchToSignIn() {
-    document.getElementById('signUpContainer').classList.add('hidden');
-    document.getElementById('signInContainer').classList.remove('hidden');
+    const signIn = document.getElementById('signInContainer');
+    const signUp = document.getElementById('signUpContainer');
+    if (signUp) signUp.classList.add('hidden');
+    if (signIn) signIn.classList.remove('hidden');
 }
 
 // Handle Form Submission for Sign In
 function handleLoginSubmit(event) {
     event.preventDefault();
     const role = document.getElementById('selectedRoleInput').value;
-    document.getElementById('authModal').classList.add('hidden');
+    const authModal = document.getElementById('authModal');
+    if (authModal) authModal.classList.add('hidden');
     selectUserRole(role);
 }
 
@@ -67,7 +78,8 @@ function handleLoginSubmit(event) {
 function handleSignUpSubmit(event) {
     event.preventDefault();
     const role = document.getElementById('selectedRoleInput').value;
-    document.getElementById('authModal').classList.add('hidden');
+    const authModal = document.getElementById('authModal');
+    if (authModal) authModal.classList.add('hidden');
     selectUserRole(role);
 }
 
@@ -90,7 +102,7 @@ function selectUserRole(role) {
 
     if (roleBadge) {
         if (role === 'admin') {
-            roleBadge.textContent = 'SUPER ADMIN';
+            roleBadge.textContent = 'ADMIN';
             roleBadge.className = 'text-xs bg-red-600 text-white px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
             if (patientPayBtn) patientPayBtn.classList.add('hidden');
         } else if (role === 'doctor') {
@@ -107,51 +119,59 @@ function selectUserRole(role) {
 
 // Medical Disclaimer Controls
 function acceptDisclaimer() {
-    document.getElementById('disclaimerModal').classList.add('hidden');
+    const modal = document.getElementById('disclaimerModal');
+    if (modal) modal.classList.add('hidden');
 }
 
 function showDisclaimerModal() {
-    document.getElementById('disclaimerModal').classList.remove('hidden');
+    const modal = document.getElementById('disclaimerModal');
+    if (modal) modal.classList.remove('hidden');
 }
 
 // Setup Guidelines Modal Controls
 function triggerUploadPrompt() {
     pendingAction = 'upload';
-    document.getElementById('setupGuidelinesModal').classList.remove('hidden');
+    const modal = document.getElementById('setupGuidelinesModal');
+    if (modal) modal.classList.remove('hidden');
 }
 
 function triggerCameraPrompt() {
     pendingAction = 'camera';
-    document.getElementById('setupGuidelinesModal').classList.remove('hidden');
+    const modal = document.getElementById('setupGuidelinesModal');
+    if (modal) modal.classList.remove('hidden');
 }
 
 function closeSetupGuidelines() {
-    document.getElementById('setupGuidelinesModal').classList.add('hidden');
+    const modal = document.getElementById('setupGuidelinesModal');
+    if (modal) modal.classList.add('hidden');
     pendingAction = null;
 }
 
 function proceedToSource() {
-    document.getElementById('setupGuidelinesModal').classList.add('hidden');
+    closeSetupGuidelines();
     if (pendingAction === 'upload') {
-        document.getElementById('imageInput').click();
+        const input = document.getElementById('imageInput');
+        if (input) input.click();
     } else if (pendingAction === 'camera') {
-        openCameraModal();
+        if (typeof openCameraModal === 'function') openCameraModal();
     }
     pendingAction = null;
 }
 
 // Demo Guide Modal Controls
 function triggerDemoPrompt() {
-    document.getElementById('demoGuideModal').classList.remove('hidden');
+    const modal = document.getElementById('demoGuideModal');
+    if (modal) modal.classList.remove('hidden');
 }
 
 function closeDemoGuide() {
-    document.getElementById('demoGuideModal').classList.add('hidden');
+    const modal = document.getElementById('demoGuideModal');
+    if (modal) modal.classList.add('hidden');
 }
 
 function confirmLoadDemo() {
     closeDemoGuide();
-    loadSampleImage();
+    if (typeof loadSampleImage === 'function') loadSampleImage();
 }
 
 // Subscription Process Handler
