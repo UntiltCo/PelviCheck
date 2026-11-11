@@ -391,7 +391,22 @@ function triggerCameraPrompt() {
     }
     if (typeof openCameraModal === 'function') openCameraModal();
 }
+function triggerDemoPrompt() {
+    if (typeof loadSampleImage === 'function') {
+        loadSampleImage();
+    } else {
+        alert("Loading demo image...");
+    }
+}
 
+function resetLandmarks() {
+    if (typeof resetPoints === 'function') {
+        resetPoints();
+    }
+}
+
+window.triggerDemoPrompt = triggerDemoPrompt;
+window.resetLandmarks = resetLandmarks;
 // EXPOSE TO GLOBAL WINDOW SCOPE
 window.openRoleSelectModal = openRoleSelectModal;
 window.closeRoleSelectModal = closeRoleSelectModal;
