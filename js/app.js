@@ -1,4 +1,4 @@
-// Firebase Imports (Script must be loaded as type="module" in index.html)
+// Firebase SDK Modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
 import { 
     getAuth, 
@@ -7,23 +7,25 @@ import {
     signInWithEmailAndPassword 
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-// Firebase Configuration (Replace with your actual Firebase project keys)
+// Firebase Config Credentials (Gamitin ang totoong keys mula sa Firebase Console)
 const firebaseConfig = {
-  apiKey: "AIzaSyBkK-jTh-OBMPsquwAf1t18PcRTYY_dWxc",
-  authDomain: "pelvicheck-pro.firebaseapp.com",
-  projectId: "pelvicheck-pro",
-  storageBucket: "pelvicheck-pro.firebasestorage.app",
-  messagingSenderId: "513013512051",
-  appId: "1:513013512051:web:37ee0a5755dd8f44917706",
-  measurementId: "G-WBF467RWGF"
+    apiKey: "AIzaSyBkJ-jTh-OBMPsquAf1t18PcRTYY_dWxc",
+    authDomain: "pelvicheck-pro.firebaseapp.com",
+    projectId: "pelvicheck-pro",
+    storageBucket: "pelvicheck-pro.firebasestorage.app",
+    messagingSenderId: "513013512051",
+    appId: "1:513013512051:web:37ee0a5755dd8f44917706",
+    measurementId: "G-WBF467RWGF"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Global State Variables
-let currentUserRole = null; 
+// Application State
+let currentUserRole = 'patient'; 
 let pendingAction = null;
+let isPatientSubscribed = false; // Subscription State Lock
+let selectedSubscriptionPlan = 'monthly';
 
 // Web Bluetooth State Variables
 let bluetoothDevice = null;
@@ -39,7 +41,7 @@ window.addEventListener('DOMContentLoaded', () => {
     openRoleSelectModal();
 });
 
-// Modal Navigation Handlers
+// Modal Gateway Handlers
 function openRoleSelectModal() {
     const roleModal = document.getElementById('roleSelectModal');
     if (roleModal) roleModal.classList.remove('hidden');
@@ -99,11 +101,11 @@ async function handleLoginSubmit(event) {
         const user = userCredential.user;
 
         if (!user.emailVerified) {
-            alert(`ACCESS DENIED!\n\nYour email (${email}) is not verified yet.\n\nPlease check your Gmail inbox and click the verification link before logging in.`);
+            alert(`ACCESS DENIED!\n\nAng email na '${email}' ay HINDI pa na-ve-verify sa Gmail.\n\nPumunta sa iyong Gmail Inbox o Spam folder at i-click ang verification link mula sa Firebase bago mag-log in.`);
             return;
         }
 
-        alert(`Welcome back!`);
+        alert(`Welcome back to PelviCheck Pro!`);
         const authModal = document.getElementById('authModal');
         if (authModal) authModal.classList.add('hidden');
         selectUserRole(role);
@@ -112,7 +114,7 @@ async function handleLoginSubmit(event) {
     }
 }
 
-// FIREBASE AUTH: SIGN UP (Sends real verification link to Gmail inbox)
+// FIREBASE AUTH: SIGN UP (Direct to Gmail Inbox, No browser pop-up)
 async function handleSignUpSubmit(event) {
     event.preventDefault();
     const role = document.getElementById('selectedRoleInput').value;
@@ -123,10 +125,10 @@ async function handleSignUpSubmit(event) {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Send official verification email to user's Gmail
+        // Send activation link directly to Gmail Inbox
         await sendEmailVerification(user);
 
-        alert(`REGISTRATION SUCCESSFUL!\n\nA verification link was sent to ${email}.\n\nPlease check your Gmail Inbox (or Spam folder) and click the link to activate your account.`);
+        alert(`SUCCESS!\n\nMay pinadalang activation link sa iyong Gmail (${email}).\n\nTingnan ang iyong Gmail Inbox o Spam folder at i-click ang link para ma-activate ang account.`);
         
         switchToSignIn();
     } catch (error) {
@@ -134,42 +136,115 @@ async function handleSignUpSubmit(event) {
     }
 }
 
-// Role Dashboard Selector
-function selectUserRole(role) {
-    currentUserRole = role;
-    
-    document.querySelectorAll('.role-portal').forEach(portal => portal.classList.add('hidden'));
+// SUBSCRIPTION CHECKOUT & LOCK SYSTEM
+function processSubscriptionCheckout(planType) {
+    const paymentModal = document.getElementById('paymentModal');
+    if (paymentModal) paymentModal.classList.remove('hidden');
+}
 
-    const activePortal = document.getElementById(`portal-${role}`);
-    if (activePortal) activePortal.classList.remove('hidden');
+function closePaymentModal() {
+    const paymentModal = document.getElementById('paymentModal');
+    if (paymentModal) paymentModal.classList.add('hidden');
+}
 
-    const roleBadge = document.getElementById('userRoleBadge');
-    const patientPayBtn = document.getElementById('patientPayBtn');
+function selectPlan(plan) {
+    selectedSubscriptionPlan = plan;
+    const scanBox = document.getElementById('plan-scan');
+    const monthlyBox = document.getElementById('plan-monthly');
 
-    if (roleBadge) {
-        if (role === 'admin') {
-            roleBadge.textContent = 'ADMIN';
-            roleBadge.className = 'text-xs bg-red-600 text-white px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
-            if (patientPayBtn) patientPayBtn.classList.add('hidden');
-        } else if (role === 'doctor') {
-            roleBadge.textContent = 'CLINIC / DOCTOR (FREE ADMIN)';
-            roleBadge.className = 'text-xs bg-brand-deep text-white px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
-            if (patientPayBtn) patientPayBtn.classList.add('hidden');
-        } else {
-            roleBadge.textContent = 'PATIENT (SUBSCRIBED)';
-            roleBadge.className = 'text-xs bg-brand-mint text-brand-dark px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
-            if (patientPayBtn) patientPayBtn.classList.remove('hidden');
-        }
+    if (plan === 'pay_per_scan') {
+        scanBox.className = "p-4 rounded-2xl border-2 border-brand-deep bg-brand-ice cursor-pointer hover:border-brand-deep transition space-y-1";
+        monthlyBox.className = "p-4 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 cursor-pointer hover:border-brand-deep transition space-y-1 relative";
+    } else {
+        monthlyBox.className = "p-4 rounded-2xl border-2 border-brand-deep bg-brand-ice cursor-pointer hover:border-brand-deep transition space-y-1 relative";
+        scanBox.className = "p-4 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 cursor-pointer hover:border-brand-deep transition space-y-1";
     }
 }
 
-// Seamless Web Bluetooth Integration
+function confirmPayment(gateway) {
+    closePaymentModal();
+    isPatientSubscribed = true;
+    
+    const roleBadge = document.getElementById('userRoleBadge');
+    if (roleBadge && currentUserRole === 'patient') {
+        roleBadge.textContent = 'PATIENT (SUBSCRIBED)';
+        roleBadge.className = 'text-xs bg-brand-mint text-brand-dark px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
+    }
+
+    alert(`[PAYMENT SUCCESSFUL]\n\nThank you! Your payment via ${gateway} was received.\n\nYou now have full access to Posture Scanning and Bluetooth Tracking!`);
+}
+
+// Subscription Guard Protection for Scanning Actions
+function checkSubscriptionAndProceed(actionCallback) {
+    if (currentUserRole === 'patient' && !isPatientSubscribed) {
+        alert("SUBSCRIPTION REQUIRED!\n\nHindi ka pa makakapag-scan hangga't wala ka pang active subscription.");
+        processSubscriptionCheckout('patient');
+        return;
+    }
+    actionCallback();
+}
+
+function triggerUploadPrompt() {
+    checkSubscriptionAndProceed(() => {
+        pendingAction = 'upload';
+        const modal = document.getElementById('setupGuidelinesModal');
+        if (modal) modal.classList.remove('hidden');
+    });
+}
+
+function triggerCameraPrompt() {
+    checkSubscriptionAndProceed(() => {
+        pendingAction = 'camera';
+        const modal = document.getElementById('setupGuidelinesModal');
+        if (modal) modal.classList.remove('hidden');
+    });
+}
+
+function triggerDemoPrompt() {
+    const modal = document.getElementById('demoGuideModal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closeDemoGuide() {
+    const modal = document.getElementById('demoGuideModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function confirmLoadDemo() {
+    closeDemoGuide();
+    if (typeof loadSampleImage === 'function') loadSampleImage();
+}
+
+function closeSetupGuidelines() {
+    const modal = document.getElementById('setupGuidelinesModal');
+    if (modal) modal.classList.add('hidden');
+    pendingAction = null;
+}
+
+function proceedToSource() {
+    closeSetupGuidelines();
+    if (pendingAction === 'upload') {
+        const input = document.getElementById('imageInput');
+        if (input) input.click();
+    } else if (pendingAction === 'camera') {
+        if (typeof openCameraModal === 'function') openCameraModal();
+    }
+    pendingAction = null;
+}
+
+// WEARABLE WEB BLUETOOTH API CONNECT
 async function connectPelviBelt() {
+    if (currentUserRole === 'patient' && !isPatientSubscribed) {
+        alert("SUBSCRIPTION REQUIRED!\n\nPlease subscribe to pair your ESP32 PelviCheck Belt.");
+        processSubscriptionCheckout('patient');
+        return;
+    }
+
     const btBtn = document.getElementById('btConnectBtn');
     const btText = document.getElementById('btStatusText');
 
     if (!navigator.bluetooth) {
-        alert("Web Bluetooth is not supported in this browser. Please use Chrome or Edge.");
+        alert("Web Bluetooth is not supported on this browser. Please use Google Chrome or Edge.");
         return;
     }
 
@@ -235,7 +310,46 @@ function onDeviceDisconnected() {
     alert("PelviCheck Belt disconnected.");
 }
 
-// Expose functions to global window object for HTML inline onclick/onsubmit attributes
+// Role Dashboard Switcher
+function selectUserRole(role) {
+    currentUserRole = role;
+    
+    document.querySelectorAll('.role-portal').forEach(portal => portal.classList.add('hidden'));
+
+    const activePortal = document.getElementById(`portal-${role}`);
+    if (activePortal) activePortal.classList.remove('hidden');
+
+    const roleBadge = document.getElementById('userRoleBadge');
+    const patientPayBtn = document.getElementById('patientPayBtn');
+
+    if (roleBadge) {
+        if (role === 'admin') {
+            roleBadge.textContent = 'ADMIN';
+            roleBadge.className = 'text-xs bg-red-600 text-white px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
+            if (patientPayBtn) patientPayBtn.classList.add('hidden');
+        } else if (role === 'doctor') {
+            roleBadge.textContent = 'CLINIC / DOCTOR (FREE ADMIN)';
+            roleBadge.className = 'text-xs bg-brand-deep text-white px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
+            if (patientPayBtn) patientPayBtn.classList.add('hidden');
+        } else {
+            roleBadge.textContent = isPatientSubscribed ? 'PATIENT (SUBSCRIBED)' : 'PATIENT (NOT SUBSCRIBED)';
+            roleBadge.className = 'text-xs bg-brand-mint text-brand-dark px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
+            if (patientPayBtn) patientPayBtn.classList.remove('hidden');
+        }
+    }
+}
+
+function acceptDisclaimer() {
+    const modal = document.getElementById('disclaimerModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function showDisclaimerModal() {
+    const modal = document.getElementById('disclaimerModal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+// EXPOSE TO GLOBAL SCOPE FOR HTML INLINE EVENTS
 window.openRoleSelectModal = openRoleSelectModal;
 window.closeRoleSelectModal = closeRoleSelectModal;
 window.openAuthModalForRole = openAuthModalForRole;
@@ -244,4 +358,17 @@ window.switchToSignUp = switchToSignUp;
 window.switchToSignIn = switchToSignIn;
 window.handleLoginSubmit = handleLoginSubmit;
 window.handleSignUpSubmit = handleSignUpSubmit;
+window.processSubscriptionCheckout = processSubscriptionCheckout;
+window.closePaymentModal = closePaymentModal;
+window.selectPlan = selectPlan;
+window.confirmPayment = confirmPayment;
+window.triggerUploadPrompt = triggerUploadPrompt;
+window.triggerCameraPrompt = triggerCameraPrompt;
+window.triggerDemoPrompt = triggerDemoPrompt;
+window.closeDemoGuide = closeDemoGuide;
+window.confirmLoadDemo = confirmLoadDemo;
+window.closeSetupGuidelines = closeSetupGuidelines;
+window.proceedToSource = proceedToSource;
 window.connectPelviBelt = connectPelviBelt;
+window.acceptDisclaimer = acceptDisclaimer;
+window.showDisclaimerModal = showDisclaimerModal;
