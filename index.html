@@ -15,7 +15,7 @@
     <!-- Chart.js for Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- MediaPipe Pose Detection Scripts for Automatic Verification -->
+    <!-- MediaPipe Pose Detection Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
 
@@ -45,7 +45,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
 
-    <!-- 1. MANDATORY ROLE SELECTION GATEWAY MODAL (NO BADGES + DIRECT CLICK TO AUTH) -->
+    <!-- 1. MANDATORY ROLE SELECTION GATEWAY MODAL -->
     <div id="roleSelectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
         <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-6 text-center">
             
@@ -56,41 +56,41 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
                 <!-- Patient Card -->
-                <div onclick="openAuthModalForRole('patient')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-brand-deep cursor-pointer transition space-y-2 text-center group">
+                <button type="button" onclick="openAuthModalForRole('patient')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-brand-deep cursor-pointer transition space-y-2 text-center group w-full">
                     <div class="w-12 h-12 rounded-xl bg-brand-mint/20 text-brand-deep mx-auto flex items-center justify-center text-xl group-hover:bg-brand-deep group-hover:text-white transition">
                         <i class="fa-solid fa-user"></i>
                     </div>
                     <strong class="block text-brand-dark text-sm font-bold">Patient</strong>
                     <span class="text-[11px] text-brand-dark/70 block">Self-Assessment & Personal History</span>
-                </div>
+                </button>
 
                 <!-- Doctor / Clinic Card -->
-                <div onclick="openAuthModalForRole('doctor')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-brand-deep cursor-pointer transition space-y-2 text-center group">
+                <button type="button" onclick="openAuthModalForRole('doctor')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-brand-deep cursor-pointer transition space-y-2 text-center group w-full">
                     <div class="w-12 h-12 rounded-xl bg-brand-deep text-white mx-auto flex items-center justify-center text-xl">
                         <i class="fa-solid fa-user-doctor"></i>
                     </div>
                     <strong class="block text-brand-dark text-sm font-bold">Clinic / Doctor</strong>
                     <span class="text-[11px] text-brand-dark/70 block">Patient Monitoring Admin</span>
-                </div>
+                </button>
 
-                <!-- Platform Super Admin Card -->
-                <div onclick="openAuthModalForRole('admin')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-red-600 cursor-pointer transition space-y-2 text-center group">
+                <!-- Admin Card -->
+                <button type="button" onclick="openAuthModalForRole('admin')" class="p-5 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 hover:border-red-600 cursor-pointer transition space-y-2 text-center group w-full">
                     <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-xl group-hover:bg-red-600 group-hover:text-white transition">
                         <i class="fa-solid fa-user-shield"></i>
                     </div>
-                    <strong class="block text-brand-dark text-sm font-bold">Super Admin</strong>
+                    <strong class="block text-brand-dark text-sm font-bold">Admin</strong>
                     <span class="text-[11px] text-brand-dark/70 block">System Oversight & Revenue</span>
-                </div>
+                </button>
             </div>
 
         </div>
     </div>
 
     <!-- 2. AUTHENTICATION POP-UP MODAL (SIGN IN & SIGN UP) -->
-    <div id="authModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
+    <div id="authModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 bg-brand-dark/95 backdrop-blur-md">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-5 relative">
             
-            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-brand-dark/60 hover:text-brand-dark text-xl p-1">
+            <button type="button" onclick="closeAuthModal()" class="absolute top-4 right-4 text-brand-dark/60 hover:text-brand-dark text-xl p-1">
                 <i class="fa-solid fa-xmark"></i>
             </button>
 
@@ -181,7 +181,7 @@
             </div>
 
             <div class="pt-2 border-t border-brand-ice text-right">
-                <button onclick="acceptDisclaimer()" class="w-full sm:w-auto bg-brand-deep hover:bg-brand-dark text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all text-sm">
+                <button type="button" onclick="acceptDisclaimer()" class="w-full sm:w-auto bg-brand-deep hover:bg-brand-dark text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all text-sm">
                     I Agree and Understand
                 </button>
             </div>
@@ -201,7 +201,7 @@
                         <p class="text-xs text-brand-dark/70">Please follow these instructions for accurate results.</p>
                     </div>
                 </div>
-                <button onclick="closeSetupGuidelines()" class="text-brand-dark/60 hover:text-brand-dark p-1">
+                <button type="button" onclick="closeSetupGuidelines()" class="text-brand-dark/60 hover:text-brand-dark p-1">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
@@ -220,20 +220,12 @@
                         <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
                         <span><strong>Clothing:</strong> Wear clothing that allows the required body landmarks (PSIS and ASIS) to be clearly visible.</span>
                     </li>
-                    <li class="flex items-start gap-2.5">
-                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
-                        <span><strong>Camera setup:</strong> Follow the recommended camera placement and distance at waist level.</span>
-                    </li>
-                    <li class="flex items-start gap-2.5">
-                        <i class="fa-solid fa-check text-brand-deep mt-1 flex-shrink-0"></i>
-                        <span><strong>Lighting and image quality:</strong> Ensure adequate lighting and a clear, unobstructed view.</span>
-                    </li>
                 </ul>
             </div>
 
             <div class="pt-2 border-t border-brand-ice flex justify-end gap-2">
-                <button onclick="closeSetupGuidelines()" class="px-5 py-2.5 rounded-xl border border-brand-mint/40 text-xs font-semibold text-brand-dark hover:bg-brand-ice">Cancel</button>
-                <button onclick="proceedToSource()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition-all text-xs sm:text-sm">
+                <button type="button" onclick="closeSetupGuidelines()" class="px-5 py-2.5 rounded-xl border border-brand-mint/40 text-xs font-semibold text-brand-dark hover:bg-brand-ice">Cancel</button>
+                <button type="button" onclick="proceedToSource()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition-all text-xs sm:text-sm">
                     Proceed to Assessment
                 </button>
             </div>
@@ -253,7 +245,7 @@
                         <p class="text-xs text-brand-dark/70">Guide for locating ASIS and PSIS landmarks before assessment.</p>
                     </div>
                 </div>
-                <button onclick="closeDemoGuide()" class="text-brand-dark/60 hover:text-brand-dark p-1">
+                <button type="button" onclick="closeDemoGuide()" class="text-brand-dark/60 hover:text-brand-dark p-1">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
@@ -283,7 +275,7 @@
             </div>
 
             <div class="pt-2 border-t border-brand-ice text-right">
-                <button onclick="confirmLoadDemo()" class="w-full sm:w-auto bg-brand-deep hover:bg-brand-dark text-white font-bold px-8 py-3 rounded-xl shadow-lg transition-all text-xs sm:text-sm">
+                <button type="button" onclick="confirmLoadDemo()" class="w-full sm:w-auto bg-brand-deep hover:bg-brand-dark text-white font-bold px-8 py-3 rounded-xl shadow-lg transition-all text-xs sm:text-sm">
                     Got it, Load Demo Image
                 </button>
             </div>
@@ -302,7 +294,7 @@
                 The provided image was rejected because it does not show a clear view of the body or waist area required for landmark detection.
             </p>
 
-            <button onclick="closeRejectionModal()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm py-3 rounded-xl transition shadow-md">
+            <button type="button" onclick="closeRejectionModal()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm py-3 rounded-xl transition shadow-md">
                 Try Again with Valid Photo
             </button>
         </div>
@@ -316,7 +308,7 @@
                     <h3 id="modalPatientName" class="font-bold text-lg text-brand-dark">Patient Progress Analytics</h3>
                     <p class="text-xs text-brand-dark/70">Longitudinal pelvic tilt progression monitored by attending clinician.</p>
                 </div>
-                <button onclick="closeProgressModal()" class="text-brand-dark/60 hover:text-brand-dark text-xl p-1">
+                <button type="button" onclick="closeProgressModal()" class="text-brand-dark/60 hover:text-brand-dark text-xl p-1">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -327,7 +319,7 @@
 
             <div class="flex justify-between items-center text-xs text-brand-dark/80 pt-2 border-t border-brand-ice">
                 <span>Target Standing Range: <strong class="text-brand-deep">7.0° - 13.0°</strong></span>
-                <button onclick="closeProgressModal()" class="bg-brand-deep text-white px-5 py-2 rounded-xl font-bold">Close</button>
+                <button type="button" onclick="closeProgressModal()" class="bg-brand-deep text-white px-5 py-2 rounded-xl font-bold">Close</button>
             </div>
         </div>
     </div>
@@ -345,7 +337,7 @@
                 <h3 class="font-bold text-lg text-brand-dark flex items-center gap-2">
                     <i class="fa-solid fa-video text-brand-deep"></i> Live Camera Screening
                 </h3>
-                <button onclick="closeCameraModal()" class="text-brand-dark/60 hover:text-brand-dark p-1">
+                <button type="button" onclick="closeCameraModal()" class="text-brand-dark/60 hover:text-brand-dark p-1">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
@@ -355,11 +347,11 @@
             </div>
 
             <div class="flex items-center justify-between gap-3 pt-2">
-                <button onclick="switchCameraMode()" class="bg-brand-ice hover:bg-brand-mint/30 text-brand-dark font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition border border-brand-mint/40 flex items-center gap-2">
+                <button type="button" onclick="switchCameraMode()" class="bg-brand-ice hover:bg-brand-mint/30 text-brand-dark font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition border border-brand-mint/40 flex items-center gap-2">
                     <i class="fa-solid fa-rotate text-brand-deep"></i> Flip Camera
                 </button>
 
-                <button onclick="captureCameraPhoto()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                <button type="button" onclick="captureCameraPhoto()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
                     <i class="fa-solid fa-circle-dot text-brand-mint"></i> Capture Photo
                 </button>
             </div>
@@ -374,16 +366,16 @@
                 <div class="flex items-center gap-3">
                     <a href="#" class="flex items-center gap-2">
                         <img src="logo.jpg" alt="PelviCheck Logo" class="h-12 sm:h-14 w-auto object-contain giant-logo" onerror="console.log('Logo image missing');">
-                        <span id="userRoleBadge" class="text-xs bg-brand-deep text-white px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider">DOCTOR / CLINIC ADMIN</span>
+                        <span id="userRoleBadge" class="text-xs bg-brand-deep text-white px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider">CLINIC / DOCTOR</span>
                     </a>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <button onclick="openRoleSelectModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-brand-dark bg-brand-ice border border-brand-mint/40 hover:bg-brand-mint/30 flex items-center gap-1.5">
+                    <button type="button" onclick="openRoleSelectModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-brand-dark bg-brand-ice border border-brand-mint/40 hover:bg-brand-mint/30 flex items-center gap-1.5">
                         <i class="fa-solid fa-right-left"></i> Switch Role / Sign Out
                     </button>
 
-                    <button id="patientPayBtn" onclick="processSubscriptionCheckout('patient')" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-deep hover:bg-brand-dark shadow-sm flex items-center gap-1.5">
+                    <button type="button" id="patientPayBtn" onclick="processSubscriptionCheckout('patient')" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-deep hover:bg-brand-dark shadow-sm flex items-center gap-1.5">
                         <i class="fa-solid fa-crown text-yellow-400"></i> Subscription Plans
                     </button>
                 </div>
@@ -399,7 +391,7 @@
                 <i class="fa-solid fa-circle-info text-brand-deep flex-shrink-0"></i>
                 <span><strong>Medical Notice:</strong> PelviCheck is a preliminary screening tool and does not replace a physical clinical diagnosis.</span>
             </div>
-            <button onclick="showDisclaimerModal()" class="text-xs text-brand-deep font-bold underline hover:text-brand-dark flex-shrink-0">View Medical Notice</button>
+            <button type="button" onclick="showDisclaimerModal()" class="text-xs text-brand-deep font-bold underline hover:text-brand-dark flex-shrink-0">View Medical Notice</button>
         </div>
     </div>
 
@@ -422,21 +414,21 @@
                     <div class="bg-brand-white rounded-2xl p-4 sm:p-5 border border-brand-mint/40 shadow-sm space-y-4">
                         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-brand-ice">
                             <div class="flex flex-wrap items-center gap-2">
-                                <button onclick="triggerUploadPrompt()" class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-2">
+                                <button type="button" onclick="triggerUploadPrompt()" class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-2">
                                     <i class="fa-solid fa-upload text-brand-mint"></i> Upload Photo
                                 </button>
                                 <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
 
-                                <button onclick="triggerCameraPrompt()" class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-2">
+                                <button type="button" onclick="triggerCameraPrompt()" class="bg-brand-deep hover:bg-brand-dark text-brand-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl transition shadow-sm flex items-center gap-2">
                                     <i class="fa-solid fa-camera text-brand-mint"></i> Take Photo
                                 </button>
 
-                                <button onclick="triggerDemoPrompt()" class="bg-brand-ice hover:bg-brand-mint/20 text-brand-dark text-xs sm:text-sm font-medium px-3 py-2 rounded-xl transition border border-brand-mint/30">
+                                <button type="button" onclick="triggerDemoPrompt()" class="bg-brand-ice hover:bg-brand-mint/20 text-brand-dark text-xs sm:text-sm font-medium px-3 py-2 rounded-xl transition border border-brand-mint/30">
                                     Demo Image
                                 </button>
                             </div>
 
-                            <button onclick="resetLandmarks()" class="text-xs sm:text-sm bg-brand-ice text-brand-dark hover:bg-brand-mint/30 border border-brand-mint px-3 py-2 rounded-xl font-medium transition flex items-center gap-1">
+                            <button type="button" onclick="resetLandmarks()" class="text-xs sm:text-sm bg-brand-ice text-brand-dark hover:bg-brand-mint/30 border border-brand-mint px-3 py-2 rounded-xl font-medium transition flex items-center gap-1">
                                 <i class="fa-solid fa-rotate-left text-brand-deep"></i> Reset Points
                             </button>
                         </div>
@@ -455,8 +447,8 @@
                                 <h3 class="text-lg font-semibold text-brand-white mb-1">No Image Loaded</h3>
                                 <p class="text-xs text-brand-ice/80 max-w-sm mb-4">Upload a side-view photo, take a live camera picture, or try a demo photo to start screening.</p>
                                 <div class="flex items-center gap-2">
-                                    <button onclick="triggerCameraPrompt()" class="bg-brand-deep hover:bg-brand-mint hover:text-brand-dark text-brand-white text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30 flex items-center gap-1.5"><i class="fa-solid fa-camera"></i> Open Camera</button>
-                                    <button onclick="triggerDemoPrompt()" class="bg-brand-ice text-brand-dark text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30">Demo Photo</button>
+                                    <button type="button" onclick="triggerCameraPrompt()" class="bg-brand-deep hover:bg-brand-mint hover:text-brand-dark text-brand-white text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30 flex items-center gap-1.5"><i class="fa-solid fa-camera"></i> Open Camera</button>
+                                    <button type="button" onclick="triggerDemoPrompt()" class="bg-brand-ice text-brand-dark text-xs font-semibold px-4 py-2 rounded-lg transition border border-brand-mint/30">Demo Photo</button>
                                 </div>
                             </div>
                         </div>
@@ -522,7 +514,7 @@
                         <p class="text-xs sm:text-sm text-brand-dark/70">Monitor assigned patient records, evaluate tilt angles, and track rehabilitation progress.</p>
                     </div>
                     <div class="flex items-center gap-3">
-                        <button onclick="openNewPatientModal()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold px-5 py-2.5 rounded-xl shadow-md text-xs sm:text-sm flex items-center gap-2">
+                        <button type="button" onclick="openNewPatientModal()" class="bg-brand-deep hover:bg-brand-dark text-white font-bold px-5 py-2.5 rounded-xl shadow-md text-xs sm:text-sm flex items-center gap-2">
                             <i class="fa-solid fa-user-plus"></i> Assign / Register Patient
                         </button>
                     </div>
@@ -589,7 +581,7 @@
                                         <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-100 text-green-800 border border-green-300">Improving</span>
                                     </td>
                                     <td class="px-4 py-4 text-right space-x-2">
-                                        <button onclick="viewPatientProgress('Juan Dela Cruz', [18.4, 15.2, 13.1, 11.2])" class="px-3 py-1.5 rounded-lg bg-brand-deep text-white font-bold text-xs hover:bg-brand-dark">
+                                        <button type="button" onclick="viewPatientProgress('Juan Dela Cruz', [18.4, 15.2, 13.1, 11.2])" class="px-3 py-1.5 rounded-lg bg-brand-deep text-white font-bold text-xs hover:bg-brand-dark">
                                             View Progress Chart
                                         </button>
                                     </td>
@@ -601,12 +593,12 @@
             </div>
         </div>
 
-        <!-- PORTAL 3: PLATFORM SUPER ADMIN CONTROL CENTER -->
+        <!-- PORTAL 3: PLATFORM ADMIN CONTROL CENTER -->
         <div id="portal-admin" class="role-portal hidden space-y-6">
             <div class="bg-white rounded-3xl p-6 border border-red-200 shadow-sm space-y-6">
                 <div class="border-b border-red-100 pb-4 flex justify-between items-center">
                     <div>
-                        <h1 class="text-2xl font-bold text-red-700">Platform Super Admin Dashboard</h1>
+                        <h1 class="text-2xl font-bold text-red-700">Platform Admin Dashboard</h1>
                         <p class="text-xs text-brand-dark/70">Monetization tracking, patient subscriptions, and clinic account management.</p>
                     </div>
                     <span class="text-xs bg-red-100 text-red-700 font-bold px-3 py-1 rounded-full border border-red-200">System Owner</span>
