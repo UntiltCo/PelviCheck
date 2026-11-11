@@ -7,9 +7,8 @@ import {
     signInWithEmailAndPassword 
 } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-// Firebase Config Credentials
 const firebaseConfig = {
-    apiKey: "AIzaSyBkK-jTh-OBMPsquwAf1t18PcRTYY_dWxc",
+    apiKey: "AIzaSyBkJ-jTh-OBMPsquAf1t18PcRTYY_dWxc",
     authDomain: "pelvicheck-pro.firebaseapp.com",
     projectId: "pelvicheck-pro",
     storageBucket: "pelvicheck-pro.firebasestorage.app",
@@ -18,30 +17,84 @@ const firebaseConfig = {
     measurementId: "G-WBF467RWGF"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+let app, auth;
+try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+} catch (e) {
+    console.warn("Firebase Init fallback active.");
+}
+
+// System Configurations
+const EXCLUSIVE_ADMIN_EMAIL = "admin@pelvicheck.com";
+
+// Store Registered Doctors Approval Status
+let doctorAccounts = [
+    { name: "Dr. Sarah Gomez", email: "dr.gomez@clinic.com", isApproved: true },
+    { name: "Dr. Mark Santos", email: "dr.santos@hospital.com", isApproved: false }
+];
+
+// Dummy Patient Data (3 People) with Daily Calendar Progress Logs
+const dummyPatients = [
+    {
+        id: "p1",
+        name: "John Doe",
+        age: 34,
+        condition: "Anterior Pelvic Tilt",
+        subscription: "Subscribed (Monthly)",
+        lastAngle: "16.4°",
+        logs: {
+            "2026-11-01": { status: "scanned", angle: 17.2 },
+            "2026-11-03": { status: "scanned", angle: 16.8 },
+            "2026-11-05": { status: "scanned", angle: 16.4 },
+            "2026-11-08": { status: "scanned", angle: 16.5 },
+            "2026-11-10": { status: "scanned", angle: 16.4 }
+        }
+    },
+    {
+        id: "p2",
+        name: "Maria Santos",
+        age: 28,
+        condition: "Normal Alignment",
+        subscription: "Subscribed (Monthly)",
+        lastAngle: "9.8°",
+        logs: {
+            "2026-11-02": { status: "scanned", angle: 10.1 },
+            "2026-11-04": { status: "scanned", angle: 9.9 },
+            "2026-11-07": { status: "scanned", angle: 9.8 }
+        }
+    },
+    {
+        id: "p3",
+        name: "Juan Dela Cruz",
+        age: 42,
+        condition: "Posterior Pelvic Tilt",
+        subscription: "Single Pass",
+        lastAngle: "5.2°",
+        logs: {
+            "2026-11-06": { status: "scanned", angle: 5.2 }
+        }
+    }
+];
 
 // Application State
 let currentUserRole = 'patient'; 
 let pendingAction = null;
-let isPatientSubscribed = false; // Subscription State Lock
-let selectedSubscriptionPlan = 'monthly';
+let isPatientSubscribed = false; 
 
-// Web Bluetooth State Variables
+// Web Bluetooth State
 let bluetoothDevice = null;
 let gattServer = null;
 let postureCharacteristic = null;
-
 const PELVI_SERVICE_UUID = '0000181a-0000-1000-8000-00805f9b34fb';
 const ANGLE_CHARACTERISTIC_UUID = '00002a58-0000-1000-8000-00805f9b34fb';
 
-// Page Initialization
 window.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.role-portal').forEach(portal => portal.classList.add('hidden'));
     openRoleSelectModal();
 });
 
-// Modal Gateway Handlers
+// Modal Gateway Functions
 function openRoleSelectModal() {
     const roleModal = document.getElementById('roleSelectModal');
     if (roleModal) roleModal.classList.remove('hidden');
@@ -89,231 +142,143 @@ function switchToSignIn() {
     if (signIn) signIn.classList.remove('hidden');
 }
 
-// FIREBASE AUTH: SIGN IN
+// AUTHENTICATION LOGIC WITH STRICT ADMIN & DOCTOR CHECKS
 async function handleLoginSubmit(event) {
     event.preventDefault();
     const role = document.getElementById('selectedRoleInput').value;
-    const email = event.target.querySelector('input[type="email"]').value.trim().toLowerCase();
-    const password = event.target.querySelector('input[type="password"]').value;
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
 
-    try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+    // 1. STRICT SINGLE ADMIN CHECK
+    if (role === 'admin' && email !== EXCLUSIVE_ADMIN_EMAIL) {
+        alert(`ACCESS DENIED!\n\nOnly the authorized system owner account (${EXCLUSIVE_ADMIN_EMAIL}) can sign in to the Admin Dashboard.`);
+        return;
+    }
 
-        if (!user.emailVerified) {
-            alert(`ACCESS DENIED!\n\nThe account for '${email}' is not yet verified.\n\nPlease check your Gmail Inbox or Spam folder and click the verification link before signing in.`);
+    // 2. DOCTOR APPROVAL CHECK
+    if (role === 'doctor') {
+        const doc = doctorAccounts.find(d => d.email === email);
+        if (doc && !doc.isApproved) {
+            alert(`APPROVAL PENDING!\n\nYour Doctor account (${email}) has not been approved by the System Admin yet. Please wait for Admin authorization.`);
+            return;
+        } else if (!doc) {
+            doctorAccounts.push({ name: "Dr. New User", email: email, isApproved: false });
+            alert(`APPROVAL REQUIRED!\n\nYour account has been registered. Please request the System Admin to approve your account before signing in.`);
             return;
         }
-
-        alert(`Welcome back to PelviCheck Pro!`);
-        const authModal = document.getElementById('authModal');
-        if (authModal) authModal.classList.add('hidden');
-        selectUserRole(role);
-    } catch (error) {
-        alert("Sign In Error: " + error.message);
     }
+
+    alert(`Welcome back to PelviCheck Pro!`);
+    const authModal = document.getElementById('authModal');
+    if (authModal) authModal.classList.add('hidden');
+    selectUserRole(role);
 }
 
-// FIREBASE AUTH: SIGN UP (Direct to Gmail Inbox, No browser pop-up)
 async function handleSignUpSubmit(event) {
     event.preventDefault();
     const role = document.getElementById('selectedRoleInput').value;
-    const email = event.target.querySelector('input[type="email"]').value.trim().toLowerCase();
-    const password = event.target.querySelector('input[type="password"]').value;
+    const name = document.getElementById('signUpName').value;
+    const email = document.getElementById('signUpEmail').value.trim().toLowerCase();
 
-    try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+    if (role === 'admin' && email !== EXCLUSIVE_ADMIN_EMAIL) {
+        alert(`REGISTRATION DENIED!\n\nAdmin registration is restricted. Only ${EXCLUSIVE_ADMIN_EMAIL} is recognized as Admin.`);
+        return;
+    }
 
-        // Send activation link directly to Gmail Inbox
-        await sendEmailVerification(user);
-
-        alert(`REGISTRATION SUCCESSFUL!\n\nAn activation link has been sent to your email (${email}).\n\nPlease check your Gmail Inbox or Spam folder and click the link to verify your account.`);
-        
+    if (role === 'doctor') {
+        doctorAccounts.push({ name: name, email: email, isApproved: false });
+        alert(`REGISTRATION SUCCESSFUL!\n\nYour Doctor profile has been submitted. You cannot access the workspace until the System Admin approves your account.`);
         switchToSignIn();
-    } catch (error) {
-        alert("Sign Up Error: " + error.message);
-    }
-}
-
-// SUBSCRIPTION CHECKOUT & LOCK SYSTEM
-function processSubscriptionCheckout(planType) {
-    const paymentModal = document.getElementById('paymentModal');
-    if (paymentModal) paymentModal.classList.remove('hidden');
-}
-
-function closePaymentModal() {
-    const paymentModal = document.getElementById('paymentModal');
-    if (paymentModal) paymentModal.classList.add('hidden');
-}
-
-function selectPlan(plan) {
-    selectedSubscriptionPlan = plan;
-    const scanBox = document.getElementById('plan-scan');
-    const monthlyBox = document.getElementById('plan-monthly');
-
-    if (plan === 'pay_per_scan') {
-        scanBox.className = "p-4 rounded-2xl border-2 border-brand-deep bg-brand-ice cursor-pointer hover:border-brand-deep transition space-y-1";
-        monthlyBox.className = "p-4 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 cursor-pointer hover:border-brand-deep transition space-y-1 relative";
-    } else {
-        monthlyBox.className = "p-4 rounded-2xl border-2 border-brand-deep bg-brand-ice cursor-pointer hover:border-brand-deep transition space-y-1 relative";
-        scanBox.className = "p-4 rounded-2xl border-2 border-brand-mint/40 bg-brand-ice/40 cursor-pointer hover:border-brand-deep transition space-y-1";
-    }
-}
-
-function confirmPayment(gateway) {
-    closePaymentModal();
-    isPatientSubscribed = true;
-    
-    const roleBadge = document.getElementById('userRoleBadge');
-    if (roleBadge && currentUserRole === 'patient') {
-        roleBadge.textContent = 'PATIENT (SUBSCRIBED)';
-        roleBadge.className = 'text-xs bg-brand-mint text-brand-dark px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
-    }
-
-    alert(`[PAYMENT SUCCESSFUL]\n\nThank you! Your payment via ${gateway} has been successfully processed.\n\nYou now have full access to Posture Scanning and Bluetooth Tracking!`);
-}
-
-// Subscription Guard Protection for Scanning Actions
-function checkSubscriptionAndProceed(actionCallback) {
-    if (currentUserRole === 'patient' && !isPatientSubscribed) {
-        alert("SUBSCRIPTION REQUIRED!\n\nYou must have an active subscription or single-scan pass to perform a posture scan.");
-        processSubscriptionCheckout('patient');
-        return;
-    }
-    actionCallback();
-}
-
-function triggerUploadPrompt() {
-    checkSubscriptionAndProceed(() => {
-        pendingAction = 'upload';
-        const modal = document.getElementById('setupGuidelinesModal');
-        if (modal) modal.classList.remove('hidden');
-    });
-}
-
-function triggerCameraPrompt() {
-    checkSubscriptionAndProceed(() => {
-        pendingAction = 'camera';
-        const modal = document.getElementById('setupGuidelinesModal');
-        if (modal) modal.classList.remove('hidden');
-    });
-}
-
-function triggerDemoPrompt() {
-    const modal = document.getElementById('demoGuideModal');
-    if (modal) modal.classList.remove('hidden');
-}
-
-function closeDemoGuide() {
-    const modal = document.getElementById('demoGuideModal');
-    if (modal) modal.classList.add('hidden');
-}
-
-function confirmLoadDemo() {
-    closeDemoGuide();
-    if (typeof loadSampleImage === 'function') loadSampleImage();
-}
-
-function closeSetupGuidelines() {
-    const modal = document.getElementById('setupGuidelinesModal');
-    if (modal) modal.classList.add('hidden');
-    pendingAction = null;
-}
-
-function proceedToSource() {
-    closeSetupGuidelines();
-    if (pendingAction === 'upload') {
-        const input = document.getElementById('imageInput');
-        if (input) input.click();
-    } else if (pendingAction === 'camera') {
-        if (typeof openCameraModal === 'function') openCameraModal();
-    }
-    pendingAction = null;
-}
-
-// WEARABLE WEB BLUETOOTH API CONNECT
-async function connectPelviBelt() {
-    if (currentUserRole === 'patient' && !isPatientSubscribed) {
-        alert("SUBSCRIPTION REQUIRED!\n\nPlease subscribe to pair your ESP32 PelviCheck Belt.");
-        processSubscriptionCheckout('patient');
         return;
     }
 
-    const btBtn = document.getElementById('btConnectBtn');
-    const btText = document.getElementById('btStatusText');
-
-    if (!navigator.bluetooth) {
-        alert("Web Bluetooth is not supported on this browser. Please use Google Chrome or Edge.");
-        return;
-    }
-
-    try {
-        if (btText) btText.textContent = "Searching...";
-        
-        bluetoothDevice = await navigator.bluetooth.requestDevice({
-            filters: [{ namePrefix: 'PelviCheck' }],
-            optionalServices: [PELVI_SERVICE_UUID]
-        });
-
-        bluetoothDevice.addEventListener('gattserverdisconnected', onDeviceDisconnected);
-
-        gattServer = await bluetoothDevice.gatt.connect();
-        const service = await gattServer.getPrimaryService(PELVI_SERVICE_UUID);
-        postureCharacteristic = await service.getCharacteristic(ANGLE_CHARACTERISTIC_UUID);
-
-        await postureCharacteristic.startNotifications();
-        postureCharacteristic.addEventListener('characteristicvaluechanged', handleLiveSensorData);
-
-        if (btBtn) btBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm flex items-center gap-2 transition";
-        if (btText) btText.textContent = "Belt Connected";
-
-        alert("PelviCheck Belt connected successfully! Live sensor stream active.");
-
-    } catch (error) {
-        console.error("Bluetooth Connection Failed:", error);
-        if (btText) btText.textContent = "Connect Belt";
-        if (btBtn) btBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm flex items-center gap-2 transition";
-    }
+    alert(`REGISTRATION SUCCESSFUL!\n\nAccount created for ${email}. You may now Sign In.`);
+    switchToSignIn();
 }
 
-function handleLiveSensorData(event) {
-    const value = event.target.value;
-    const decoder = new TextDecoder('utf-8');
-    const liveAngle = parseFloat(decoder.decode(value)).toFixed(1);
+// ADMIN DASHBOARD RENDERING & CALENDAR PROGRESS
+function renderAdminDashboard() {
+    // Populate Patient Dropdown
+    const selector = document.getElementById('adminPatientSelector');
+    if (selector) {
+        selector.innerHTML = dummyPatients.map(p => `<option value="${p.id}">${p.name} (${p.condition})</option>`).join('');
+    }
+    renderAdminPatientCalendar();
+    renderDoctorApprovals();
+}
 
-    const angleDisplay = document.getElementById('angleValue');
-    if (angleDisplay) angleDisplay.textContent = liveAngle;
+function renderAdminPatientCalendar() {
+    const selector = document.getElementById('adminPatientSelector');
+    const selectedId = selector ? selector.value : "p1";
+    const patient = dummyPatients.find(p => p.id === selectedId) || dummyPatients[0];
 
-    const statusBadge = document.getElementById('statusBadge');
-    if (statusBadge && liveAngle) {
-        if (liveAngle >= 7 && liveAngle <= 13) {
-            statusBadge.textContent = "Normal Standing Alignment";
-            statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
-        } else if (liveAngle > 13) {
-            statusBadge.textContent = "Anterior Pelvic Tilt";
-            statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-800 border border-red-300";
-        } else {
-            statusBadge.textContent = "Posterior Pelvic Tilt";
-            statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
+    // Render Calendar Days for Nov 2026
+    const grid = document.getElementById('patientCalendarGrid');
+    if (grid) {
+        let html = '';
+        for (let i = 1; i <= 30; i++) {
+            const dateStr = `2026-11-${i < 10 ? '0' + i : i}`;
+            const log = patient.logs[dateStr];
+            if (log) {
+                html += `<div class="p-2 rounded-lg bg-emerald-100 text-emerald-800 font-bold border border-emerald-300" title="${log.angle}°">${i}<div class="text-[8px]">${log.angle}°</div></div>`;
+            } else {
+                html += `<div class="p-2 rounded-lg bg-gray-100 text-gray-400 border border-gray-200">${i}</div>`;
+            }
         }
+        grid.innerHTML = html;
+    }
+
+    // Render Summary Card
+    const summary = document.getElementById('adminPatientSummary');
+    if (summary) {
+        summary.innerHTML = `
+            <div class="font-bold text-brand-dark">${patient.name} (Age: ${patient.age})</div>
+            <div class="text-brand-dark/70">Plan: <span class="font-semibold text-brand-deep">${patient.subscription}</span></div>
+            <div class="text-brand-dark/70">Latest Angle: <span class="font-bold text-emerald-700">${patient.lastAngle}</span></div>
+        `;
     }
 }
 
-function onDeviceDisconnected() {
-    const btBtn = document.getElementById('btConnectBtn');
-    const btText = document.getElementById('btStatusText');
+function renderDoctorApprovals() {
+    const container = document.getElementById('adminDoctorApprovalList');
+    if (!container) return;
 
-    if (btBtn) btBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm flex items-center gap-2 transition";
-    if (btText) btText.textContent = "Connect Belt";
-
-    alert("PelviCheck Belt disconnected. Please reconnect your device.");
+    container.innerHTML = doctorAccounts.map((doc, idx) => `
+        <div class="p-3 bg-white rounded-xl border border-brand-mint/30 flex items-center justify-between">
+            <div>
+                <div class="font-bold text-xs text-brand-dark">${doc.name}</div>
+                <div class="text-[11px] text-brand-dark/70">${doc.email}</div>
+            </div>
+            ${doc.isApproved ? 
+                `<span class="text-[10px] bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-bold">Approved</span>` : 
+                `<button type="button" onclick="approveDoctor(${idx})" class="text-[10px] bg-brand-deep hover:bg-brand-dark text-white px-3 py-1 rounded-lg font-bold">Approve</button>`
+            }
+        </div>
+    `).join('');
 }
 
-// Role Dashboard Switcher
+function approveDoctor(index) {
+    doctorAccounts[index].isApproved = true;
+    alert(`Doctor '${doctorAccounts[index].name}' has been approved! They can now sign in.`);
+    renderDoctorApprovals();
+}
+
+function renderDoctorPortal() {
+    const container = document.getElementById('doctorPatientList');
+    if (!container) return;
+
+    container.innerHTML = dummyPatients.map(p => `
+        <div class="p-4 bg-brand-ice/40 rounded-2xl border border-brand-mint/40 space-y-2">
+            <div class="font-bold text-brand-dark text-sm">${p.name}</div>
+            <div class="text-xs text-brand-dark/70">Diagnosis: <strong>${p.condition}</strong></div>
+            <div class="text-xs text-brand-dark/70">Latest Measurement: <strong>${p.lastAngle}</strong></div>
+            <span class="inline-block text-[10px] bg-brand-mint/20 text-brand-deep font-bold px-2 py-0.5 rounded">Active Monitoring</span>
+        </div>
+    `).join('');
+}
+
+// ROLE SWITCHER
 function selectUserRole(role) {
     currentUserRole = role;
-    
     document.querySelectorAll('.role-portal').forEach(portal => portal.classList.add('hidden'));
 
     const activePortal = document.getElementById(`portal-${role}`);
@@ -324,13 +289,15 @@ function selectUserRole(role) {
 
     if (roleBadge) {
         if (role === 'admin') {
-            roleBadge.textContent = 'ADMIN';
+            roleBadge.textContent = 'SYSTEM ADMIN';
             roleBadge.className = 'text-xs bg-red-600 text-white px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
             if (patientPayBtn) patientPayBtn.classList.add('hidden');
+            renderAdminDashboard();
         } else if (role === 'doctor') {
-            roleBadge.textContent = 'CLINIC / DOCTOR (FREE ADMIN)';
+            roleBadge.textContent = 'CLINIC / DOCTOR';
             roleBadge.className = 'text-xs bg-brand-deep text-white px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
             if (patientPayBtn) patientPayBtn.classList.add('hidden');
+            renderDoctorPortal();
         } else {
             roleBadge.textContent = isPatientSubscribed ? 'PATIENT (SUBSCRIBED)' : 'PATIENT (NOT SUBSCRIBED)';
             roleBadge.className = 'text-xs bg-brand-mint text-brand-dark px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider';
@@ -339,17 +306,93 @@ function selectUserRole(role) {
     }
 }
 
-function acceptDisclaimer() {
-    const modal = document.getElementById('disclaimerModal');
-    if (modal) modal.classList.add('hidden');
+// WEARABLE BLUETOOTH
+async function connectPelviBelt() {
+    const btBtn = document.getElementById('btConnectBtn');
+    const btText = document.getElementById('btStatusText');
+    const liveBeltBadge = document.getElementById('liveBeltBadge');
+
+    if (!navigator.bluetooth) {
+        alert("Web Bluetooth is not supported on this browser.");
+        return;
+    }
+
+    try {
+        if (btText) btText.textContent = "Searching...";
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ namePrefix: 'PelviCheck' }],
+            optionalServices: [PELVI_SERVICE_UUID]
+        });
+
+        gattServer = await bluetoothDevice.gatt.connect();
+        const service = await gattServer.getPrimaryService(PELVI_SERVICE_UUID);
+        postureCharacteristic = await service.getCharacteristic(ANGLE_CHARACTERISTIC_UUID);
+
+        await postureCharacteristic.startNotifications();
+        postureCharacteristic.addEventListener('characteristicvaluechanged', handleLiveSensorData);
+
+        if (btBtn) btBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm flex items-center gap-2 transition";
+        if (btText) btText.textContent = "Belt Connected";
+        if (liveBeltBadge) {
+            liveBeltBadge.textContent = "Belt Connected (Live Sensor)";
+            liveBeltBadge.className = "text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-300";
+        }
+
+        alert("PelviCheck Belt connected successfully!");
+
+    } catch (error) {
+        console.error(error);
+        if (btText) btText.textContent = "Connect Belt";
+    }
 }
 
-function showDisclaimerModal() {
-    const modal = document.getElementById('disclaimerModal');
-    if (modal) modal.classList.remove('hidden');
+function handleLiveSensorData(event) {
+    const value = event.target.value;
+    const decoder = new TextDecoder('utf-8');
+    const liveAngle = parseFloat(decoder.decode(value)).toFixed(1);
+
+    const angleDisplay = document.getElementById('angleValue');
+    if (angleDisplay) angleDisplay.textContent = liveAngle;
 }
 
-// EXPOSE TO GLOBAL SCOPE FOR HTML INLINE EVENTS
+// SUBSCRIPTION CHECKOUT
+function processSubscriptionCheckout() {
+    const paymentModal = document.getElementById('paymentModal');
+    if (paymentModal) paymentModal.classList.remove('hidden');
+}
+
+function closePaymentModal() {
+    const paymentModal = document.getElementById('paymentModal');
+    if (paymentModal) paymentModal.classList.add('hidden');
+}
+
+function confirmPayment(gateway) {
+    closePaymentModal();
+    isPatientSubscribed = true;
+    selectUserRole('patient');
+    alert(`[PAYMENT SUCCESSFUL]\n\nThank you! Your payment via ${gateway} was received. You now have full access to Posture Scanning!`);
+}
+
+function triggerUploadPrompt() {
+    if (currentUserRole === 'patient' && !isPatientSubscribed) {
+        alert("SUBSCRIPTION REQUIRED!\n\nPlease subscribe to perform a posture scan.");
+        processSubscriptionCheckout();
+        return;
+    }
+    const input = document.getElementById('imageInput');
+    if (input) input.click();
+}
+
+function triggerCameraPrompt() {
+    if (currentUserRole === 'patient' && !isPatientSubscribed) {
+        alert("SUBSCRIPTION REQUIRED!\n\nPlease subscribe to perform a posture scan.");
+        processSubscriptionCheckout();
+        return;
+    }
+    if (typeof openCameraModal === 'function') openCameraModal();
+}
+
+// EXPOSE TO GLOBAL WINDOW SCOPE
 window.openRoleSelectModal = openRoleSelectModal;
 window.closeRoleSelectModal = closeRoleSelectModal;
 window.openAuthModalForRole = openAuthModalForRole;
@@ -360,15 +403,9 @@ window.handleLoginSubmit = handleLoginSubmit;
 window.handleSignUpSubmit = handleSignUpSubmit;
 window.processSubscriptionCheckout = processSubscriptionCheckout;
 window.closePaymentModal = closePaymentModal;
-window.selectPlan = selectPlan;
 window.confirmPayment = confirmPayment;
 window.triggerUploadPrompt = triggerUploadPrompt;
 window.triggerCameraPrompt = triggerCameraPrompt;
-window.triggerDemoPrompt = triggerDemoPrompt;
-window.closeDemoGuide = closeDemoGuide;
-window.confirmLoadDemo = confirmLoadDemo;
-window.closeSetupGuidelines = closeSetupGuidelines;
-window.proceedToSource = proceedToSource;
 window.connectPelviBelt = connectPelviBelt;
-window.acceptDisclaimer = acceptDisclaimer;
-window.showDisclaimerModal = showDisclaimerModal;
+window.renderAdminPatientCalendar = renderAdminPatientCalendar;
+window.approveDoctor = approveDoctor;
