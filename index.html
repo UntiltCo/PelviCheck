@@ -45,6 +45,13 @@
 </head>
 <body class="min-h-screen flex flex-col bg-brand-ice text-brand-dark">
 
+    <!-- Web Bluetooth Seamless Connection Header Action -->
+<div class="flex items-center gap-2">
+    <button type="button" id="btConnectBtn" onclick="connectPelviBelt()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm flex items-center gap-2 transition">
+        <i class="fa-solid fa-bluetooth"></i> <span id="btStatusText">Connect Belt</span>
+    </button>
+</div>
+    
     <!-- 1. MANDATORY ROLE SELECTION GATEWAY MODAL -->
     <div id="roleSelectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/90 backdrop-blur-md">
         <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-brand-mint/30 space-y-6 text-center">
