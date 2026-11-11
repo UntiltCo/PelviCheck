@@ -9,9 +9,13 @@ import {
 
 // Firebase Configuration (Replace with your actual Firebase project keys)
 const firebaseConfig = {
-    apiKey: "YOUR_FIREBASE_API_KEY",
-    authDomain: "pelvicheck-pro.firebaseapp.com",
-    projectId: "pelvicheck-pro"
+  apiKey: "AIzaSyBkK-jTh-OBMPsquwAf1t18PcRTYY_dWxc",
+  authDomain: "pelvicheck-pro.firebaseapp.com",
+  projectId: "pelvicheck-pro",
+  storageBucket: "pelvicheck-pro.firebasestorage.app",
+  messagingSenderId: "513013512051",
+  appId: "1:513013512051:web:37ee0a5755dd8f44917706",
+  measurementId: "G-WBF467RWGF"
 };
 
 const app = initializeApp(firebaseConfig);
