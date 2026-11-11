@@ -1,15 +1,28 @@
-// Global Application State Variables
+// Global State Variables
 let currentUserRole = null; 
 let pendingAction = null;
 let generatedOtpCode = null;
-let pendingUserEmail = '';
+let pendingUserData = null; // Store temp sign-up data before OTP
+
+// Helper to Get Registered Users from Mock Database (LocalStorage)
+function getRegisteredUsers() {
+    const users = localStorage.getItem('pelvicheck_users');
+    return users ? JSON.parse(users) : [];
+}
+
+// Helper to Save New User to Mock Database
+function saveRegisteredUser(userData) {
+    const users = getRegisteredUsers();
+    users.push(userData);
+    localStorage.setItem('pelvicheck_users', JSON.stringify(users));
+}
 
 // Page Initialization
 window.addEventListener('DOMContentLoaded', () => {
-    // Itago muna ang lahat ng dashboards sa simula
+    // Hide all portal dashboards on initial load
     document.querySelectorAll('.role-portal').forEach(portal => portal.classList.add('hidden'));
     
-    // Buksan ang Role Selection Gateway
+    // Open Role Selection Gateway Modal
     openRoleSelectModal();
 });
 
@@ -24,7 +37,7 @@ function closeRoleSelectModal() {
     if (roleModal) roleModal.classList.add('hidden');
 }
 
-// Click Trigger kapag pumili ng Patient, Doctor, o Admin role
+// Click Trigger when selecting Patient, Doctor, or Admin role
 function openAuthModalForRole(role) {
     const roleInput = document.getElementById('selectedRoleInput');
     if (roleInput) roleInput.value = role;
@@ -52,7 +65,7 @@ function closeAuthModal() {
     openRoleSelectModal();
 }
 
-// Switch sa pagitan ng Sign In at Sign Up
+// Switch between Sign In and Sign Up Views inside Modal
 function switchToSignUp() {
     const signIn = document.getElementById('signInContainer');
     const signUp = document.getElementById('signUpContainer');
@@ -67,76 +80,116 @@ function switchToSignIn() {
     if (signIn) signIn.classList.remove('hidden');
 }
 
-// Direct Sign In (Para sa may account na)
+// 1. STRICT SIGN IN SUBMIT HANDLER (Validates against Registered Accounts)
 function handleLoginSubmit(event) {
     event.preventDefault();
     const role = document.getElementById('selectedRoleInput').value;
-    const authModal = document.getElementById('authModal');
-    if (authModal) authModal.classList.add('hidden');
-    selectUserRole(role);
+    
+    // Get form inputs
+    const emailInput = event.target.querySelector('input[type="email"]').value.trim().toLowerCase();
+    const passwordInput = event.target.querySelector('input[type="password"]').value;
+
+    const registeredUsers = getRegisteredUsers();
+
+    // Check if account exists with matching email, password, and role
+    const existingUser = registeredUsers.find(user => 
+        user.email === emailInput && 
+        user.password === passwordInput && 
+        user.role === role
+    );
+
+    if (existingUser) {
+        alert(`Welcome back, ${existingUser.fullName || existingUser.email}!`);
+        const authModal = document.getElementById('authModal');
+        if (authModal) authModal.classList.add('hidden');
+        selectUserRole(role);
+    } else {
+        alert(`ACCESS DENIED!\n\nNo active ${role.toUpperCase()} account found with this email and password combination.\n\nPlease check your credentials or click 'Create New Account' to register.`);
+    }
 }
 
-// SIGN UP SUBMIT (PUPUNTA MUNA SA OTP VERIFICATION)
+// 2. SIGN UP SUBMIT HANDLER (Generates OTP & Holds Data in Temp Buffer)
 function handleSignUpSubmit(event) {
     event.preventDefault();
     
-    // Kunin ang email na inilagay sa Sign Up Form
-    const emailInput = event.target.querySelector('input[type="email"]');
-    if (emailInput && emailInput.value) {
-        pendingUserEmail = emailInput.value;
-    } else {
-        pendingUserEmail = 'user@gmail.com';
+    const role = document.getElementById('selectedRoleInput').value;
+    const nameInput = event.target.querySelector('input[placeholder="Juan Dela Cruz"]');
+    const emailInput = event.target.querySelector('input[type="email"]').value.trim().toLowerCase();
+    const passwordInput = event.target.querySelector('input[type="password"]').value;
+
+    const registeredUsers = getRegisteredUsers();
+    
+    // Prevent duplicate registrations
+    const duplicateUser = registeredUsers.find(user => user.email === emailInput && user.role === role);
+    if (duplicateUser) {
+        alert(`An account with email '${emailInput}' is already registered as a ${role.toUpperCase()}. Please Sign In instead.`);
+        switchToSignIn();
+        return;
     }
 
-    // Mag-generate ng 6-digit random code
+    // Temporary hold user registration data until OTP is verified
+    pendingUserData = {
+        fullName: nameInput ? nameInput.value : 'User',
+        email: emailInput,
+        password: passwordInput,
+        role: role
+    };
+
+    // Generate random 6-digit OTP code
     generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Ipakita ang Email sa OTP Modal Text
+    // Display Email in OTP Modal
     const emailDisplay = document.getElementById('userRegisteredEmail');
     if (emailDisplay) {
-        emailDisplay.textContent = pendingUserEmail;
+        emailDisplay.textContent = emailInput;
     }
 
-    // Isara ang Auth Modal at Ipakita ang OTP Modal
+    // Hide Sign Up Modal and Open OTP Verification Modal
     const authModal = document.getElementById('authModal');
     if (authModal) authModal.classList.add('hidden');
 
     const otpModal = document.getElementById('otpModal');
-    if (otpModal) {
-        otpModal.classList.remove('hidden');
-    }
+    if (otpModal) otpModal.classList.remove('hidden');
 
-    // Pop-up Notification na nagse-simulate ng naisend na code sa Gmail
-    alert(`[PelviCheck Security Verification]\n\nA 6-digit verification code was generated for ${pendingUserEmail}.\n\nYour Verification Code is: ${generatedOtpCode}`);
+    // Simulated Email Notification
+    alert(`[SECURITY VERIFICATION]\n\nA verification code was sent to ${emailInput}.\n\nYour OTP Verification Code is: ${generatedOtpCode}`);
 }
 
-// Handler kapag pinindot ang Verify sa OTP Modal
+// 3. OTP SUBMIT HANDLER (Verifies Code -> Saves User to DB -> Unlocks Site)
 function handleOtpSubmit(event) {
     event.preventDefault();
     const otpInput = document.getElementById('otpInput');
     const enteredOtp = otpInput ? otpInput.value.trim() : '';
 
     if (enteredOtp === generatedOtpCode || enteredOtp === '123456') {
-        alert("Email successfully verified! Activating account and opening portal...");
+        // SAVE USER TO DATABASE ON SUCCESSFUL OTP
+        if (pendingUserData) {
+            saveRegisteredUser(pendingUserData);
+        }
+
+        alert("Email verified successfully! Your account has been registered.\n\nOpening your dashboard...");
         
         const otpModal = document.getElementById('otpModal');
         if (otpModal) otpModal.classList.add('hidden');
 
-        const role = document.getElementById('selectedRoleInput').value;
+        const role = pendingUserData ? pendingUserData.role : 'patient';
+        pendingUserData = null;
         selectUserRole(role);
     } else {
-        alert("Invalid verification code! Please enter the correct 6-digit OTP code sent to your email.");
+        alert("Invalid OTP code! Please enter the correct code sent to your email.");
     }
 }
 
 function resendOtpCode() {
+    if (!pendingUserData) return;
     generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    alert(`[PelviCheck Security Verification]\n\nA NEW 6-digit code was sent to ${pendingUserEmail}.\n\nYour NEW Code is: ${generatedOtpCode}`);
+    alert(`[SECURITY VERIFICATION]\n\nA NEW code was sent to ${pendingUserData.email}.\n\nYour NEW OTP Code is: ${generatedOtpCode}`);
 }
 
 function closeOtpModal() {
     const otpModal = document.getElementById('otpModal');
     if (otpModal) otpModal.classList.add('hidden');
+    pendingUserData = null;
     openRoleSelectModal();
 }
 
