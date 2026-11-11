@@ -178,3 +178,69 @@ function confirmLoadDemo() {
 function processSubscriptionCheckout(planType) {
     alert(`Redirecting to payment gateway for Patient ${planType.toUpperCase()} checkout...`);
 }
+
+// Global State para sa Email Verification Code
+let generatedOtpCode = null;
+let pendingUserEmail = '';
+
+// Submision ng Sign Up Form - Magse-trigger ng Verification Step
+function handleSignUpSubmit(event) {
+    event.preventDefault();
+    
+    // Kunin ang email na ininput ng user
+    const emailInput = event.target.querySelector('input[type="email"]');
+    if (emailInput) {
+        pendingUserEmail = emailInput.value;
+    }
+
+    // Mag-generate ng random 6-digit verification code
+    generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Ipakita ang Email sa OTP Modal UI
+    const emailDisplay = document.getElementById('userRegisteredEmail');
+    if (emailDisplay) {
+        emailDisplay.textContent = pendingUserEmail;
+    }
+
+    // Isara ang Auth Modal at Ipakita ang OTP Modal
+    const authModal = document.getElementById('authModal');
+    if (authModal) authModal.classList.add('hidden');
+
+    const otpModal = document.getElementById('otpModal');
+    if (otpModal) otpModal.classList.remove('hidden');
+
+    // SIMULATION NOTICE (Para sa Testing):
+    alert(`[PelviCheck Security Demo]\nA verification code was sent to ${pendingUserEmail}.\nYour OTP Code is: ${generatedOtpCode}`);
+}
+
+// Function para sa Resend Code
+function resendOtpCode() {
+    generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    alert(`[PelviCheck Security Demo]\nA new verification code was sent to ${pendingUserEmail}.\nYour NEW OTP Code is: ${generatedOtpCode}`);
+}
+
+// Verification Form Submit Handler
+function handleOtpSubmit(event) {
+    event.preventDefault();
+    const enteredOtp = document.getElementById('otpInput').value.trim();
+
+    if (enteredOtp === generatedOtpCode || enteredOtp === '123456') { // '123456' as master code para sa testing
+        alert("Email verified successfully! Opening your dashboard...");
+        
+        const otpModal = document.getElementById('otpModal');
+        if (otpModal) otpModal.classList.add('hidden');
+
+        const role = document.getElementById('selectedRoleInput').value;
+        selectUserRole(role);
+    } else {
+        alert("Invalid verification code! Please check your email and try again.");
+    }
+}
+
+function closeOtpModal() {
+    const otpModal = document.getElementById('otpModal');
+    if (otpModal) otpModal.classList.add('hidden');
+    
+    const roleModal = document.getElementById('roleSelectModal');
+    if (roleModal) roleModal.classList.remove('hidden');
+}
