@@ -288,3 +288,94 @@ function confirmLoadDemo() {
 function processSubscriptionCheckout(planType) {
     alert(`Redirecting to payment gateway for Patient ${planType.toUpperCase()} checkout...`);
 }
+// Web Bluetooth State Variables para sa ESP32 PelviCheck Belt
+let bluetoothDevice = null;
+let gattServer = null;
+let postureCharacteristic = null;
+
+// ESP32 Bluetooth Low Energy (BLE) UUIDs (I-customize batay sa ESP32 Code mo)
+const PELVI_SERVICE_UUID = '0000181a-0000-1000-8000-00805f9b34fb'; // Environmental/Orientation Sensing
+const ANGLE_CHARACTERISTIC_UUID = '00002a58-0000-1000-8000-00805f9b34fb';
+
+// Seamless Web Bluetooth Connection Function
+async function connectPelviBelt() {
+    const btBtn = document.getElementById('btConnectBtn');
+    const btText = document.getElementById('btStatusText');
+
+    if (!navigator.bluetooth) {
+        alert("Web Bluetooth is not supported in this browser. Please use Google Chrome or Microsoft Edge.");
+        return;
+    }
+
+    try {
+        if (btText) btText.textContent = "Searching...";
+        
+        // Request Bluetooth Device mula sa ESP32
+        bluetoothDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ namePrefix: 'PelviCheck' }],
+            optionalServices: [PELVI_SERVICE_UUID]
+        });
+
+        // Event listener kapag na-disconnect ang belt
+        bluetoothDevice.addEventListener('gattserverdisconnected', onDeviceDisconnected);
+
+        // Connect sa GATT Server
+        gattServer = await bluetoothDevice.gatt.connect();
+        const service = await gattServer.getPrimaryService(PELVI_SERVICE_UUID);
+        postureCharacteristic = await service.getCharacteristic(ANGLE_CHARACTERISTIC_UUID);
+
+        // Stream real-time data mula sa MPU6050 sensor
+        await postureCharacteristic.startNotifications();
+        postureCharacteristic.addEventListener('characteristicvaluechanged', handleLiveSensorData);
+
+        // UI Updates kapag connected na
+        if (btBtn) btBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm flex items-center gap-2 transition";
+        if (btText) btText.textContent = "Belt Connected";
+
+        alert("PelviCheck Belt connected successfully! Real-time posture tracking is active.");
+
+    } catch (error) {
+        console.error("Bluetooth Connection Failed:", error);
+        if (btText) btText.textContent = "Connect Belt";
+        if (btBtn) btBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm flex items-center gap-2 transition";
+    }
+}
+
+// Receive and Process Live ESP32 IMU/Posture Data
+function handleLiveSensorData(event) {
+    const value = event.target.value;
+    const decoder = new TextDecoder('utf-8');
+    const liveAngle = parseFloat(decoder.decode(value)).toFixed(1);
+
+    // Update real-time angle display sa Patient Dashboard
+    const angleDisplay = document.getElementById('angleValue');
+    if (angleDisplay) {
+        angleDisplay.textContent = liveAngle;
+    }
+
+    // Auto-update status classification batay sa live angle
+    const statusBadge = document.getElementById('statusBadge');
+    if (statusBadge && liveAngle) {
+        if (liveAngle >= 7 && liveAngle <= 13) {
+            statusBadge.textContent = "Normal Standing Alignment";
+            statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+        } else if (liveAngle > 13) {
+            statusBadge.textContent = "Anterior Pelvic Tilt";
+            statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-800 border border-red-300";
+        } else {
+            statusBadge.textContent = "Posterior Pelvic Tilt";
+            statusBadge.className = "text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
+        }
+    }
+}
+
+// Handle Disconnection Events
+function onDeviceDisconnected() {
+    const btBtn = document.getElementById('btConnectBtn');
+    const btText = document.getElementById('btStatusText');
+
+    if (btBtn) btBtn.className = "px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm flex items-center gap-2 transition";
+    if (btText) btText.textContent = "Connect Belt";
+
+    alert("PelviCheck Belt disconnected. Please reconnect your device.");
+}
