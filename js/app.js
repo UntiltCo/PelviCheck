@@ -1,13 +1,15 @@
 // Global Application State Variables
 let currentUserRole = null; 
 let pendingAction = null;
+let generatedOtpCode = null;
+let pendingUserEmail = '';
 
 // Page Initialization
 window.addEventListener('DOMContentLoaded', () => {
-    // Hide all portal dashboards on initial load
+    // Itago muna ang lahat ng dashboards sa simula
     document.querySelectorAll('.role-portal').forEach(portal => portal.classList.add('hidden'));
     
-    // Open Role Selection Gateway Modal
+    // Buksan ang Role Selection Gateway
     openRoleSelectModal();
 });
 
@@ -22,7 +24,7 @@ function closeRoleSelectModal() {
     if (roleModal) roleModal.classList.add('hidden');
 }
 
-// Click Trigger when selecting Patient, Doctor, or Admin role
+// Click Trigger kapag pumili ng Patient, Doctor, o Admin role
 function openAuthModalForRole(role) {
     const roleInput = document.getElementById('selectedRoleInput');
     if (roleInput) roleInput.value = role;
@@ -47,10 +49,10 @@ function openAuthModalForRole(role) {
 function closeAuthModal() {
     const authModal = document.getElementById('authModal');
     if (authModal) authModal.classList.add('hidden');
-    openRoleSelectModal(); // Return to role selection if modal is closed
+    openRoleSelectModal();
 }
 
-// Switch between Sign In and Sign Up Views inside Modal
+// Switch sa pagitan ng Sign In at Sign Up
 function switchToSignUp() {
     const signIn = document.getElementById('signInContainer');
     const signUp = document.getElementById('signUpContainer');
@@ -65,7 +67,7 @@ function switchToSignIn() {
     if (signIn) signIn.classList.remove('hidden');
 }
 
-// Handle Form Submission for Sign In
+// Direct Sign In (Para sa may account na)
 function handleLoginSubmit(event) {
     event.preventDefault();
     const role = document.getElementById('selectedRoleInput').value;
@@ -74,13 +76,68 @@ function handleLoginSubmit(event) {
     selectUserRole(role);
 }
 
-// Handle Form Submission for Sign Up
+// SIGN UP SUBMIT (PUPUNTA MUNA SA OTP VERIFICATION)
 function handleSignUpSubmit(event) {
     event.preventDefault();
-    const role = document.getElementById('selectedRoleInput').value;
+    
+    // Kunin ang email na inilagay sa Sign Up Form
+    const emailInput = event.target.querySelector('input[type="email"]');
+    if (emailInput && emailInput.value) {
+        pendingUserEmail = emailInput.value;
+    } else {
+        pendingUserEmail = 'user@gmail.com';
+    }
+
+    // Mag-generate ng 6-digit random code
+    generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Ipakita ang Email sa OTP Modal Text
+    const emailDisplay = document.getElementById('userRegisteredEmail');
+    if (emailDisplay) {
+        emailDisplay.textContent = pendingUserEmail;
+    }
+
+    // Isara ang Auth Modal at Ipakita ang OTP Modal
     const authModal = document.getElementById('authModal');
     if (authModal) authModal.classList.add('hidden');
-    selectUserRole(role);
+
+    const otpModal = document.getElementById('otpModal');
+    if (otpModal) {
+        otpModal.classList.remove('hidden');
+    }
+
+    // Pop-up Notification na nagse-simulate ng naisend na code sa Gmail
+    alert(`[PelviCheck Security Verification]\n\nA 6-digit verification code was generated for ${pendingUserEmail}.\n\nYour Verification Code is: ${generatedOtpCode}`);
+}
+
+// Handler kapag pinindot ang Verify sa OTP Modal
+function handleOtpSubmit(event) {
+    event.preventDefault();
+    const otpInput = document.getElementById('otpInput');
+    const enteredOtp = otpInput ? otpInput.value.trim() : '';
+
+    if (enteredOtp === generatedOtpCode || enteredOtp === '123456') {
+        alert("Email successfully verified! Activating account and opening portal...");
+        
+        const otpModal = document.getElementById('otpModal');
+        if (otpModal) otpModal.classList.add('hidden');
+
+        const role = document.getElementById('selectedRoleInput').value;
+        selectUserRole(role);
+    } else {
+        alert("Invalid verification code! Please enter the correct 6-digit OTP code sent to your email.");
+    }
+}
+
+function resendOtpCode() {
+    generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    alert(`[PelviCheck Security Verification]\n\nA NEW 6-digit code was sent to ${pendingUserEmail}.\n\nYour NEW Code is: ${generatedOtpCode}`);
+}
+
+function closeOtpModal() {
+    const otpModal = document.getElementById('otpModal');
+    if (otpModal) otpModal.classList.add('hidden');
+    openRoleSelectModal();
 }
 
 // Display Selected Portal Dashboard
@@ -177,70 +234,4 @@ function confirmLoadDemo() {
 // Subscription Process Handler
 function processSubscriptionCheckout(planType) {
     alert(`Redirecting to payment gateway for Patient ${planType.toUpperCase()} checkout...`);
-}
-
-// Global State para sa Email Verification Code
-let generatedOtpCode = null;
-let pendingUserEmail = '';
-
-// Submision ng Sign Up Form - Magse-trigger ng Verification Step
-function handleSignUpSubmit(event) {
-    event.preventDefault();
-    
-    // Kunin ang email na ininput ng user
-    const emailInput = event.target.querySelector('input[type="email"]');
-    if (emailInput) {
-        pendingUserEmail = emailInput.value;
-    }
-
-    // Mag-generate ng random 6-digit verification code
-    generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Ipakita ang Email sa OTP Modal UI
-    const emailDisplay = document.getElementById('userRegisteredEmail');
-    if (emailDisplay) {
-        emailDisplay.textContent = pendingUserEmail;
-    }
-
-    // Isara ang Auth Modal at Ipakita ang OTP Modal
-    const authModal = document.getElementById('authModal');
-    if (authModal) authModal.classList.add('hidden');
-
-    const otpModal = document.getElementById('otpModal');
-    if (otpModal) otpModal.classList.remove('hidden');
-
-    // SIMULATION NOTICE (Para sa Testing):
-    alert(`[PelviCheck Security Demo]\nA verification code was sent to ${pendingUserEmail}.\nYour OTP Code is: ${generatedOtpCode}`);
-}
-
-// Function para sa Resend Code
-function resendOtpCode() {
-    generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    alert(`[PelviCheck Security Demo]\nA new verification code was sent to ${pendingUserEmail}.\nYour NEW OTP Code is: ${generatedOtpCode}`);
-}
-
-// Verification Form Submit Handler
-function handleOtpSubmit(event) {
-    event.preventDefault();
-    const enteredOtp = document.getElementById('otpInput').value.trim();
-
-    if (enteredOtp === generatedOtpCode || enteredOtp === '123456') { // '123456' as master code para sa testing
-        alert("Email verified successfully! Opening your dashboard...");
-        
-        const otpModal = document.getElementById('otpModal');
-        if (otpModal) otpModal.classList.add('hidden');
-
-        const role = document.getElementById('selectedRoleInput').value;
-        selectUserRole(role);
-    } else {
-        alert("Invalid verification code! Please check your email and try again.");
-    }
-}
-
-function closeOtpModal() {
-    const otpModal = document.getElementById('otpModal');
-    if (otpModal) otpModal.classList.add('hidden');
-    
-    const roleModal = document.getElementById('roleSelectModal');
-    if (roleModal) roleModal.classList.remove('hidden');
 }
